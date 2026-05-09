@@ -137,6 +137,7 @@ function Card:setActive(auto, key)
                 end
             elseif not GAME.fault and not self.burn then
                 GAME.fault = true
+                if not GAME.faultWrong then GAME.faultCount = 1 end
             end
         end
         if M.DP > 0 and not auto and self.id == 'DP' and self.active and not (URM and M.DP == 2) then
@@ -490,6 +491,8 @@ function Card:draw()
     if playing then
         if M.IN < 2 then
             if self.active then
+                if CD.AS.active then GAME.spinAttack = true end
+                GAME.SelectedCard = self.id
                 if self.required or self.required2 then
                     if self.required then
                         r1, g1, b1 = 1, .26, 0
@@ -498,6 +501,9 @@ function Card:draw()
                     if self.required2 then
                         r2, g2, b2 = .942, .626, .872
                         a2 = .6 + .4 * self.float
+                    end
+                    if GAME.spinAttack then
+                        GAME.spinCount = GAME.spinCount + 1
                     end
                 else
                     r1, g1, b1 = .4 + .1 * sin(GAME.time * 42 - self.x * .0026), 0, 0

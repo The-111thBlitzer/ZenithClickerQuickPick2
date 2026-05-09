@@ -4,7 +4,7 @@ require 'Zenitha'
 
 ZENITHA.setMainLoopSpeed(240)
 ZENITHA.setRenderRate(50)
-ZENITHA.setAppInfo("Zenith Clicker", SYSTEM .. " " .. (require 'version'.appVer))
+ZENITHA.setAppInfo("Zenith Clicker Quick Pick 2", SYSTEM .. " " .. (require 'version'.appVer))
 ZENITHA.setClickDist(62)
 ZENITHA._cursor.speed = 1600
 
@@ -512,9 +512,9 @@ TEXTS = { -- Font size can only be 30 and 50 here !!!
     gigatime   = GC.newText(FONT.get(50)),
     floorTime  = GC.newText(FONT.get(30)),
     rankTime   = GC.newText(FONT.get(30)),
-    slogan     = GC.newText(FONT.get(30), "CROWD THE TOWER!"),
-    slogan_EX  = GC.newText(FONT.get(30), "THRONG THE TOWER!"),
-    slogan_rEX = GC.newText(FONT.get(30), "OVERFLOW THE TOWER!"),
+    slogan     = GC.newText(FONT.get(30), "SCALE THE TOWER!"),
+    slogan_EX  = GC.newText(FONT.get(30), "CHALLENGE THE TOWER!"),
+    slogan_rEX = GC.newText(FONT.get(30), "OVERTHROW THE TOWER!"),
     forfeit    = GC.newText(FONT.get(50), "KEEP HOLDING TO FORFEIT"),
     credit     = GC.newText(FONT.get(30), "Almost all assets from TETR.IO"),
     test       = GC.newText(FONT.get(50), "TEST"),

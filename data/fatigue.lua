@@ -54,7 +54,7 @@ d.rDP = {
     { time = 90,  event = { 'extraQuestBase', .2 } },
     { time = 100, event = { 'dmgHeal', .5, 'questMessiness', -5 }, --[[ 3 ]]                        text = "THINGS ARE BACK TO HOW THEY USED TO BE_!",   desc = "QUESTS BECOMES MUCH CLEANER",        duration = 10, color = 'lO' },
     { time = 120, event = { 'dmgHeal', -.5, 'animDuration', .5, 'questMessiness', 1.5 }, --[[ 2.5 ]]   text = "THE WEIGHT OF WORDS UNSPOKEN_",       desc = "QUESTS BECOMES MESSIER",         duration = 10 },
-    { time = 140, event = { 'dmgHeal', -1.5, 'questMessiness', 2.5, 'extraQuestVar', .75 }, --[[ 1 ]]                       text = "\"WHY CAN'T YOU JUST LISTEN TO ME\"",      desc = "QUESTS BECOMES MUCH MESSIER",        duration = 10 },
+    { time = 140, event = { 'dmgHeal', -1.5, 'questMessiness', 2.5, 'extraQuestVar', .75 }, --[[ 1 ]]                       text = "\"WHY CAN'T YOU JUST LISTEN TO ME?\"",      desc = "QUESTS BECOMES MUCH MESSIER",        duration = 10 },
     { time = 160, event = { 'reviveDifficulty', 3 },                         text = "\"THIS IS ALL YOUR FAULT\"",        desc = "REVIVE DIFFICULTY IS INCREASED",       duration = 10 },
     { time = 180, event = { 'extraQuestBase', .2 } },
     { time = 180, event = { 'dmgHeal', 1.5, 'animDuration', 1, 'questMessiness', -2 }, --[[ 2.5 ]] text = "YOU MAKE THE SAME PROMISE AGAIN_",                     desc = "QUESTS BECOMES CLEANER",         duration = 10, color = 'lO' },

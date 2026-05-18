@@ -74,9 +74,9 @@ return {
     move = { 466, 0.2 },
     rotate = { 365, 0.2 },
     spin = { 193, 2 },
-    spinend=                     {166, 0.8},
+    spinend = {166, 0.8},
     floor = { 768, 0.5 },
-    -- hit=                         {593, 0.3},
+    hit=                         {593, 0.3},
     -- sidehit=                     {719, 0.3},
     -- softdrop=                    {578, 0.1},
     harddrop = { 181, 0.4 },
@@ -153,7 +153,7 @@ return {
 
     inject = { 286, 0.8 },
     -- impact=                      {125, 1.2},
-    -- offset=                      {172, 0.4},
+    offset=                      {172, 0.4},
 
     -- countdown5=                  {475, 1},
     -- countdown4=                  {350, 1},

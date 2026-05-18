@@ -2,7 +2,7 @@
 local scene = {}
 
 local scroll, scroll1 = 0, 0
-local maxScroll = 620
+local maxScroll = 1000
 
 local clr = {
     D = { COLOR.HEX '1F1F1FFF' },
@@ -28,11 +28,11 @@ local function addSection(y)
 end
 
 for d = .5, 2.5, .5 do
-    addText({ COLOR.LD, "ZENITH CLICKER" }, 80 + d, 20 + d)
-    addText({ COLOR.LD, "QUICK PICK 2" }, 110 + d, 95 + d)
+    addText({ COLOR.LD, "ZENITH CLICKER" }, 150 + d, 20 + d)
+    addText({ COLOR.O, "QUICK PICK 2" }, 180 + d, 95 + d)
 end
-addText("ZENITH CLICKER", 80, 20)
-addText("QUICK PICK 2", 110, 95)
+addText("ZENITH CLICKER", 150, 20)
+addText("QUICK PICK 2", 180, 95)
 
 addSection(220)
 
@@ -40,7 +40,7 @@ addSection(350)
 
 -- THE TEAM
 
-addText({ COLOR.O, "THE TEAM" }, 0, 20, .3)
+addText({ COLOR.O, "THE TEAM OF ZENITH CLICKER" }, 0, 20, .3)
 
 local function addMajorCredit(x, y, color, name, role, desc)
     addText({ color, name }, x, y, .5)
@@ -129,6 +129,19 @@ addText({
         "ZYRIXIA",
     }, ",  ")
 }, 0, 60, .26)
+
+-- Zenith Clicker Quick Pick 2
+addSection(1450)
+addText({ COLOR.O, "ZENITH CLICKER QUICK PICK 2" }, 0, 20, .3)
+
+addMajorCredit(0000, 060, { COLOR.HEX '1CAFD4' }, "THE_111THBLITZER", "CREATOR OF ZENITH CLICKER QUICK PICK 2", "Programming")
+addMajorCredit(-440, 190, { COLOR.HEX 'F880F0' }, "FLOWERLING", "Programming Assistance", "Creator of Zenith Clicker Unabstracted")
+addMajorCredit(0000, 190, { COLOR.HEX '00FF00' }, "TREVOR SMITHY", "Programming Assistance", "Creator of Zenith Clicker: Easy Mode")
+addMajorCredit(0440, 190, { COLOR.HEX '80CCFF' }, "MRZ", "Programming Assistance", "Creator of Zenith Clicker")
+
+addSection(1750)
+addText({ COLOR.R, "ZENITH CLICKER QUICK PICK 2 IS A WORK IN PROGRESS" }, 0, 20, .3)
+addText({ COLOR.R, "PLEASE REPORT BUGS AND CRASH INFO WHEN YOU SEE THEM." }, 0, 40, .3)
 
 local timer
 function scene.load()

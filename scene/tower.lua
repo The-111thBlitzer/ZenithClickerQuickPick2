@@ -976,6 +976,19 @@ function scene.overDraw()
             if GAME.reviveCount > 0 then
                 gc_strokePrint('full', 1, COLOR.D, COLOR.lR, GAME.reviveCount, 800, 440, 260, 'center')
             end
+
+            -- Last quest cleared
+            if M.AS >= 1 then
+                local pclr = GAME.previousClear
+                local clr = GAME.Clear
+                local s = GAME.SelectedCard
+                if not GAME.woundTrigger then
+                        gc_strokePrint('full', 5, COLOR.L, COLOR.D , clr, 800, 460, 260, 'center')
+                else
+                    gc_strokePrint('full', 5, COLOR.R, COLOR.lR , clr, 800, 460, 260, 'center')
+                end
+            end
+
             if GAME.chain >= 4 then
                 -- Chain Counter
                 local c = GAME.chain

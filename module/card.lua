@@ -38,6 +38,7 @@ function Card.new(d)
         visY1 = 0,
 
         float = 0,
+        
 
         touchCount = 0,
         burn = false,
@@ -69,38 +70,38 @@ function Card:setActive(auto, key)
         SFX.play('no')
         return
     end
-    if M.VL == 1 then
-        if not self.active and not auto then
-            self.charge = self.charge + 1
-            SFX.play('clearline', .42)
-            if self.charge < 1.2 then
-                self:shake()
-                SFX.play('combo_' .. rnd(2, 3), .626, 0, Tone(-2))
-                return
-            end
-            SFX.play('combo_4', .626, 0, Tone(0))
-            self.charge = 0
-        end
-    elseif M.VL == 2 then
-        self.charge = self.charge + (auto and 3.55 or 1)
-        if self.charge < 3.1 then
-            SFX.play('clearline', .3)
-            self:shake()
-            if self.charge < 1.3 then
-                SFX.play('combo_1', .626, 0, Tone(0))
-            elseif self.charge < 2.2 then
-                SFX.play('combo_3', .626, 0, Tone(-2))
-            else
-                SFX.play('combo_2', .626, 0, Tone(1))
-            end
-            return
-        end
-        if not auto then
-            SFX.play('clearquad', .3)
-            SFX.play('combo_4', .626, 0, Tone(0))
-        end
-        self.charge = 0
-    end
+--    if M.VL == 1 then
+--        if not self.active and not auto then
+--            self.charge = self.charge + 1
+--            SFX.play('clearline', .42)
+-- --           if self.charge < 1.2 then
+-- --               self:shake()
+-- --               SFX.play('combo_' .. rnd(2, 3), .626, 0, Tone(-2))
+--                return
+--            end
+--            SFX.play('combo_4', .626, 0, Tone(0))
+--            self.charge = 0
+--        end
+--    elseif M.VL == 2 then
+--        self.charge = self.charge + (auto and 3.55 or 1)
+--       if self.charge < 3.1 then
+--            SFX.play('clearline', .3)
+--            self:shake()
+--            if self.charge < 1.3 then
+--                SFX.play('combo_1', .626, 0, Tone(0))
+--            elseif self.charge < 2.2 then
+--                SFX.play('combo_3', .626, 0, Tone(-2))
+--            else
+--                SFX.play('combo_2', .626, 0, Tone(1))
+--           end
+--           return
+--        end
+--        if not auto then
+--            SFX.play('clearquad', .3)
+--            SFX.play('combo_4', .626, 0, Tone(0))
+--        end
+--       self.charge = 0
+--    end
 
     if GAME.currentTask then
         if self.active then
@@ -127,6 +128,27 @@ function Card:setActive(auto, key)
         if not auto then
             self.touchCount = self.touchCount + 1
             GAME.totalFlip = GAME.totalFlip + 1
+            if M.GV >= 1 then
+                if not URM then -- Recover portion of the time for clicking a card
+                    if GAME.dmgTimeRecoveryCap >= 1 then
+                        if M.GV == 1 then
+                            GAME.dmgTimer = GAME.dmgTimer + 0.225
+                        else
+                            GAME.dmgTimer = GAME.dmgTimer + 0.1625
+                        end
+                    GAME.dmgTimeRecoveryCap = GAME.dmgTimeRecoveryCap - 1
+                    end
+                end
+                -- Reset gravity timer for clicking a card
+                if GAME.dmgTimeRecoveryCap >= 1 then
+                    GAME.gravTimer = GAME.gravDelay
+                    GAME.dmgTimeRecoveryCap = GAME.dmgTimeRecoveryCap - 1
+                end
+            end
+            if CD.AS.active then 
+                GAME.spinAttack = true
+                GAME.spinCount = GAME.spinCount + 1
+            end
             if not GAME.achv_noManualFlipH then
                 GAME.achv_noManualFlipH = GAME.roundHeight
                 if GAME.totalQuest >= 3 then SFX.play('btb_break') end
@@ -458,6 +480,7 @@ function Card:draw()
     else
         if M.IN == 2 then
             img = texture.back
+            if playing then img2 = texture.lock end
         else
             faceUp = self.kx * self.ky > 0
             img = faceUp and texture.front or texture.back
@@ -466,6 +489,7 @@ function Card:draw()
             img2 = texture.lock
         end
     end
+    
 
     gc_push('transform')
     gc_translate(self.x, self.y + self.visY1)
@@ -491,7 +515,6 @@ function Card:draw()
     if playing then
         if M.IN < 2 then
             if self.active then
-                if CD.AS.active then GAME.spinAttack = true end
                 GAME.SelectedCard = self.id
                 if self.required or self.required2 then
                     if self.required then
@@ -501,9 +524,6 @@ function Card:draw()
                     if self.required2 then
                         r2, g2, b2 = .942, .626, .872
                         a2 = .6 + .4 * self.float
-                    end
-                    if GAME.spinAttack then
-                        GAME.spinCount = GAME.spinCount + 1
                     end
                 else
                     r1, g1, b1 = .4 + .1 * sin(GAME.time * 42 - self.x * .0026), 0, 0
@@ -620,9 +640,20 @@ function Card:draw()
                 gc_setColor(b, b, b)
             end
             gc_draw(img, -img:getWidth() / 2, -img:getHeight() / 2)
-            if img2 then
+                    --Lock State and back side
+            if M.IN == 1 then
+                local gt = MATH.floor(GAME.time)
+                if GAME.playing then
+                    if gt % 5 == 0 then
+                        gc_setAlpha(min(sin((GAME.time/0.8)),1))
+                        gc_draw(texture.lock, -texture.lock:getWidth() / 2, -texture.lock:getHeight() / 2)
+                    end
+                    gc_draw(texture.lock, -texture.lock:getWidth() / 2, -texture.lock:getHeight() / 2)
+                end
+            elseif img2 then
                 gc_draw(img2, -img2:getWidth() / 2, -img2:getHeight() / 2)
             end
+            
         end
 
         -- Outline (draw)
@@ -634,7 +665,6 @@ function Card:draw()
             gc_setColor(r2, g2, b2, a2)
             gc_draw(activeFrame2, 0, 0, 0, sign(self.kx), 1, frame2W, frame2H)
         end
-
         -- Menu UI
         if not playing then
             gc_push('transform')

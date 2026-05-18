@@ -74,6 +74,8 @@ local ins, rem = table.insert, table.remove
 ---@field dmgCycle number
 ---@field spinAttack boolean Set to true when AS is selected during a quest, and after clearing it, sets it back to false.
 ---@field spinCount number
+---@field extraMod false | number
+---@field dhMod string[]
 ---
 ---@field life number
 ---@field fullHealth number
@@ -90,6 +92,10 @@ local ins, rem = table.insert, table.remove
 ---@field shuffleMessiness number | false
 ---@field lastCommit string[]
 ---
+---@field woundTrigger boolean
+---@field woundRequirement number
+---@field woundTally number
+---
 ---@field spikeTimer number
 ---@field spikeCounter number
 ---@field spikeCounterWeak number
@@ -97,7 +103,9 @@ local ins, rem = table.insert, table.remove
 ---@field maxSpikeWeak number
 ---
 ---@field gravDelay false | number
+---@field lockDelay false | number
 ---@field gravTimer false | number
+---@field gravLockState boolean
 ---
 ---@field omega boolean
 ---@field negFloor number
@@ -283,15 +291,15 @@ end
 function GAME.getComboZP(list)
     local m = TABLE.getValueSet(list)
     local zp = 1
-    if m.EX then zp = zp * 1.4 elseif m.rEX then zp = zp * 2.6 end
-    if m.NH then zp = zp * 1.1 elseif m.rNH then zp = zp * (1.4 + .05 * (#list - 1)) end
-    if m.MS then zp = zp * 1.2 elseif m.rMS then zp = zp * 1.7 end
-    if m.GV then zp = zp * 1.1 elseif m.rGV then zp = zp * 1.2 end
-    if m.VL then zp = zp * 1.1 elseif m.rVL then zp = zp * (1.2 + .02 * (#list - 1)) end
-    if m.DH then zp = zp * 1.2 elseif m.rDH then zp = zp * 1.6 end
-    if m.IN then zp = zp * 1.2 elseif m.rIN then zp = zp * 1.6 end
-    if m.AS then zp = zp * .85 elseif m.rAS then zp = zp * 1.0 end
-    if m.DP then zp = zp * .95 elseif m.rDP then zp = zp * 2.1 end
+    if m.EX then zp = zp * 1.5 elseif m.rEX then zp = zp * 2.6 end
+    if m.NH then zp = zp * 1.1 elseif m.rNH then zp = zp * (1.85 + .05 * (#list - 1)) end
+    if m.MS then zp = zp * 1.15 elseif m.rMS then zp = zp * 2 end
+    if m.GV then zp = zp * 1.2 elseif m.rGV then zp = zp * 1.5 end
+    if m.VL then zp = zp * 1.15 elseif m.rVL then zp = zp * (1.2 + .02 * (#list - 1)) end
+    if m.DH then zp = zp * 1.25 elseif m.rDH then zp = zp * 1.85 end
+    if m.IN then zp = zp * 1.15 elseif m.rIN then zp = zp * 1.6 end
+    if m.AS then zp = zp * 1.15 elseif m.rAS then zp = zp * 1.3 end
+    if m.DP then zp = zp * .9 elseif m.rDP then zp = zp * 2.1 end
     if m.rMS and m.rGV then zp = zp * 1.1 end
     if m.rEX and m.rVL then zp = zp * 1.2 end
     if m.rDH and m.rIN then zp = zp * 1.4 end
@@ -383,15 +391,17 @@ function GAME.getComboName(list, mode)
         end
 
         -- Sort & Shuffle
-        if GAME.questMessiness >= 26 then
-            TABLE.shuffle(list)
-        else
-            table.sort(list, modNameSorter)
-            if GAME.questMessiness < 26 and GAME.questMessiness >= 12.6 then
-                for i = 1, MATH.floor(GAME.questMessiness / 8) do
-                    local r1, r2 = rnd(#list), rnd(#list - 1)
-                    if r2 >= r1 then r2 = r2 + 1 end
-                    list[r1], list[r2] = list[r2], list[r1]
+        if #list > 1 then
+            if GAME.questMessiness >= 26 then
+                TABLE.shuffle(list)
+            else
+                table.sort(list, modNameSorter)
+                if GAME.questMessiness < 26 and GAME.questMessiness >= 12.6 then
+                    for i = 1, MATH.floor(GAME.questMessiness / 8) do
+                        local r1, r2 = rnd(#list), rnd(#list - 1)
+                        if r2 >= r1 then r2 = r2 + 1 end
+                        list[r1], list[r2] = list[r2], list[r1]
+                    end
                 end
             end
         end
@@ -638,8 +648,28 @@ function GAME.genQuest()
                     pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
                 end
             end
-
             ins(combo, mod)
+        end
+
+        if M.DH == 1 then
+            if MATH.roll() then
+                GAME.dhMod = nil
+                local mod = MATH.randFreqAll(pool)
+                pool[mod] = 0
+                local p = TABLE.find(CD, CD[mod])
+                if p then
+                    if p > 1 then
+                        local left = CD[p - 1].id
+                        pool[left] = max(pool[left] * (1 - GAME.questFavor * .01), 0)
+                    end
+                    if p < 9 then
+                        local right = CD[p + 1].id
+                        pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
+                    end
+                end
+                GAME.dhMod = mod
+                ins(combo, mod)
+            end
         end
 
         if #combo >= 4 then
@@ -647,9 +677,9 @@ function GAME.genQuest()
             if TABLE.find(combo, 'DH') then pwr = pwr + 1 end
             SFX.play('garbagewindup_' .. MATH.clamp(pwr, 1, 5), 1, 0)
             if GAME.height < 2600 then
-                GAME.questMessiness = GAME.questMessiness - (16.2 - (GAME.height - 2600)/500) -- Quests become less shuffled on windups until 2600m
+                GAME.questMessiness = GAME.questMessiness - ((16.2 - (GAME.height - 2600)/500) / M.MS == 1 and 5 or M.MS == 2 and 10 or 1) -- Quests become less shuffled on windups until 2600m
             else
-                GAME.questMessiness = GAME.questMessiness + (6.2 + (GAME.height - 2600) / 500) -- This is where quests become even messier every 500m starting from 2600m
+                GAME.questMessiness = GAME.questMessiness + (2.6 + (GAME.height - 2600) / 500) -- This is where quests become even messier every 500m starting from 2600m
             end
         end
 
@@ -786,7 +816,7 @@ end
 
 function GAME.heal(hp)
     local k = GAME.getLifeKey()
-    hp = MATH.clamp(hp, 0, GAME.fullHealth - GAME[k])
+    hp = MATH.clamp(hp, 0, GAME.fullHealth - GAME[k] - GAME.hardDmg)
     GAME[k] = GAME[k] + hp
     GAME.incrementPrompt('heal', hp)
 
@@ -803,15 +833,19 @@ function GAME.takeDamage(dmg, reason, toAlly)
         if reason == 'time' then GAME.incrementPrompt('timedmg_time') end
     end
 
-    local k = GAME.getLifeKey(toAlly)
-    GAME[k] = max(GAME[k] - dmg, 0)
-    SFX.play(
-        toAlly and 'inject' or
-        dmg <= 2 and 'damage_small' or
-        dmg < 6 and 'damage_medium' or
-        dmg <= 2600 and 'damage_large' or
-        'bombdetonate', .872
-    )
+        local k = GAME.getLifeKey(toAlly)
+        GAME[k] = max(GAME[k] - dmg, 0)
+        SFX.play(
+            toAlly and 'inject' or
+            dmg <= 2 and 'damage_small' or
+            dmg < 6 and 'damage_medium' or
+            dmg <= 2600 and 'damage_large' or
+            'bombdetonate', .872
+        )
+
+        if M.DH >= 1 then
+            GAME.hardDmg = GAME.hardDmg + dmg / 2
+        end
 
     GAME.achv_totalDmg = GAME.achv_totalDmg + dmg
     if not GAME.achv_perfectH then
@@ -1011,14 +1045,30 @@ function GAME.upFloor()
             - (M.MS > 0 and 25 or 0)
             - GAME.floor * 3
         )
-    if M.GV > 0 then GAME.gravDelay = GravityTimer[M.GV][GAME.floor] end
-    local F = Floors[GAME.floor]
-    local e = F.event
-    for i = 1, #e, 2 do
-        if type(e[i + 1]) == 'number' then
-            GAME[e[i]] = GAME[e[i]] + e[i + 1]
-        else
-            GAME[e[i]] = e[i + 1]
+    if M.GV > 0 then 
+        GAME.gravDelay = GravityTimer[M.GV][GAME.floor] 
+        GAME.lockDelay = GravityLockDelay[M.GV][GAME.floor]
+    end
+
+    if not GAME.hardMode then
+        local F = Floors[GAME.floor]
+        local e = F.event
+        for i = 1, #e, 2 do
+            if type(e[i + 1]) == 'number' then
+                GAME[e[i]] = GAME[e[i]] + e[i + 1]
+            else
+                GAME[e[i]] = e[i + 1]
+            end
+        end
+    else
+        local F = HardModeFloors[GAME.floor]
+        local e = F.event
+        for i = 1, #e, 2 do
+            if type(e[i + 1]) == 'number' then
+                GAME[e[i]] = GAME[e[i]] + e[i + 1]
+            else
+                GAME[e[i]] = e[i + 1]
+            end
         end
     end
     if GAME.dmgTimer > GAME.dmgDelay then GAME.dmgTimer = GAME.dmgDelay end
@@ -1556,7 +1606,7 @@ function GAME.cancelAll(instant)
 
     TASK.removeTask_code(GAME.task_cancelAll)
     TASK.new(GAME.task_cancelAll, instant)
-    if GAME.gravTimer and (not (URM and M.GV == 2) and GAME.achv_resetCount < 15) then GAME.gravTimer = GAME.gravDelay end
+--    if GAME.gravTimer and (not (URM and M.GV == 2) and GAME.achv_resetCount < 15) then GAME.gravTimer = GAME.gravDelay end
 end
 
 function GAME.task_cancelAll(instant)
@@ -1701,7 +1751,18 @@ function GAME.commit(auto)
             SFX.play('clutch')
         end
 
-        GAME.heal((dblCorrect and 3 or 1) * GAME.dmgHeal)
+        
+        if M.DH == 1 then
+            local a = TABLE.find(hand, GAME.dhMod)
+            if a then
+                SFX.play('offset')
+                GAME.extraMod = 1
+            end
+        end
+
+        if not GAME.woundTrigger then
+            GAME.heal((dblCorrect and 3 or 1) * GAME.dmgHeal / (GAME.extraMod == 1 and 2 or 1))
+        end
         if MATH.between(Floors[GAME.floor].top - (GAME.height + GAME.heightBuffer), 0, 2) then GAME.addHeight(3, true) end
 
         local dp = TABLE.find(hand, 'DP')
@@ -1729,11 +1790,17 @@ function GAME.commit(auto)
                     attack = 0 
                     GAME.Clear = 'VOID'
                 else
-                    if GAME.faultCount == 1 then GAME.Clear = 'TRIPLE'
-                    elseif GAME.faultCount == 2 then GAME.Clear = 'DOUBLE'
-                    else GAME.CLEAR = 'SINGLE' end
+                    if GAME.faultCount == 1 then 
+                        if M.AS == 1 then GAME.Clear = 'TRIPLE' end
+                        xp = xp + 2
+                    elseif GAME.faultCount == 2 then 
+                        if M.AS == 1 then GAME.Clear = 'DOUBLE' end
+                        xp = xp + 1
+                    else 
+                        if M.AS == 1 then GAME.Clear = 'SINGLE' end
+                        if not GAME.hardMode then xp = xp + 1 end
+                     end
                 end
-                xp = xp + 2
                 if GAME.chain < 4 then
                     SFX.play('clearline', .62)
                 else
@@ -1749,6 +1816,9 @@ function GAME.commit(auto)
                             end
                         end
                     end
+                    if not (URM and M.NH == 2) then
+                        attack = attack + (M.AS == 2 and GAME.chain or GAME.chain - 3)
+                    end
                     SFX.play('clearline')
                     SFX.play(
                         GAME.chain < 8 and 'b2bcharge_blast_1' or
@@ -1758,6 +1828,7 @@ function GAME.commit(auto)
                     )
                     if GAME.chain >= 8 then
                         SFX.play('thunder' .. rnd(6), clampInterpolate(8, .7, 16, 1, GAME.chain))
+                        GAME.totalSurge = GAME.totalSurge + surge
                     end
                 end
                 local k = GAME.onAlly and 'life2' or 'life'
@@ -1767,6 +1838,8 @@ function GAME.commit(auto)
                     GAME[k] = min(GAME[k] + 1, GAME.fullHealth)
                 end
                 if GAME[k] > oldLife then GAME.incrementPrompt('heal', GAME[k] - oldLife) end
+
+
                 if GAME.chain > 4 then
                     if M.AS == 2 then
                         surge = GAME.chain 
@@ -1775,15 +1848,20 @@ function GAME.commit(auto)
                         surge = GAME.chain - 3 
                     end     -- Initial surge starts at 1, in rAS, it's 4
 
-            GAME.chain = -1
+            GAME.chain = 0
+            surge = 0
             else
                 if GAME.faultCount >= 1 then
                     if GAME.faultCount >= 2 then -- Spin zero
+                        GAME.faultCount = 2
                         SFX.play('spinend', .62)
-                        if GAME.faultCount == 2 then
-                            GAME.Clear = GAME.SelectedCard + 'SPIN ZERO'
-                        else
-                            GAME.Clear = 'MINI' + GAME.SelectedCard + 'SPIN ZERO'
+                        xp = 0
+                        if M.AS >= 1 then
+                            if GAME.faultCount == 2 then
+                                GAME.Clear = GAME.SelectedCard .. 'SPIN'
+                            else
+                                GAME.Clear = 'MINI ' .. GAME.SelectedCard .. 'SPIN '
+                            end
                         end
                         if M.AS == 2 and GAME.chain >= 4 then
                             attack = 2
@@ -1791,7 +1869,10 @@ function GAME.commit(auto)
                         GAME.chain = GAME.chain + 1
                         if GAME.chain < 4 then
                         elseif GAME.chain < 8 then
-                            if GAME.chain == 4 then SFX.play('b2bcharge_start', .8) end
+                            if GAME.chain == 4 then
+                                 SFX.play('b2bcharge_start', .8)
+                                surge = GAME.chain - 3
+                                end
                             SFX.play('b2bcharge_1', .8)
                             elseif GAME.chain < 12 then
                                 SFX.play('b2bcharge_2', .8)
@@ -1801,22 +1882,35 @@ function GAME.commit(auto)
                                 SFX.play('b2bcharge_4', .626)
                             end
                         end
-                    else -- Mini Spin Attack
-                        attack = GAME.spinCount - 1 + (GAME.chain >= 1 and 1)
+                    else -- Mini Spin Attack (Becomes a proper spin if All-Spin is used, while Asceticism is not used)
+                        attack = ((M.AS >= 1 and M.NH == 2) and GAME.spinCount - 1 ) or M.AS >= 1 and GAME.spinCount * 2 or GAME.spinCount - 1
+                        if GAME.spinCount >= 3 then GAME.spinCount = 3 end
                         GAME.chain = GAME.chain + 1
                         SFX.play('clearspin', .5)
                         if M.AS < 1 then
-                            if GAME.spinCount == 1 then GAME.Clear = 'MINI SPIN SINGLE'
-                            elseif GAME.spinCount == 2 then GAME.Clear = 'MINI SPIN DOUBLE'
-                            else GAME.Clear = 'MINI SPIN TRIPLE' end
+                            if GAME.spinCount == 1 then 
+                                xp = 1
+                            elseif GAME.spinCount == 2 then 
+                                xp = 2
+                            else 
+                                xp = 3
+                             end
                         else
-                            if GAME.spinCount == 1 then GAME.Clear = 'MINI' + GAME.SelectedCard + 'SPIN SINGLE'
-                            elseif GAME.spinCount == 2 then GAME.Clear = 'MINI' + GAME.SelectedCard + 'SPIN DOUBLE'
-                            else GAME.Clear = 'MINI' + GAME.SelectedCard + 'SPIN TRIPLE' end
+                            if M.NH < 2 then
+                                if GAME.spinCount == 1 then GAME.Clear = GAME.SelectedCard .. ' SPIN SINGLE' xp = 2
+                                elseif GAME.spinCount == 2 then GAME.Clear = GAME.SelectedCard .. ' SPIN DOUBLE' xp = 4
+                                else GAME.Clear = GAME.SelectedCard .. ' SPIN TRIPLE' xp = 6 end
+                            else
+                                if GAME.spinCount == 1 then GAME.Clear = 'MINI ' .. GAME.SelectedCard .. ' SPIN SINGLE' xp = 1
+                                elseif GAME.spinCount == 2 then GAME.Clear = 'MINI ' .. GAME.SelectedCard .. ' SPIN DOUBLE' xp = 2
+                                else GAME.Clear = 'MINI ' .. GAME.SelectedCard .. ' SPIN TRIPLE' xp = 3 end
+                            end
                         end
                         if GAME.chain < 4 then
                         elseif GAME.chain < 8 then
-                            if GAME.chain == 4 then SFX.play('b2bcharge_start', .8)
+                            if GAME.chain == 4 then 
+                                SFX.play('b2bcharge_start', .8) 
+                                if not M.AS == 2 then surge = GAME.chain - 3 else surge = GAME.chain end
                             SFX.play('b2bcharge_1', .8)
                             elseif GAME.chain < 12 then
                                 SFX.play('b2bcharge_2', .8)
@@ -1829,6 +1923,15 @@ function GAME.commit(auto)
                     end
                 end
             end
+
+            if M.EX == 1 then
+            if GAME.life < GAME.fullHealth then
+                xp = xp - GAME.dmgHeal * GAME.dmgHealMul
+                if xp < 0 then
+                    xp = 0
+                end
+            end
+        end
 
             if not GAME.achv_perfectH then
                 GAME.achv_perfectH = GAME.roundHeight
@@ -1855,66 +1958,74 @@ function GAME.commit(auto)
             end
 
             if GAME.spinAttack then
-                attack = ((M.NH == 2 and GAME.spinCount - 1 + GAME.chain >= 1 and 1) or GAME.spinCount * 2)
+                if GAME.spinCount > 3 then GAME.spinCount = 3 end
+                attack = ((M.NH == 2 and GAME.spinCount - 1) or GAME.spinCount * 2)
                 SFX.play('clearspin', .5)
+                if GAME.chain >= 1 then attack = attack + 1 end
                 if M.AS < 1 and M.NH < 2 then
-                    if GAME.spinCount == 1 then GAME.Clear = 'SPIN SINGLE'
-                    elseif GAME.spinCount == 2 then GAME.Clear = 'SPIN DOUBLE'
-                    else GAME.Clear = 'SPIN TRIPLE' end
+                    if GAME.spinCount == 1 then xp = xp + 2
+                    elseif GAME.spinCount == 2 then xp = xp + 4
+                    else xp = xp + 6 end
                 elseif M.AS >= 1 and M.NH < 2 then
-                    if GAME.spinCount == 1 then GAME.Clear = GAME.SelectedCard + 'SPIN SINGLE'
-                    elseif GAME.spinCount == 2 then GAME.Clear = GAME.SelectedCard + 'SPIN DOUBLE'
-                    else GAME.Clear = GAME.SelectedCard + 'SPIN TRIPLE' end
+                    if GAME.spinCount == 1 then GAME.Clear = GAME.SelectedCard .. 'SPIN SINGLE' xp = xp + 2
+                    elseif GAME.spinCount == 2 then GAME.Clear = GAME.SelectedCard .. 'SPIN DOUBLE' xp = xp + 4
+                    else GAME.Clear = GAME.SelectedCard .. 'SPIN TRIPLE' xp = xp + 6 end
                 elseif M.AS < 1 and M.NH == 2 then
-                    if GAME.spinCount == 1 then GAME.Clear = 'MINI SPIN SINGLE'
-                    elseif GAME.spinCount == 2 then GAME.Clear = 'MINI SPIN DOUBLE'
-                    else GAME.Clear = 'MINI SPIN TRIPLE' end
+                    if GAME.spinCount == 1 then xp = xp + 1
+                    elseif GAME.spinCount == 2 then xp = xp + 2
+                    else xp = xp + 3 end
                 else
-                    if GAME.spinCount == 1 then GAME.Clear = 'MINI' + GAME.SelectedCard + 'SPIN SINGLE'
-                    elseif GAME.spinCount == 2 then GAME.Clear = 'MINI' + GAME.SelectedCard + 'SPIN DOUBLE'
-                    else GAME.Clear = 'MINI' + GAME.SelectedCard + 'SPIN TRIPLE' end
+                    if GAME.spinCount == 1 then GAME.Clear = 'MINI' .. GAME.SelectedCard .. 'SPIN SINGLE' xp = xp + 1
+                    elseif GAME.spinCount == 2 then GAME.Clear = 'MINI' .. GAME.SelectedCard .. 'SPIN DOUBLE' xp = xp + 2
+                    else GAME.Clear = 'MINI' .. GAME.SelectedCard .. 'SPIN TRIPLE' xp = xp + 3 end
                 end
-        
             elseif GAME.chain >= 1 then
                 attack = attack + 3 
                 SFX.play('clearbtb', .5)
                 GAME.Clear = 'QUAD'
+                xp = xp + 4
             else
                 attack = attack + 2
                 SFX.play('clearquad', .5)
                 GAME.Clear = 'QUAD'
+                xp = xp + 4
             end
 
-            if M.AS == 2 and GAME.spinAttack then
-                if GAME.chain >= 4 then
-                    attack = attack + 1
-                end
-            else
-                attack = GAME.surge
-                SFX.play('clearline', .5)
-                GAME.Clear = 'VOID'
-                if GAME.chain >= 4 then
-                    SFX.play(
-                        GAME.chain < 8 and 'b2bcharge_blast_1' or
-                        GAME.chain < 12 and 'b2bcharge_blast_2' or
-                        GAME.chain < 24 and 'b2bcharge_blast_3' or
-                        'b2bcharge_blast_4'
-                    )
-                    if GAME.chain >= 8 then
-                        SFX.play('thunder' .. rnd(6), clampInterpolate(8, .7, 16, 1, GAME.chain))
+            if M.AS == 2 then
+                if GAME.spinAttack and GAME.chain >= 4 then 
+                    attack = attack + 1 
+                else
+                    attack = attack + surge
+                    SFX.play('clearline', .5)
+                    GAME.Clear = 'VOID'
+                    if GAME.chain >= 4 then
+                        SFX.play(
+                            GAME.chain < 8 and 'b2bcharge_blast_1' or
+                            GAME.chain < 12 and 'b2bcharge_blast_2' or
+                            GAME.chain < 24 and 'b2bcharge_blast_3' or
+                            'b2bcharge_blast_4'
+                        )
+                        if GAME.chain >= 8 then
+                            SFX.play('thunder' .. rnd(6), clampInterpolate(8, .7, 16, 1, GAME.chain))
+                        end
                     end
+                    local k = GAME.onAlly and 'life2' or 'life'
+                    local oldLife = GAME[k]
+                    while GAME.chain > 0 and GAME[k] < GAME.fullHealth do
+                        GAME.chain = max(GAME.chain - 2, 0)
+                        GAME[k] = min(GAME[k] + 1, GAME.fullHealth)
+                    end
+                    if GAME[k] > oldLife then GAME.incrementPrompt('heal', GAME[k] - oldLife) end
+                    GAME.chain = 0
+                    
                 end
-                GAME.chain = -1
             end
-
-
-            xp = xp + 3
 
             if correct == 1 then
                 GAME.chain = GAME.chain + 1
                 if GAME.chain < 4 then
                 elseif GAME.chain < 8 then
-                    if GAME.chain == 4 then SFX.play('b2bcharge_start', .8) end
+                    if GAME.chain == 4 then SFX.play('b2bcharge_start', .8)end
                     SFX.play('b2bcharge_1', .8)
                 elseif GAME.chain < 12 then
                     SFX.play('b2bcharge_2', .8)
@@ -1924,6 +2035,15 @@ function GAME.commit(auto)
                     SFX.play('b2bcharge_4', .626)
                 end
             end
+
+                if M.EX == 1 then
+                    if GAME.life < GAME.fullHealth then
+                        xp = xp - GAME.dmgHeal * GAME.dmgHealMul
+                        if xp < 0 then
+                            xp = 0
+                        end
+                    end
+                end
 
             GAME.totalPerfect = GAME.totalPerfect + (dblCorrect and 2 or 1)
             if not GAME.achv_noPerfectH then
@@ -1935,6 +2055,7 @@ function GAME.commit(auto)
                 if GAME.totalQuest >= 26 then SFX.play('btb_break') end
             end
         end
+
         if dblCorrect then
             attack = attack * 3
             xp = xp * 3
@@ -1942,6 +2063,9 @@ function GAME.commit(auto)
             GAME.achv_doublePass = GAME.achv_doublePass + 1
             if not ACHV.lucky_coincidence then IssueAchv('lucky_coincidence') end
         end
+
+
+
         if GAME.switch_sickness >= 20 then
             if GAME.switch_sickness >= 20 then xp = xp * .5 end
             if GAME.switch_sickness >= 30 then attack = attack * .5 end
@@ -1953,6 +2077,7 @@ function GAME.commit(auto)
                 GAME.extraQuestBase = GAME.extraQuestBase + .626
             end
         end
+        
         if GAME.chain >= 4 then
             local chainCap = 6 * (max(GAME.floor, GAME.negFloor) + 2) ^ 2
             if GAME.chain > chainCap then
@@ -2009,7 +2134,7 @@ function GAME.commit(auto)
             end
         end
 
-        SFX.play(dp and 'zenith_start_duo' or 'zenith_start', .626, 0, Tone(12))
+    --    SFX.play(dp and 'zenith_start_duo' or 'zenith_start', .626, 0, Tone(12))
 
         if GAME.achv_escapeBurnt then
             GAME.achv_escapeBurnt = false
@@ -2045,7 +2170,6 @@ function GAME.commit(auto)
             surge = 0
         end
 
-        attack = attack + surge
         GAME.achv_altFromSurge = GAME.achv_altFromSurge + surge * GAME.rank / 4 * GAME.attackMul
 
         local oldAllyLife = GAME[GAME.getLifeKey(true)]
@@ -2076,36 +2200,36 @@ function GAME.commit(auto)
         GAME.addXP(attack + xp)
 
         -- rMS little shuffle
-        if M.MS == 2 then
-            if URM then
-                GAME.readyShuffle(max(GAME.floor, GAME.negFloor) * 2.6, true)
-            else
-                local lastPos = -26
-                for i = 1, #CD do
-                    if CD[i].id == GAME.lastFlip then
-                        lastPos = i
-                        break
-                    end
-                end
-                local w = max(GAME.floor, GAME.negFloor) <= 8 and 2 or 3
-                local r
-                repeat r = rnd(#CD - w + 1) until r > lastPos + 1 or r + w < lastPos
-                if w == 2 then
-                    CD[r], CD[r + 1] = CD[r + 1], CD[r]
-                elseif w == 3 then
-                    if MATH.roll() then
-                        CD[r], CD[r + 1], CD[r + 2] = CD[r + 2], CD[r], CD[r + 1]
-                    else
-                        CD[r], CD[r + 1], CD[r + 2] = CD[r + 1], CD[r + 2], CD[r]
-                    end
-                end
-                GAME.refreshLayout()
-            end
-        end
+        --if M.MS == 2 then
+        --    if URM then
+        --        GAME.readyShuffle(max(GAME.floor, GAME.negFloor) * 2.6, true)
+        --    else
+        --        local lastPos = -26
+        --        for i = 1, #CD do
+        --            if CD[i].id == GAME.lastFlip then
+        --                lastPos = i
+        --                break
+        --            end
+        --        end
+        --        local w = max(GAME.floor, GAME.negFloor) <= 8 and 2 or 3
+        --        local r
+        --        repeat r = rnd(#CD - w + 1) until r > lastPos + 1 or r + w < lastPos
+        --        if w == 2 then
+        --            CD[r], CD[r + 1] = CD[r + 1], CD[r]
+        --        elseif w == 3 then
+        --            if MATH.roll() then
+        --                CD[r], CD[r + 1], CD[r + 2] = CD[r + 2], CD[r], CD[r + 1]
+        --            else
+        --                CD[r], CD[r + 1], CD[r + 2] = CD[r + 1], CD[r + 2], CD[r]
+        --            end
+        --        end
+        --      GAME.refreshLayout()
+        --  end
+        --end
 
         if M.NH < 2 then GAME.cancelAll(true) end
         GAME.cancelBurn()
-        GAME.dmgTimer = min(GAME.dmgTimer + max(2.6, GAME.dmgDelay / 2), GAME.dmgDelay)
+        GAME.dmgTimer = min((GAME.dmgTimer + max(2.6, GAME.dmgDelay / 2)), GAME.dmgDelay)
 
         for i = dblCorrect and 2 or 1, 1, -1 do
             local p = dblCorrect and i or correct
@@ -2144,9 +2268,52 @@ function GAME.commit(auto)
        -- end
 
         --if M.MS == 1 and GAME.floor >= 10 and GAME.totalQuest % 40 == 0 then GAME.readyShuffle(4) end
+        -- Reset recovery
+        if M.GV >= 1 then
+            if M.GV == 1 then
+                GAME.dmgTimeRecoveryCap = MATH.ceil(15 - GAME.floor / 2)
+            end
+            if M.GV == 2 then
+                GAME.dmgTimeRecoveryCap = 15 - (GAME.floor - 1)
+            end
+        end
+
+        if GAME.hardDmg > 0 then
+            GAME.hardDmg = GAME.hardDmg - 0.5
+        end
+
+        if M.AS >= 1 then
+            local wounded = GAME.woundTally
+            local woundclear = GAME.woundRequirement
+            if M.AS == 1 and GAME.previousClear == GAME.Clear then
+                GAME.woundTrigger = true
+                wounded = wounded + 1
+                GAME.takeDamage(1, 'wrong')
+                SFX.play('garbagerise')
+                SFX.play('wound')
+            elseif M.AS == 2 and ((GAME.spinAttack and GAME.spinCount == GAME.lastSpinCount) or GAME.Clear == GAME.previousClear) then
+                GAME.woundTrigger = true
+                wounded = wounded + 20
+                GAME.takeDamage(20, 'wrong')
+            else
+                GAME.woundTrigger = false
+            end
+
+            if not GAME.woundTrigger then
+                woundclear = woundclear - 1
+                if woundclear == 0 then
+                    SFX.play('woundrepel')
+                    wounded = 0
+                end
+            end
+            GAME.previousClear = GAME.Clear
+            GAME.lastSpinCount = GAME.spinCount
+        end
+
         GAME.faultCount = 0
         GAME.spinAttack = false
         GAME.spinCount = 0
+        GAME.extraMod = false
     else
         if GAME.currentTask then
             if #hand >= 7 and not TABLE.find(hand, 'DP') then
@@ -2165,6 +2332,10 @@ function GAME.commit(auto)
         GAME.fault = true
         GAME.faultWrong = true
         GAME.faultCount = GAME.faultCount + 1
+
+        --if M.VL == 1 then
+        --    GAME.dmgWrong = GAME.dmgWrong + (MATH.abs(#hand - #list))
+        --end
 
         GAME.takeDamage(max((GAME.dmgWrong + GAME.dmgWrongExtra) * GAME.dmgMul, 1), 'wrong')
         if not GAME.playing then return end
@@ -2275,21 +2446,29 @@ function GAME.start()
     GAME.maxQuestSize = (M.NH < 2 and M.DH == 2) and 3 or 4
     GAME.extraQuestBase = M.NH == 2 and (M.DH > 0 and 2.42 - M.DH or 1.26) or M.DH == 1 and 0.26 or 0
     GAME.extraQuestVar = M.DH == 1 and .626 or 1
-    GAME.questMessiness = 0 + (floor * 1.62) + (M.MS == 1 and 12.6 or M.MS == 2 and 62 or M.VL == 1 and -15 or M.VL == 2 and -30)
-    GAME.messierQuest = MATH.random(0,0.62 * MATH.abs(floor))
-    GAME.cleanerQuest = MATH.random(-0.26 * MATH.abs(floor), 0)
+    GAME.questMessiness = 0 + (GAME.floor * 1.62) + (M.MS == 1 and 12.6 or M.MS == 2 and 62 or M.VL == 1 and -15 or M.VL == 2 and -30 or 0)
+    GAME.messierQuest = MATH.random(0,0.62 * MATH.abs(GAME.floor))
+    GAME.cleanerQuest = MATH.random(-0.26 * MATH.abs(GAME.floor), 0)
     GAME.questFavor = 0 -- Initialized in GAME.upFloor()
-    GAME.dmgHeal = 2
+    GAME.dmgHealMul = M.VL == 1 and 2 or 1
+    GAME.dmgHeal = 2 * GAME.dmgHealMul
     GAME.dmgWrong = 1
     GAME.dmgMul = M.VL == 1 and 2 or M.VL == 2 and 3 or 1
     GAME.dmgTime = 2
     GAME.dmgTimerMul = 1
-    GAME.dmgDelay = 15
-    GAME.dmgCycle = 5
+    GAME.dmgDelay = GAME.hardMode and 12 or 15
+    GAME.dmgCycle = GAME.hardMode and 2.5 or 5
     GAME.lifeLeak = 0
     GAME.spinAttack = false
     GAME.spinCount = 0
+    GAME.lastSpinCount = 0
+    GAME.woundTally = 0
+    GAME.woundRequirement = 5 + GAME.floor
     GAME.faultCount = 0
+    GAME.dmgTimeRecoveryCap = M.GV >= 1 and 15 or 0
+    GAME.extraMod = false
+    GAME.dhMod = nil
+    GAME.hardDmg = 0
 
     -- Player
     GAME.fullHealth = 22
@@ -2310,8 +2489,9 @@ function GAME.start()
     --GAME.shuffleMessiness = false
     GAME.comboClear = 0
     GAME.previousClear = nil
-    GAME.Clear = nil
+    GAME.Clear = ''
     GAME.SelectedCard = nil
+    GAME.woundTrigger = false
 
     -- Spike
     GAME.spikeTimer = 0
@@ -2334,8 +2514,34 @@ function GAME.start()
     GAME.hasseenDPnerf = false
     if M.DP == 2 then
         GAME.rankLimit = 8 + 4 * M.EX
-        GAME.dmgHeal = 3
+        GAME.dmgHeal = 3 * GAME.dmgHealMul
     end
+
+    -- (Max) HP altering
+    if M.IN == 2 then
+        if not (M.AS == 2 or M.DH == 2) then
+            GAME.startingHealth = GAME.startingHealth - 3
+            GAME.life = GAME.startingHealth
+        end
+    end
+    if M.AS == 2 and not M.DH == 2 then
+        GAME.startingHealth = GAME.startingHealth - 10
+        GAME.life = GAME.startingHealth
+    end
+    if M.DH == 2 then 
+        GAME.startingHealth = GAME.startingHealth - 12
+        GAME.life = GAME.startingHealth
+        if not M.VL == 2 then
+            GAME.fullHealth = GAME.fullHealth - 4 
+        end
+    end
+    if M.VL == 2 then
+        GAME.startingHealth = GAME.fullHealth
+        GAME.life = GAME.fullHealth
+        GAME.fullHealth = GAME.fullHealth - 6
+    end
+
+
 
     GAME.refreshLifeState()
 
@@ -2971,7 +3177,7 @@ function GAME.update(dt)
     GAME.rankTimer[r] = GAME.rankTimer[r] + dt
     GAME.questTime = GAME.questTime + dt
     GAME.floorTime = GAME.floorTime + dt
-    if M.GV > 0 and not GAME.gravTimer and (URM and M.GV == 2 or GAME.questTime >= 2.6) and GAME.questTime - dt < 2.6 then
+    if M.GV > 0 and not GAME.gravTimer then
         GAME.gravTimer = GAME.gravDelay
     end
     if M.EX == 2 and GAME.floorTime > 30 then
@@ -3082,8 +3288,22 @@ function GAME.update(dt)
     if M.GV > 0 and GAME.gravTimer then
         GAME.gravTimer = GAME.gravTimer - dt
         if GAME.gravTimer <= 0 then
-            GAME.faultWrong = false
-            GAME.commit(true)
+        --    GAME.faultWrong = false
+        --    GAME.commit(true)
+            if not (GAME.gravTimer and GAME.gravLockState) then
+                GAME.gravTimer = GAME.lockDelay
+                GAME.gravLockState = true
+                SFX.play('hit')
+            else
+                if CD[FloatOnCard] then
+                    CD[FloatOnCard]:setActive(true)
+                else
+                    CD[rnd(#CD)]:setActive(true)
+                end
+                SFX.play('floor')
+                GAME.gravLockState = false
+                GAME.gravTimer = GAME.gravDelay
+            end
         end
     end
 
@@ -3106,10 +3326,11 @@ function GAME.update(dt)
     end
 
     -- Damage
-    GAME.dmgTimer = GAME.dmgTimer - dt / GAME.dmgTimerMul
+    local dmgTimerMulGV = M.GV == 1 and 0.62 - 0.03 * (GAME.floor - 1) or M.GV == 2 and 0.26 - 0.0125 * (GAME.floor - 1) or 1
+    GAME.dmgTimer = GAME.dmgTimer - dt / (GAME.dmgTimerMul * dmgTimerMulGV)
     if GAME.dmgTimer <= 0 then
         GAME.dmgTimer = GAME.dmgCycle
-        GAME.takeDamage(GAME.dmgTime, 'time')
+        GAME.takeDamage(GAME.dmgTime * GAME.dmgMul, 'time')
     end
 
     -- Life leak

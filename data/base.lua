@@ -18,8 +18,12 @@ GigaSpeedReq = { [0] = 7, 8, 8, 9, 9, 10, 1e99, 1e99, 1e99, 1e99, 1e99 }
 TeraMusicReq = { [0] = 9, 11, 11, 12, 12, 13, 13, 1e99, 1e99, 1e99 }
 
 GravityTimer = {
-    { 9.0, 8.0, 7.5, 7.0, 6.5, 6.0, 5.5, 5.0, 4.5, 4.0 },
+    { 4.5, 4, 3.5, 3, 2.75, 2.5, 2.3, 2.2, 2.1, 2.0 },
     { 3.2, 3.0, 2.8, 2.6, 2.5, 2.4, 2.3, 2.2, 2.1, 2.0 },
+}
+GravityLockDelay = {
+    { 0.5, 0.483, 0.467, 0.45, 0.433, 0.4, 0.367, 0.333, 0.3, 0.267 },
+    { 0.5, 0.467, 0.433, 0.4, 0.367, 0.333, 0.3, 0.267, 0.233, 0.2},
 }
 
 PieceData = {
@@ -64,6 +68,23 @@ Floors = {
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
     -- Initial: Delay=15. Cycle=5, Wrong=1
     -- Total: Delay-10, Cycle-3, Wrong+4
+}
+
+HardModeFloors = {
+    [0] = { top = 0, name = "The Basement" },
+    { top = 50,   event = {},                                                  name = "Hall of Beginnings" },
+    { top = 150,  event = { 'dmgDelay', -2, 'dmgWrong', 1 },                   name = "The Hotel",           MSshuffle = 1 },
+    { top = 300,  event = { 'dmgDelay', -2},                 name = "The Casino" },
+    { top = 450,  event = { 'dmgDelay', -1},                 name = "The Arena" },
+    { top = 650,  event = { 'dmgDelay', -1, 'dmgWrong', 1 },  name = "The Museum",          MSshuffle = 2 },
+    { top = 850,  event = { 'dmgDelay', -1, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
+    { top = 1100, event = { 'dmgDelay', -1},                 name = "The Laboratory",      MSshuffle = 3 },
+    { top = 1350, event = { 'dmgDelay', -1,},                 name = "The Core" },
+    { top = 1650, event = { 'dmgDelay', -.5},                  name = "Corruption",          MSshuffle = 4 },
+    { top = 1e99, event = { 'dmgDelay', -.5, 'dmgTime', 1 },  name = "Platform of the Gods" },
+    { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
+    -- Initial: Delay=15. Cycle=2.5, Wrong=1
+    -- Total: Delay-10, Wrong+4
 }
 
 NegFloors = {

@@ -1883,8 +1883,8 @@ function GAME.commit(auto)
                             end
                         end
                     else -- Mini Spin Attack (Becomes a proper spin if All-Spin is used, while Asceticism is not used)
+                        if GAME.spinCount > 3 then GAME.spinCount = 3 end
                         attack = ((M.AS >= 1 and M.NH == 2) and GAME.spinCount - 1 ) or M.AS >= 1 and GAME.spinCount * 2 or GAME.spinCount - 1
-                        if GAME.spinCount >= 3 then GAME.spinCount = 3 end
                         GAME.chain = GAME.chain + 1
                         SFX.play('clearspin', .5)
                         if M.AS < 1 then

@@ -295,10 +295,10 @@ function GAME.getComboZP(list)
     if m.NH then zp = zp * 1.1 elseif m.rNH then zp = zp * (1.85 + .05 * (#list - 1)) end
     if m.MS then zp = zp * 1.15 elseif m.rMS then zp = zp * 2 end
     if m.GV then zp = zp * 1.2 elseif m.rGV then zp = zp * 1.5 end
-    if m.VL then zp = zp * 1.15 elseif m.rVL then zp = zp * (1.2 + .02 * (#list - 1)) end
+    if m.VL then zp = zp * 1.05 elseif m.rVL then zp = zp * (1.2 + .02 * (#list - 1)) end
     if m.DH then zp = zp * 1.25 elseif m.rDH then zp = zp * 1.85 end
-    if m.IN then zp = zp * 1.15 elseif m.rIN then zp = zp * 1.6 end
-    if m.AS then zp = zp * 1.15 elseif m.rAS then zp = zp * 1.3 end
+    if m.IN then zp = zp * 1.2 elseif m.rIN then zp = zp * 1.6 end
+    if m.AS then zp = zp * 1.05 elseif m.rAS then zp = zp * 1.3 end
     if m.DP then zp = zp * .9 elseif m.rDP then zp = zp * 2.1 end
     if m.rMS and m.rGV then zp = zp * 1.1 end
     if m.rEX and m.rVL then zp = zp * 1.2 end

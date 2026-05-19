@@ -630,6 +630,12 @@ function GAME.genQuest()
         if questCount == 1 then
             -- Prevent 1-mod quest being DP
             pool.DP = 0
+            if M.AS >= 1 then
+                -- Increase pool for AS on lower floors
+                if GAME.floor < 7 then
+                    pool.AS = pool.AS * 2.25
+                end
+            end
         elseif M.DH == 2 then
             -- Reduce DP on rDH
             pool.DP = pool.DP * .5
@@ -1779,7 +1785,8 @@ function GAME.commit(auto)
                 GAME.nixPrompt('pass_perfect_row')
                 GAME.nixPrompt('keep_no_imperfect')
                 GAME.nixPrompt('pass_windup_inb2b')
-            end          
+            end       
+            if GAME.SelectedCard == nil then GAME.spinAttack = false GAME.spinCount = 0 end   
             if not GAME.spinAttack then
                 if not GAME.hardMode then 
                     if GAME.faultCount  >= attack then attack = 1  else attack = 2 end
@@ -2452,9 +2459,9 @@ function GAME.start()
     GAME.questFavor = 0 -- Initialized in GAME.upFloor()
     GAME.dmgHealMul = M.VL == 1 and 2 or 1
     GAME.dmgHeal = 2 * GAME.dmgHealMul
-    GAME.dmgWrong = 1
+    GAME.dmgWrong = 1 + (M.EX > 0 and 1 or 0)
     GAME.dmgMul = M.VL == 1 and 2 or M.VL == 2 and 3 or 1
-    GAME.dmgTime = 2
+    GAME.dmgTime = 2 + (M.EX > 0 and 1 or 0)
     GAME.dmgTimerMul = 1
     GAME.dmgDelay = GAME.hardMode and 12 or 15
     GAME.dmgCycle = GAME.hardMode and 2.5 or 5
@@ -3326,7 +3333,7 @@ function GAME.update(dt)
     end
 
     -- Damage
-    local dmgTimerMulGV = M.GV == 1 and 0.62 - 0.03 * (GAME.floor - 1) or M.GV == 2 and 0.26 - 0.0125 * (GAME.floor - 1) or 1
+    local dmgTimerMulGV = M.GV == 1 and 0.75 - 0.03 * (GAME.floor - 1) or M.GV == 2 and 0.26 - 0.0125 * (GAME.floor - 1) or 1
     GAME.dmgTimer = GAME.dmgTimer - dt / (GAME.dmgTimerMul * dmgTimerMulGV)
     if GAME.dmgTimer <= 0 then
         GAME.dmgTimer = GAME.dmgCycle

@@ -15,6 +15,12 @@ local function F6() return math.max(GAME.floor, GAME.negFloor) >= 6 end
 local function F9() return math.max(GAME.floor, GAME.negFloor) >= 9 end
 local function F9wind() return math.max(GAME.floor, GAME.negFloor) >= 9 and GAME.maxQuestSize >= 4 end
 local function F9wind3() return math.max(GAME.floor, GAME.negFloor) >= 9 and GAME.maxQuestSize >= 5 end
+--ZCQP2
+local function notNH() return GAME.mod.NH < 1 end
+local function notrNH() return GAME.mod.NH < 2 end
+local function notrDP() return GAME.mod.DP < 2 end
+local function notrAS() return GAME.mod.AS < 2 end -- Some prompts are impossible with Warlock as non spin clears are void
+local function isrDP() return GAME.mod.DP == 2 end
 
 ---@class Prompt
 ---@field rank number[]
@@ -28,11 +34,23 @@ local function F9wind3() return math.max(GAME.floor, GAME.negFloor) >= 9 and GAM
 
 ---@type Prompt[]
 local d = {
+    { rank = { 1, 2 }, prompt = 'clear',           target = 1,   short = "Clear a QUAD",            text = "Clear a QUAD" ,     cond = notrAS},
+    { rank = { 1, 2 }, prompt = 'clear_double',         target = 2,   short = "Clear 2x DOUBLE",         text = "Clear 2 DOUBLES", cond = notrAS },
+    { rank = { 3, 4 }, prompt = 'clear_quadchain',           target = 3,   short = "3 Chain QUAD",            text = "Clear 3 QUADS \nconsecutively", cond = notrAS },
+    { rank = { 1, 2 }, prompt = 'spin',                 target = 1,   short = "Perform Spin",            text = "Perform any spin"},
+    { rank = { 2, 3 }, prompt = 'spin_no_attack',                 target = 3,   short = "3x Spin 0 Attack",        text = "Perform 3 spins that don't\nsend any attack"},
+    { rank = { 2, 3 }, prompt = 'spin_$1',                 target = 1,   short = "Clear 1 $1 Spin",         text = "Clear a $1 Spin",                              init = rndMod},
+    { rank = { 2, 3 }, prompt = 'spin_$1_1',                 target = 1,   short = "Clear $1 Spin Single",         text = "Clear a $1 Spin Single",                              init = rndMod},
+    { rank = { 2, 3 }, prompt = 'spin_$1_2',                 target = 1,   short = "Clear $1 Spin Double",         text = "Clear a $1 Spin Double",                              init = rndMod},
+    { rank = { 3, 4 }, prompt = 'spin_$1_3',                 target = 1,   short = "Clear $1 Spin Triple",         text = "Clear a $1 Spin Triple",                              init = rndMod},
+    { rank = { 4, 5 }, prompt = 'spin_$1',                 target = 2,   short = "Clear 2 $1 Spins",         text = "Clear 2 $1 Spins",                              init = rndMod},
     { rank = { 1, 2 }, prompt = 'activate',             target = 30,  short = "Activate 30",             text = "Activate 30 cards" },
     { rank = { 3, 4 }, prompt = 'activate',             target = 80,  short = "Activate 80",             text = "Activate 80 cards" },
     { rank = { 2, 2 }, prompt = 'cancel',               target = 40,  short = "Cancel 40",               text = "Cancel 40 cards" },
     { rank = { 3, 4 }, prompt = 'cancel',               target = 100, short = "Cancel 100",              text = "Cancel 100 cards" },
     { rank = { 1, 2 }, prompt = 'flip',                 target = 50,  short = "Flip 50",                 text = "Flip 50 cards" },
+    { rank = { 2, 3 }, prompt = 'flip_nopass',          target = 40,  short = "Flip 40 NO PASS",         text = "Flip 40 cards without \npassing",             cond = notrNH},
+    { rank = { 3, 4 }, prompt = 'flip_nocancel',         target = 40,  short = "Flip 40 NO CANCEL",         text = "Flip 40 cards without \nmanually cancelling",             cond = notNH},
     { rank = { 3, 4 }, prompt = 'flip',                 target = 120, short = "Flip 120",                text = "Flip 120 cards" },
     { rank = { 5, 6 }, prompt = 'flip',                 target = 300, short = "Flip 300",                text = "Flip 300 cards" },
     { rank = { 1, 2 }, prompt = 'flip_single',          target = 10,  short = "Flip single 10",          text = "Flip a single card\n10 times in a row" },
@@ -50,6 +68,7 @@ local d = {
     { rank = { 2, 4 }, prompt = 'commit_0',             target = 5,   short = "Commit NOTHING 5x",       text = "Commit NOTHING\n5 times" },
     { rank = { 4, 6 }, prompt = 'commit_0',             target = 8,   short = "Commit NOTHING 8x",       text = "Commit NOTHING\n8 times" },
     { rank = { 1, 3 }, prompt = 'commit_0_row',         target = 3,   short = "3x Spam commit",          text = "Commit NOTHING\n3 times in a row" },
+    { rank = { 4, 6 }, prompt = 'commit_0_row',         target = 5,   short = "5x Spam commit",          text = "Commit NOTHING\n5 times in a row" },
     { rank = { 3, 5 }, prompt = 'commit_no_conn',       target = 1,   short = "Commit no consec",        text = "Commit without consecutive cards",            cond = F6 },
     { rank = { 1, 4 }, prompt = 'commit_conn_2',        target = 1,   short = "Commit 2 consec",         text = "Commit with 2 consecutive cards",             cond = f5 },
     { rank = { 2, 4 }, prompt = 'commit_conn_3',        target = 1,   short = "Commit 3 consec",         text = "Commit with 3 consecutive cards",             cond = f5 },
@@ -107,6 +126,7 @@ local d = {
     { rank = { 3, 4 }, prompt = 'timedmg_time',         target = 2,   short = "Take Time Dmg 2x",        text = "Take time damage 2 times",                    cond = F6 },
     { rank = { 5, 6 }, prompt = 'timedmg_time',         target = 4,   short = "Take Time Dmg 4x",        text = "Take time damage 4 times",                    cond = F6 },
     { rank = { 4, 6 }, prompt = 'keep_health_safe',     target = 8,   short = "Safe HP 8s",              text = "Keep HP safe\nfor 8 seconds",                 cond = F6 },
+    { rank = { 4, 6 }, prompt = 'keep_health_max',      target = 4,   short = "Full HP 4s",              text = "Have full HP\nfor 4 seconds",                 cond = notrDP },
     { rank = { 4, 5 }, prompt = 'keep_health_danger',   target = 3,   short = "Critical HP 3s",          text = "Keep HP critical\nfor 3 seconds",             cond = F6 },
     { rank = { 2, 5 }, prompt = 'keep_no_mouse',        target = 4,   short = "No mouse 4s",             text = "Don't use the mouse\nfor 4 seconds",          cond = f5 },
     { rank = { 2, 4 }, prompt = 'keep_no_commit',       target = 6,   short = "No commit 6s",            text = "Don't commit\nfor 6 seconds",                 cond = f5 },
@@ -115,6 +135,7 @@ local d = {
     { rank = { 3, 5 }, prompt = 'keep_no_perfect',      target = 12,  short = "No perfect 12s",          text = "Have no perfect\npasses for 12 seconds" },
     { rank = { 4, 6 }, prompt = 'keep_no_imperfect',    target = 14,  short = "No imperfect 14s",        text = "Have no imperfect\npasses for 14 seconds",    cond = F6 },
     { rank = { 3, 5 }, prompt = 'keep_no_reset',        target = 16,  short = "No reset 16s",            text = "Don't reset\nfor 16 seconds" },
+    { rank = { 9999, 9999 }, prompt = 'simultaneousquest',        target = 1,  short = "2 Simultaneous Quests",            text = "Clear 2 quests\n simultaneously",  cond = isrDP},
 }
 for i = 1, #d do d[i]._prompt = d[i].prompt end
 

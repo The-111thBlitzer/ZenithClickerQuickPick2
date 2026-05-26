@@ -500,12 +500,12 @@ TEXTS = { -- Font size can only be 30 and 50 here !!!
     b2b        = GC.newText(FONT.get(30), "B2B x"),
     spike      = GC.newText(FONT.get(50)),
     gigaspeed  = GC.newText(FONT.get(50), {
-        COLOR.dR, "G", COLOR.dO, "I", COLOR.dY, "G",
-        COLOR.dK, "A", COLOR.dG, "S", COLOR.dJ, "P",
-        COLOR.dC, "E", COLOR.dS, "E", COLOR.dB, "D"
+        COLOR.dR, "H", COLOR.dO, "Y", COLOR.dY, "P",
+        COLOR.dK, "E", COLOR.dG, "R", COLOR.dJ, "S",
+        COLOR.dC, "P", COLOR.dS, "E", COLOR.dB, "E", COLOR.dV, "D"
     }),
     teraspeed  = GC.newText(FONT.get(50), {
-        COLOR.R, "T", COLOR.O, "E", COLOR.Y, "R",
+        COLOR.R, "G", COLOR.O, "I", COLOR.Y, "G",
         COLOR.K, "A", COLOR.G, "S", COLOR.J, "P",
         COLOR.C, "E", COLOR.S, "E", COLOR.B, "D",
     }),
@@ -960,7 +960,7 @@ function PlayBGM(name, force)
 end
 
 local normalHelp = {
-    COLOR.LL, "Welcome to ", COLOR.LF, "Zenith Clicker: Quick Pick 2", COLOR.LL, "! Choose the required tarot cards and send players to scale the tower.\n",
+    COLOR.LL, "Welcome to ", COLOR.LF, "Zenith Clicker: ", COLOR.F, "Quick Pick 2", COLOR.LL, "! Choose the required tarot cards and send players to scale the tower.\n",
     "The further up the tower, the more difficult the game gets!\n",
     "Daily Challenge leaderboards reset every day, how high can you reach?\n",
     "[DYNAMIC TEXT]",

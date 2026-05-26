@@ -106,9 +106,11 @@ function Card:setActive(auto, key)
     if GAME.currentTask then
         if self.active then
             GAME.incrementPrompt('cancel')
+            GAME.nixPrompt('flip_nocancel')
             if not auto then GAME.nixPrompt('keep_no_cancel') end
         else
             GAME.incrementPrompt('activate')
+            GAME.incrementPrompt('flip_nocancel')
         end
         if not auto then
             if self.id ~= GAME.lastFlip then
@@ -117,6 +119,7 @@ function Card:setActive(auto, key)
             GAME.incrementPrompt('flip_single')
         end
         GAME.incrementPrompt('flip')
+        GAME.incrementPrompt('flip_nopass')
     end
     if not auto then
         GAME.lastFlip = self.id
@@ -145,9 +148,16 @@ function Card:setActive(auto, key)
                     GAME.dmgTimeRecoveryCap = GAME.dmgTimeRecoveryCap - 1
                 end
             end
+            if GAME.spinAttack then
+                if not self.active then
+                    GAME.spinCount = GAME.spinCount - 1
+                else
+                    GAME.spinCount = GAME.spinCount + 1
+                end
+            end
             if CD.AS.active then 
                 GAME.spinAttack = true
-                GAME.spinCount = GAME.spinCount + 1
+                if M.AS >= 1 then GAME.spinCount = GAME.spinCount + 1 end
             end
             if not GAME.achv_noManualFlipH then
                 GAME.achv_noManualFlipH = GAME.roundHeight

@@ -767,6 +767,7 @@ function GAME.startRevive()
         SFX.play('boardlock')
     else
         SFX.play('losestock')
+        SFX.play('boardlock')
     end
     GAME.currentTask = GAME.reviveTasks[1] or false
     GAME.DPlock = M.DP == 2
@@ -1750,6 +1751,7 @@ function GAME.commit(auto)
                     GAME.incrementPrompt('pass_windup3')
                 end
             end
+            GAME.nixPrompt('flip_nopass')
         end
 
         if GAME.lifeState == 'danger' then
@@ -1801,6 +1803,7 @@ function GAME.commit(auto)
                         if M.AS == 1 then GAME.Clear = 'TRIPLE' end
                         xp = xp + 2
                     elseif GAME.faultCount == 2 then 
+                        GAME.incrementPrompt('clear_double')
                         if M.AS == 1 then GAME.Clear = 'DOUBLE' end
                         xp = xp + 1
                     else 
@@ -1845,7 +1848,7 @@ function GAME.commit(auto)
                     GAME[k] = min(GAME[k] + 1, GAME.fullHealth)
                 end
                 if GAME[k] > oldLife then GAME.incrementPrompt('heal', GAME[k] - oldLife) end
-
+                GAME.totalSurge = GAME.totalSurge + GAME.chain - (M.AS == 2 and 0 or 3)
 
                 if GAME.chain > 4 then
                     if M.AS == 2 then
@@ -1858,10 +1861,18 @@ function GAME.commit(auto)
             GAME.chain = 0
             surge = 0
             else
+                GAME.incrementPrompt('spin')
+                GAME.incrementPrompt('spin_'..GAME.SelectedCard)
+                for i = 1, #MD.deck do
+                    local id = MD.deck[i].id
+                    if GAME.SelectedCard == id then GAME.incrementPrompt('spin_'.. id) end
+                end
                 if GAME.faultCount >= 1 then
-                    if GAME.faultCount >= 2 then -- Spin zero
+                    if GAME.faultCount >= 2 or GAME.spinCount <= 0 then -- Spin zero
                         GAME.faultCount = 2
+                        attack = 0
                         SFX.play('spinend', .62)
+                        GAME.incrementPrompt('spin_no_attack', 1)
                         xp = 0
                         if M.AS >= 1 then
                             if GAME.faultCount == 2 then
@@ -1904,13 +1915,13 @@ function GAME.commit(auto)
                              end
                         else
                             if M.NH < 2 then
-                                if GAME.spinCount == 1 then GAME.Clear = GAME.SelectedCard .. ' SPIN SINGLE' xp = 2
-                                elseif GAME.spinCount == 2 then GAME.Clear = GAME.SelectedCard .. ' SPIN DOUBLE' xp = 4
-                                else GAME.Clear = GAME.SelectedCard .. ' SPIN TRIPLE' xp = 6 end
+                                if GAME.spinCount == 1 then GAME.Clear = GAME.SelectedCard .. ' SPIN SINGLE' xp = 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                                elseif GAME.spinCount == 2 then GAME.Clear = GAME.SelectedCard .. ' SPIN DOUBLE' xp = 4 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                                else GAME.Clear = GAME.SelectedCard .. ' SPIN TRIPLE' xp = 6 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
                             else
-                                if GAME.spinCount == 1 then GAME.Clear = 'MINI ' .. GAME.SelectedCard .. ' SPIN SINGLE' xp = 1
-                                elseif GAME.spinCount == 2 then GAME.Clear = 'MINI ' .. GAME.SelectedCard .. ' SPIN DOUBLE' xp = 2
-                                else GAME.Clear = 'MINI ' .. GAME.SelectedCard .. ' SPIN TRIPLE' xp = 3 end
+                                if GAME.spinCount == 1 then GAME.Clear = 'MINI-' .. GAME.SelectedCard .. ' SPIN SINGLE' xp = 1 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                                elseif GAME.spinCount == 2 then GAME.Clear = 'MINI-' .. GAME.SelectedCard .. ' SPIN DOUBLE' xp = 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                                else GAME.Clear = 'MINI-' .. GAME.SelectedCard .. ' SPIN TRIPLE' xp = 3 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
                             end
                         end
                         if GAME.chain < 4 then
@@ -1932,18 +1943,19 @@ function GAME.commit(auto)
             end
 
             if M.EX == 1 then
-            if GAME.life < GAME.fullHealth then
-                xp = xp - GAME.dmgHeal * GAME.dmgHealMul
-                if xp < 0 then
-                    xp = 0
+                if GAME.life < GAME.fullHealth then
+                    xp = xp - GAME.dmgHeal * GAME.dmgHealMul
+                    if xp < 0 then
+                        xp = 0
+                    end
                 end
             end
-        end
 
             if not GAME.achv_perfectH then
                 GAME.achv_perfectH = GAME.roundHeight
                 if GAME.totalQuest >= 26 then SFX.play('btb_break') end
             end
+            GAME.nixPrompt('clear_quadchain')
         else
             -- Perfect
             if GAME.currentTask then
@@ -1965,33 +1977,51 @@ function GAME.commit(auto)
             end
 
             if GAME.spinAttack then
+                GAME.nixPrompt('clear_quadchain')
+                GAME.incrementPrompt('spin')
+                GAME.incrementPrompt('spin_'..GAME.SelectedCard)
                 if GAME.spinCount > 3 then GAME.spinCount = 3 end
-                attack = ((M.NH == 2 and GAME.spinCount - 1) or GAME.spinCount * 2)
-                SFX.play('clearspin', .5)
-                if GAME.chain >= 1 then attack = attack + 1 end
-                if M.AS < 1 and M.NH < 2 then
-                    if GAME.spinCount == 1 then xp = xp + 2
-                    elseif GAME.spinCount == 2 then xp = xp + 4
-                    else xp = xp + 6 end
-                elseif M.AS >= 1 and M.NH < 2 then
-                    if GAME.spinCount == 1 then GAME.Clear = GAME.SelectedCard .. 'SPIN SINGLE' xp = xp + 2
-                    elseif GAME.spinCount == 2 then GAME.Clear = GAME.SelectedCard .. 'SPIN DOUBLE' xp = xp + 4
-                    else GAME.Clear = GAME.SelectedCard .. 'SPIN TRIPLE' xp = xp + 6 end
-                elseif M.AS < 1 and M.NH == 2 then
-                    if GAME.spinCount == 1 then xp = xp + 1
-                    elseif GAME.spinCount == 2 then xp = xp + 2
-                    else xp = xp + 3 end
+                if GAME.spinCount > 0 then
+                    attack = ((M.NH == 2 and GAME.spinCount - 1) or GAME.spinCount * 2)
+                    SFX.play('clearspin', .5)
+                    if GAME.chain >= 1 then attack = attack + 1 end
+                    if M.AS < 1 and M.NH < 2 then
+                        if GAME.spinCount == 1 then xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                        elseif GAME.spinCount == 2 then xp = xp + 4 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                        else xp = xp + 6 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
+                    elseif M.AS >= 1 and M.NH < 2 then
+                        if GAME.spinCount == 1 then GAME.Clear = GAME.SelectedCard .. 'SPIN SINGLE' xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                        elseif GAME.spinCount == 2 then GAME.Clear = GAME.SelectedCard .. 'SPIN DOUBLE' xp = xp + 4 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                        else GAME.Clear = GAME.SelectedCard .. 'SPIN TRIPLE' xp = xp + 6 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
+                    elseif M.AS < 1 and M.NH == 2 then
+                        if GAME.spinCount == 1 then xp = xp + 1 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                        elseif GAME.spinCount == 2 then xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                        else xp = xp + 3 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
+                    else
+                        if GAME.spinCount == 1 then GAME.Clear = 'MINI-' .. GAME.SelectedCard .. 'SPIN SINGLE' xp = xp + 1 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                        elseif GAME.spinCount == 2 then GAME.Clear = 'MINI-' .. GAME.SelectedCard .. 'SPIN DOUBLE' xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                        else GAME.Clear = 'MINI-' .. GAME.SelectedCard .. 'SPIN TRIPLE' xp = xp + 3 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
+                    end
                 else
-                    if GAME.spinCount == 1 then GAME.Clear = 'MINI' .. GAME.SelectedCard .. 'SPIN SINGLE' xp = xp + 1
-                    elseif GAME.spinCount == 2 then GAME.Clear = 'MINI' .. GAME.SelectedCard .. 'SPIN DOUBLE' xp = xp + 2
-                    else GAME.Clear = 'MINI' .. GAME.SelectedCard .. 'SPIN TRIPLE' xp = xp + 3 end
+                    attack = 0
+                    SFX.play('spinend')
+                    GAME.incrementPrompt('spin_no_attack')
+                    if M.AS > 0 and M.NH < 2 then
+                        GAME.Clear = GAME.SelectedCard .. 'SPIN'
+                    else
+                        GAME.Clear = 'MINI-' .. GAME.SelectedCard .. 'SPIN'
+                    end
                 end
             elseif GAME.chain >= 1 then
+                GAME.incrementPrompt('clear')
+                GAME.incrementPrompt('clear_quadchain')
                 attack = attack + 3 
                 SFX.play('clearbtb', .5)
                 GAME.Clear = 'QUAD'
                 xp = xp + 4
             else
+                GAME.incrementPrompt('clear')
+                GAME.incrementPrompt('clear_quadchain')
                 attack = attack + 2
                 SFX.play('clearquad', .5)
                 GAME.Clear = 'QUAD'
@@ -1999,10 +2029,13 @@ function GAME.commit(auto)
             end
 
             if M.AS == 2 then
-                if GAME.spinAttack and GAME.chain >= 4 then 
-                    attack = attack + 1 
+                if GAME.spinAttack then 
+                    if GAME.chain >= 4 then
+                        attack = attack + 1 
+                    end
                 else
-                    attack = attack + surge
+                    xp = 1
+                    attack = 0 + surge
                     SFX.play('clearline', .5)
                     GAME.Clear = 'VOID'
                     if GAME.chain >= 4 then
@@ -2023,23 +2056,34 @@ function GAME.commit(auto)
                         GAME[k] = min(GAME[k] + 1, GAME.fullHealth)
                     end
                     if GAME[k] > oldLife then GAME.incrementPrompt('heal', GAME[k] - oldLife) end
+
+                    GAME.totalSurge = GAME.totalSurge + GAME.chain
                     GAME.chain = 0
+                    
                     
                 end
             end
 
             if correct == 1 then
-                GAME.chain = GAME.chain + 1
-                if GAME.chain < 4 then
-                elseif GAME.chain < 8 then
-                    if GAME.chain == 4 then SFX.play('b2bcharge_start', .8)end
-                    SFX.play('b2bcharge_1', .8)
-                elseif GAME.chain < 12 then
-                    SFX.play('b2bcharge_2', .8)
-                elseif GAME.chain < 24 then
-                    SFX.play('b2bcharge_3', .7)
-                else
-                    SFX.play('b2bcharge_4', .626)
+                if GAME.spinAttack and GAME.spinCount > 0 then -- Spin clears
+                    GAME.chain = GAME.chain + 1
+                elseif M.AS == 2 and GAME.spinAttack and GAME.spinCount == 0 and GAME.chain >= 4 then -- rAS Spin zeros
+                    GAME.chain = GAME.chain + 1
+                elseif not GAME.spinAttack and M.AS < 2 then -- Quads
+                    GAME.chain = GAME.chain + 1
+                end
+                if (correct == 1 and not GAME.spinAttack and M.AS < 2) or (correct == 1 and (GAME.spinAttack and GAME.spinCount > 0) or (M.AS == 2 and GAME.spinCount == 0 and GAME.chain >= 4)) then
+                    if GAME.chain < 4 then
+                    elseif GAME.chain < 8 then
+                        if GAME.chain == 4 then SFX.play('b2bcharge_start', .8)end
+                        SFX.play('b2bcharge_1', .8)
+                    elseif GAME.chain < 12 then
+                        SFX.play('b2bcharge_2', .8)
+                    elseif GAME.chain < 24 then
+                        SFX.play('b2bcharge_3', .7)
+                    else
+                        SFX.play('b2bcharge_4', .626)
+                    end
                 end
             end
 
@@ -2069,6 +2113,7 @@ function GAME.commit(auto)
             GAME.chain = GAME.chain + 1
             GAME.achv_doublePass = GAME.achv_doublePass + 1
             if not ACHV.lucky_coincidence then IssueAchv('lucky_coincidence') end
+            GAME.incrementPrompt('simultaneousquest')
         end
 
 
@@ -2198,6 +2243,18 @@ function GAME.commit(auto)
 
         attack = MATH.roundRnd(attack)
 
+        if not GAME.SelectedCard == nil then
+            if GAME.spinAttack then
+                if GAME.spinCount == 1 then
+                    GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                elseif GAME.spinCount == 2 then
+                    GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                else
+                    GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3')
+                end
+            end
+        end
+
         GAME.incrementPrompt('send', attack)
         GAME.totalAttack = GAME.totalAttack + attack
         GAME.totalSurge = GAME.totalSurge + surge
@@ -2302,6 +2359,7 @@ function GAME.commit(auto)
                 GAME.woundTrigger = true
                 wounded = wounded + 20
                 GAME.takeDamage(20, 'wrong')
+                SFX.play('wound')
             else
                 GAME.woundTrigger = false
             end
@@ -3210,6 +3268,8 @@ function GAME.update(dt)
     if t and t.prompt:sub(1, 5) == 'keep_' then
         if t.prompt:sub(6, 12) == 'health_' then
             if t.prompt:sub(13) == GAME.lifeState then
+                GAME.incrementPrompt(t.prompt, dt)
+            elseif t.prompt:sub(13) == 'max' and GAME.life == GAME.fullHealth then
                 GAME.incrementPrompt(t.prompt, dt)
             else
                 GAME.nixPrompt(t.prompt)

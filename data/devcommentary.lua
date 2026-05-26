@@ -22,49 +22,49 @@ return {
                             - THE CLICKER FUTURE IS YOURS!      —— MrZ
     ]], true),
     ['EX'] = STRING.trimIndent [[
-        A mod that appears simple but actually requires much skill and significantly reduces the final score.
-        Like QP2, this mod is designed to punish mistakes more severely and make game less lenient.
-        So I chose "smaller spacing + deselect all cards on wrong commit", along with faster XP leaking in QP2.
+        A mod that bring a greater challenge for climbers and clickers alike.
+        Just like in QP2, simple mistakes brings great consequences.
+        In addition to auto cancel on a mistake and tight spacing, healing also reduces your xp gain.
     ]],
     ['NH'] = STRING.trimIndent [[
-        A mod with very low presence, pros can almost ignore it like no mod at all.
-        Originally, I intended to remove a feature (the reset button), similar to how it works in Tetris,
-        but that conflicted with the later design of AS. So I decided to change it to "No cancel".
+        A mod with the exact same mechanics as to vanilla Zenith Clicker.
+        No card cancelling (quite fitting of a mechanic since you are using cards to clear quests).
     ]],
     ['MS'] = STRING.trimIndent [[
-        A mod which is way too harder at first because shuffling cards just brutally slows you down.
-        I interpreted literally as shuffling the cards since there's no "garbage lines".
-        So it becomes significantly harder than QP2, plays so awful, and finally got nerfed many times.
+        A mod that causes quests to become much messier instead of shuffling cards around.
+        Usually, I see MS to make quests messier, since the cards are your so-called "playing pieces"
+        Quests are much more complex here, so how will you maintain your speed?
     ]],
     ['GV'] = STRING.trimIndent [[
-        Possibly the weakest mod than others, pros can completely ignore it.
-        In Tetris, "increasing gravity" is similar to "forced locking", the equivalent here is forced committing.
-        My aim is let everyone enjoy mods, so I made it very lenient to reduce the difficulty of combos.
+        Since GV is weak within vanilla ZC, let's make this more of a challenge.
+        The standard timer is much harsher as you go higher up the floor. Though you can regain time by simply clicking.
+        And TheBestNoob suggested me about force flipping a card if you take too long to decide on selecting a card, which I liked, so it was implemented.
+        Let's see how you can scale while facing against two timers at once?
     ]],
     ['VL'] = STRING.trimIndent [[
-        A rather interesting mod that introduces clicking technique and endurance to the game.
-        "receiving double garbages" in Tetris can correspond to "clicking the mouse twice as much". And sure, you also get doubled XP from that as in QP2.
-        QP2 also cancel double, so I made canceling still one-click. Feels good but it actually leads to more mistakes —pretty interesting, isn't it?
+        A mod that makes mistakes much more punishing.
+        Receiving 2x garbage? Receive twice the damage on any source, but you can also heal up twice the health too.
+        And still maintaining that x2 xp gain as it was in QP2.
     ]],
     ['DH'] = STRING.trimIndent [[
-        Another mod with low presence, but it does increase the difficulty to some extent.
-        Though we don't have garbage lines, "harder-to-clear garbage lines" can correspond to "more complex quests".
-        So I designed DH to increase the expected number of mods in quests, while also slightly reducing the variance for balance.
+        Probably the hardest mod to ever rework in my opinion.
+        Initially, I wanted quests to have one repeat mod, but that became too overly complex to implement.
+        And instead, let's have one extra mod, but with certain side effects as you clear them.
     ]],
     ['IN'] = STRING.trimIndent [[
-        A pretty cool mod that presents the "invisible" effect in a different way. Obviously, real invisible would be too difficult for an upright mod,
-        So I took the approach of "hiding texts on card and colors of quests", this increases reading difficulty, creating a sensation similar to invisibility.
-        Meanwhile, this also shows the design on the card back, strengthening the association between mods and their corresponding colors.
+        A mod the emphasises the essence of memory. Though a real invisible is too difficult for an upright mod...
+        Not only does the quests stay hidden, cards no longer show their coloured backs for a while.
+        (Credits to Trevor Smithy for the help with the fade effect of the cards)
     ]],
     ['AS'] = STRING.trimIndent [[
-        Just like in QP2, is a mod that "seems to have a positive effect?!", so I considered "significant buff" —play with keyboard!
-        Thus, AS became an almost purely positive mod. For negative penalty. Taking inspiration from QP2's "consecutive same clear",
-        "flipping a card twice" could be punished, with wounded sound effect and small punishments. Btw, Allspin surely spin all cards instead of reset!
+        The mod that gives a buff to allow every spins rewarded. However, it comes at a cost.
+        Since now there is a clear system, you have to be careful not to do it twice, otherwise you'll be punished for it.
+        Though the mod allows greater spin attacks, flipping AS in game enables a spin attack, doubling your attack. (Using AS spins all cards too!)
     ]],
     ['DP'] = STRING.trimIndent [[
-        The mod with the lowest development cost-effectiveness —took about three days to implement, barely worth it since it introduces the revive run.
-        Since this is a single-player mini-game, online multiplayer wasn't considered. So... split the health bar into two and treat it as two players!
-        To make switching easier, I chose "selecting DP card" as the condition. It also naturally switches a few times as DP appeared in quests. Nice!
+        Usually you would require supporter to be able to play Duo, but since this is a single player game, the mod itself has changed.
+        Fundamentally there isn't anyhthing different to this mod compared to vanilla ZC, except that there are more tasks to revive your partner.
+        Have a go playing with your imaginary partner!
     ]],
 
     ['rEX'] = STRING.trimIndent [[
@@ -188,14 +188,150 @@ return {
         Trained Professionals, a combo ported from QP2, and it's not very worth talking about.
         EX gameplay but a tiny bit harder because DP increases the difficulty of quests a bit.
     ]],
+    ['EX NH'] = STRING.trimIndent [[
+        Practice restraint once a day, and the devil will go away.
+            - A Fair Leader
+    ]],
     ['EX MS'] = STRING.trimIndent [[
         Block Rationing, a combo ported from QP2, modified to "height in limited quests".
         I'll admit this one is a bit rng, but you can improve consistency with some tricks,
         like stalling at start to get some free height, and make good use of the XP protection on last few quests.
     ]],
+    ['EX GV'] = STRING.trimIndent [[
+        A surprising return of 98 problems.
+            - Invictus
+    ]],
+    ['EX DH'] = STRING.trimIndent [[
+        The say the devil's in the details.
+            - The Devil's Temptation
+    ]],
+    ['EX IN'] = STRING.trimIndent [[
+        You cannot see what I see, becuase you see what you see.
+            - Emperor's Dilemma
+    ]],
+    ['NH MS'] = STRING.trimIndent [[
+        Never hold out.
+            - All In
+    ]],
+    ['NH DH'] = STRING.trimIndent [[
+        One last step beneath the Tower of the Gods.
+            - Purgatory
+    ]],
+    ['NH IN'] = STRING.trimIndent [[
+        The greatest beauty must be felt with the heart.
+            - Helen Keller
+    ]],
+    ['NH DP'] = STRING.trimIndent [[
+        Skipping along the merry road.
+            - Hand in Hand
+    ]],
+    ['MS GV'] = STRING.trimIndent [[
+        When time seems to slip through your fingers, eat some cheese.
+            - Cheese Race
+    ]],
+    ['MS VL'] = STRING.trimIndent [[
+        A fine delicacy.
+        - Swiss Cheese
+    ]],
+    ['MS DH'] = STRING.trimIndent [[
+        Dig in for treasure.
+            -Dig In
+    ]],
+    ['MS IN'] = STRING.trimIndent [[
+        Prepare for what's coming next.
+            - Blind Bet
+    ]],
+    ['MS AS'] = STRING.trimIndent [[
+        Going round and round until your fate is sealed.
+            - Roulette Wheel
+    ]],
+    ['MS DP'] = STRING.trimIndent [[
+        "I found this over on the TETR.IO Discord in the #funposting > garbage suggestions thread." - danik0011
+            - It's Complicated...
+    ]],
+    ['GV VL'] = STRING.trimIndent [[
+        Everyone's favourite treat.
+            - Comfort Food
+    ]],
+    ['GV DH'] = STRING.trimIndent [[
+        Embrace the devilish speed.
+            - The Speed Demon
+    ]],
+    ['GV AS'] = STRING.trimIndent [[
+        Juggling two things at once may be nearly impossible.
+            - The Juggler
+    ]],
+    ['GV DP'] = STRING.trimIndent [[
+        Love made of iron, strong against every circumstance.
+            - Heavy Hearts
+    ]],
+    ['VL DH'] = STRING.trimIndent [[
+        Stronger than God alone? I don't think so.
+            - Lucifer
+    ]],
+    ['VL AS'] = STRING.trimIndent [[
+        It's difficult to squeeze water from a stone, but not impossible.
+            - Water from Stone
+    ]],
+    ['VL DP'] = STRING.trimIndent [[
+        The perfect synergy of the great qualities between the two people. Binding together to become stronger than what's added up.
+            - Power Couple
+    ]],
+    ['DH IN'] = STRING.trimIndent [[
+        He haunts you.
+            - The Ghost
+    ]],
+    ['DH AS'] = STRING.trimIndent [[
+        You are of your father the devil, and your will is to do your father's desires.
+            - The Deal with The Devil
+    ]],
+    ['IN AS'] = STRING.trimIndent [[
+        Abstraction allows one to see with the mind what cannot be seen with the eyes.
+            - The Abstract Artist
+    ]],
+    ['IN DP'] = STRING.trimIndent [[
+        Looks deceive, but the heart does not.
+            - Love is Blind
+    ]],
+    ['AS DP'] = STRING.trimIndent [[
+        Talents combined to become greater or lesser?
+            - Collaboration
+    ]],
+    ['NH MS GV VL DH IN AS'] = STRING.trimIndent [[
+        Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.
+        This is only a lighter challenge before trying out Swamp Water.
+    ]],
+    ['EX MS GV VL DH IN AS'] = STRING.trimIndent [[
+        Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.
+        This is only a lighter challenge before trying out Swamp Water.
+    ]],
+    ['EX NH GV VL DH IN AS'] = STRING.trimIndent [[
+        Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.
+        This is only a lighter challenge before trying out Swamp Water.
+    ]],
+    ['EX NH MS VL DH IN AS'] = STRING.trimIndent [[
+        Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.
+        This is only a lighter challenge before trying out Swamp Water.
+    ]],
+    ['EX NH MS GV DH IN AS'] = STRING.trimIndent [[
+        Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.
+        This is only a lighter challenge before trying out Swamp Water.
+    ]],
+    ['EX NH MS GV VL IN AS'] = STRING.trimIndent [[
+        Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.
+        This is only a lighter challenge before trying out Swamp Water.
+    ]],
+    ['EX NH MS GV VL DH AS'] = STRING.trimIndent [[
+        Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.
+        This is only a lighter challenge before trying out Swamp Water.
+    ]],
+    ['EX NH MS GV VL DH IN'] = STRING.trimIndent [[
+        Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.
+        This is only a lighter challenge before trying out Swamp Water.
+    ]],
     ['EX NH MS GV VL DH IN AS'] = STRING.trimIndent [[
-        Swamp Water, a combo ported from QP2, it was hardest but not hard any more since ZC makes everything easier.
-        If you are already familiar enough with ZC, it's a good mid-term challenge for you before reversed swamp water series.
+        Swamp Water, a combo ported from QP2, being a harder challenge in ZCQP2.
+        However, this isn't truly the worst compared to the sight of Ambrosia and...
     ]],
     ['EX NH MS GV VL DH IN AS DP'] = STRING.trimIndent [[
         Yeah along with DP, it's still Swamp Water, cuz I think it doesn't really increase much difficulty.
@@ -331,6 +467,7 @@ return {
         Since F4 is still not high, using some hard mods is acceptable.
     ]],
     ['DH DP'] = STRING.trimIndent [[
+        To take us apart is to bring us closer -Forbidden Lovers
         Museum Heist, F5 speedrunning combo.
         This is the start of floor speedrunning achievements!
         Though it was assigned supercharged tier by Garbo, cute achievements which has a clear upper bound like this are fine here.
@@ -344,6 +481,7 @@ return {
         Supercharged with AS! Oh wait there's also MS...
     ]],
     ['EX GV DH'] = STRING.trimIndent [[
+        "You've done this before, right?" -The Daredevil
         Thermal Anomaly, F8 speedrunning combo.
         Finally we have an almost pure supercharged floor speedrun, except there's EX.
         Why most floor speedrunning achievements has EX, but I forgot why...
@@ -357,6 +495,16 @@ return {
         Since DP count as 0 MP in swamp water+ series at some point, this is the only possible combo fitting "1 reverse mod + 8 mods",
         which doesn't fit the theme of this series (multiple choices to pick from).
     ]],
+    ['EX NH MS GV VL DH IN AS uDP'] = STRING.trimIndent [[
+        BREWED WITH ILL-NATURED MAGIC, FUSED WITH THE FLAVOURS OF DIVINITY.
+        THE MOST LETHAL MIX OF SWAMP WATER AND THE FOOD OF THE GODS, WHERE NO MORTAL COULD SURVIVE ITS SLIGHTEST DROP,
+        OTHER THAN A ZENITH CLICKER.
+    ]],
+    ['rEX rNH rMS rGV rVL rDH rIN rAS'] = STRING.trimIndent [[
+        DO YOU DARE TRACE THE SAME STEPS OF THE HUNDREDS BEFORE YOU THAT SOUGHT DEIFICATION?
+                                                            -Ambrosia
+    ]],
+
     ['rEX rNH rMS rGV rVL rDH rIN rAS rDP'] = STRING.trimIndent [[
         Welcome to the summit, $1!
         You achieved the impossible with your unbreakable spirit, against all logic.

@@ -1,7 +1,7 @@
 local next = next
 local max, min = math.max, math.min
 local sin, cos = math.sin, math.cos
-local floor, abs = math.floor, math.abs
+local floor, ceil, abs = math.floor, math.ceil, math.abs
 
 local distance, clamp = MATH.distance, MATH.clamp
 local interpolate, clampInterpolate = MATH.interpolate, MATH.clampInterpolate
@@ -10,9 +10,8 @@ local lerp, iLerp, cLerp, icLerp, lLerp = MATH.lerp, MATH.iLerp, MATH.cLerp, MAT
 local GAME = GAME
 local M = GAME.mod
 local MD = ModData
-ShortCut = {}
-local ShortCut = ShortCut
-for i = 1, #MD.deck do ShortCut[i] = GC.newText(FONT.get(50)) end
+CardHintText = {}
+for i = 1, #MD.deck do CardHintText[i] = GC.newText(FONT.get(50)) end
 
 HoldingButtons = {}
 local HoldingButtons = HoldingButtons
@@ -27,12 +26,13 @@ local revHold = {}
 local scene = {}
 
 local function switchVisitor(bool)
-    if not GAME.playing and GAME.zenithTraveler ~= bool and STAT.bg then
+    if not GAME.playing and GAME.zenithTraveler ~= bool and CONF.bg then
         SFX.play(bool and 'pause_exit' or 'pause_start', 1, 0, Tone(-2))
         GAME.zenithTraveler = bool
         love.mouse.setRelativeMode(bool)
         ZENITHA._cursor.active = not bool
         for _, W in next, scene.widgetList do W:setVisible(not bool) end
+        scene.widgetList.help2:setVisible()
         if usingTouch then scene.widgetList.help:setVisible(true) end
         if bool then IssueAchv('zenith_traveler') end
         TABLE.clear(HoldingButtons)
@@ -43,7 +43,7 @@ local function MouseOnCard(x, y)
     if FloatOnCard and Cards[FloatOnCard]:mouseOn(x, y) then
         return FloatOnCard
     end
-    if FloatOnCard and not usingTouch or STAT.oldHitbox then
+    if FloatOnCard and not usingTouch or CONF.oldHitbox then
         local cid, dist = 0, 1e99
         for i = 1, #Cards do
             if Cards[i]:mouseOn(x, y) then
@@ -65,7 +65,7 @@ local function MouseOnCard(x, y)
 end
 
 function SetMouseVisible(bool)
-    if STAT.syscursor then
+    if CONF.syscursor then
         love.mouse.setVisible(bool)
     else
         CursorHide = not bool
@@ -100,7 +100,7 @@ local function mouseTrigger(x, y, k)
 end
 
 local function keyTrigger(key)
-    local bindID = TABLE.find(STAT.keybind, key)
+    local bindID = TABLE.find(CONF.keybind, key)
     if bindID and bindID <= 18 and (M.AS > 0 or (not GAME.playing and (bindID == 8 or bindID == 17))) then
         if bindID > 9 then bindID = bindID - 9 end
         local C = Cards[bindID]
@@ -243,7 +243,7 @@ function scene.load()
     end
     RevUnlocked = TABLE.countAll(GAME.completion, 0) < 9
 
-    for i = 1, #MD.deck do ShortCut[i]:set(STAT.keybind[i]:upper()) end
+    for i = 1, #MD.deck do CardHintText[i]:set(CONF.keybind[i]:upper()) end
 
     GAME.refreshDailyChallengeText()
     TASK.unlock('sure_quit')
@@ -285,8 +285,8 @@ local function getBtnPressed()
     if msIsDown(4) then btnPressed = btnPressed + 1 end
     if msIsDown(5) then btnPressed = btnPressed + 1 end
     if msIsDown(6) then btnPressed = btnPressed + 1 end
-    if kbIsDown(STAT.keybind[21]) then btnPressed = btnPressed + 1 end
-    if kbIsDown(STAT.keybind[22]) then btnPressed = btnPressed + 1 end
+    if kbIsDown(CONF.keybind[21]) then btnPressed = btnPressed + 1 end
+    if kbIsDown(CONF.keybind[22]) then btnPressed = btnPressed + 1 end
     return btnPressed
 end
 
@@ -414,6 +414,7 @@ end
 local KBIsDown, MSIsDown = love.keyboard.isDown, love.mouse.isDown
 local expApproach = MATH.expApproach
 function scene.update(dt)
+    if dt > .26 then dt = .26 end
     if kbIsDown('left', 'right', 'up', 'down') then
         local spd = ZENITHA._cursor.speed * dt * (kbIsDown('lctrl', 'rctrl') and .6 or 1)
         if kbIsDown('left') then MX = MX - spd end
@@ -427,7 +428,6 @@ function scene.update(dt)
         local f = GAME.calculateFloor(GAME.bgH)
         GAME.height = max(GAME.height - dt * (f * (f + 1) + 10) * (M.VL + 1), 0)
     end
-    if dt > .26 then dt = .26 end
     GAME.update(dt)
     GAME.lifeShow = expApproach(GAME.lifeShow, GAME.life, dt * 10)
     GAME.lifeShow2 = expApproach(GAME.lifeShow2, GAME.life2, dt * 10)
@@ -535,35 +535,47 @@ local gc_blurCircle, gc_strokePrint = GC.blurCircle, GC.strokePrint
 local gc_setColorMask = GC.setColorMask
 local setFont = FONT.set
 
-local chargeIcon = GC.load {
-    w = 512, h = 512,
-    { 'move',   256,  256 },
-    { 'fCirc',  0,    0,  180, 4 },
-    { 'rotate', .5236 },
-    { 'fCirc',  0,    0,  180, 4 },
-    { 'rotate', .5236 },
-    { 'fCirc',  0,    0,  180, 4 },
-}
-
 local TEXTURE = TEXTURE
 local Cards = Cards
 local TextColor = TextColor
 local ShadeColor = ShadeColor
 local bgQuad = GC.newQuad(0, 0, 0, 0, 0, 0)
 local rulerQuad = GC.newQuad(0, 0, 32, 300, TEXTURE.ruler)
-local reviveQuad = {
-    GC.newQuad(0, 0, 1042, 296, TEXTURE.revive.norm),
-    GC.newQuad(0, 355, 1042, 342, TEXTURE.revive.norm),
-    GC.newQuad(0, 740, 1042, 354, TEXTURE.revive.norm),
+
+local reviveInfo = {
+    quad = {
+        GC.newQuad(0, 0, 1042, 296, TEXTURE.revive.norm),
+        GC.newQuad(0, 355, 1042, 342, TEXTURE.revive.norm),
+        GC.newQuad(0, 740, 1042, 354, TEXTURE.revive.norm),
+    },
+    move = { -155, -147, -154 },
+    rotation = { -.095, .15, -.17 },
 }
-local reviveMove = { -155, -147, -154 }
-local reviveRot = { -.095, .15, -.17 }
+local gvTimerColor1 = { 1, .942, .872, 0 }
+local gvTimerColor2 = { 0, 0, 0, 0 }
+local altitudeText = { 0, COLOR.dL, "m" }
+local windupColor = {
+    { COLOR.HEX "F5BE3FFF" },
+    { COLOR.HEX "ED7F2EFF" },
+    { COLOR.HEX "E74322FF" },
+    { COLOR.HEX "E63676FF" },
+    { COLOR.HEX "E83AD5FF" },
+    { COLOR.HEX "9E2DF6FF" },
+    { COLOR.HEX "002FF5FF" },
+    { COLOR.HEX "4295F8FF" },
+    { COLOR.HEX "79FA52FF" },
+    { COLOR.HEX "C6FC4FFF" },
+}
+local koMsgColor = {
+    kill = { COLOR.HEX "FFB300FF" },
+    death = { COLOR.HEX "910000FF" },
+}
 
 function DrawBG(brightness, showRuler)
     gc_replaceTransform(SCR.origin)
     if GAME.bgH > -50 then
         local bgFloor = GAME.calculateFloor(GAME.bgH)
-        if STAT.bg and not GAME.invisUI then
+        if CONF.bg and not GAME.invisUI then
             if bgFloor < 10 then
                 gc_setColor(1, 1, 1)
                 local bottom = Floors[bgFloor - 1].top
@@ -632,7 +644,7 @@ function DrawBG(brightness, showRuler)
                 end
 
                 -- Cover
-                local f10CoverAlpha = GAME.zenithTraveler and icLerp(1660, 1650, GAME.bgH) or 1 - GAME.floorTime / 2.6
+                local f10CoverAlpha = max(icLerp(1660, 1650, GAME.bgH), 1 - (love.timer.getTime() - GAME.f10Time) / 2.6)
                 if f10CoverAlpha > 0 then
                     gc_setColor(.5, .5, .5, f10CoverAlpha)
                     gc_rectangle('fill', 0, 0, SCR.w, SCR.h)
@@ -698,7 +710,7 @@ function scene.draw()
         drawPBline(STAT.maxHeight, true)
         return
     else
-        DrawBG(STAT.bgBrightness, true)
+        DrawBG(CONF.bgBrightness, true)
     end
 
     if not GAME.invisUI then
@@ -848,9 +860,6 @@ function scene.draw()
     end
 end
 
-local gvTimerColor1 = { 1, .942, .872, 0 }
-local gvTimerColor2 = { 0, 0, 0, 0 }
-local altitudeText = { 0, COLOR.dL, "m" }
 function scene.overDraw()
     local t = love.timer.getTime()
     if GAME.zenithTraveler then return end
@@ -1012,7 +1021,7 @@ function scene.overDraw()
                         .16
                     )
                     gc_setColor(0, 0, 0)
-                    gc_mDraw(chargeIcon, 326, 270, GAME.time * 2.6, .25 * k * bk)
+                    gc_mDraw(TEXTURE.surgeIcon, 326, 270, GAME.time * 2.6, .25 * k * bk)
                 end
 
                 if URM and M.NH == 2 then
@@ -1022,7 +1031,7 @@ function scene.overDraw()
                 -- Spike ball
                 gc_setColor(r, g, b, a)
                 gc_blurCircle(-.26, 326, 270, 100 * k)
-                gc_mDraw(chargeIcon, 326, 270, GAME.time * 2.6, .25 * k * bk)
+                gc_mDraw(TEXTURE.surgeIcon, 326, 270, GAME.time * 2.6, .25 * k * bk)
 
                 -- Spark
                 if not (URM and M.NH == 2) then
@@ -1120,7 +1129,7 @@ function scene.overDraw()
                 local texture = TEXTURE.revive[M.DP < 2 and 'norm' or allyDie and 'rev_right' or 'rev_left']
                 local taskID
                 for i = #GAME.reviveTasks, 1, -1 do
-                    gc_mDrawQ(texture, reviveQuad[i], 0, 0, 0, .4)
+                    gc_mDrawQ(texture, reviveInfo.quad[i], 0, 0, 0, .4)
                     if GAME.reviveTasks[i] == GAME.currentTask then
                         taskID = i
                         break
@@ -1128,8 +1137,8 @@ function scene.overDraw()
                 end
 
                 -- Text
-                gc_rotate(reviveRot[taskID])
-                gc_translate(reviveMove[taskID], 0)
+                gc_rotate(reviveInfo.rotation[taskID])
+                gc_translate(reviveInfo.move[taskID], 0)
                 local txt = task.textObj
                 local w, h = txt:getDimensions()
                 local ky = h < 40 and 1 or .7
@@ -1290,8 +1299,9 @@ function scene.overDraw()
     if not GAME.invisUI then
         -- Allspin keyboard hint
         if M.AS > 0 and M.EX == 0 then
+            local texts = CardHintText
             for i = 1, #Cards do
-                local obj = ShortCut[i]
+                local obj = texts[i]
                 local x, y = Cards[i].x + 90, Cards[i].y + 155
                 local k = min(60 / obj:getWidth(), 1)
                 gc_setColor(ShadeColor)
@@ -1348,6 +1358,14 @@ function scene.overDraw()
             gc_translate(0, DeckPress)
             gc_draw(TEXTS.credit, -5, d, 0, .872, .872, TEXTS.credit:getDimensions())
         end
+
+        -- Speedrun Timer
+        gc_replaceTransform(SCR.xOy_dl)
+        setFont(30)
+        gc_setColor(TextColor)
+        gc_setAlpha(.42)
+        TEXTS.srTimer:set(STRING.time(STAT.srTimer_game) .. "/ " .. STRING.time(STAT.srTimer_life, 2))
+        gc_draw(TEXTS.srTimer, 7, -70 + GAME.uiHide * 30)
 
         -- Card Info
         if not GAME.playing and FloatOnCard then
@@ -1451,6 +1469,78 @@ function scene.overDraw()
         end
     end
 
+    -- Piece effect
+    do
+        gc_replaceTransform(SCR.xOy_m)
+        GC.setColor(1, 1, 1, .26 * GAME.uiHide)
+        local w, h = GAME.pieceFstrObj:getDimensions()
+        GC.draw(GAME.pieceFstrObj, 0, -170, 0, min(4.2, 740 / w), nil, w / 2, h * .57)
+    end
+
+    -- Windup animation
+    gc_replaceTransform(SCR.xOy_m)
+    gc_translate(0, -170)
+    for i = 1, #GAME.windupAnim do
+        local w = GAME.windupAnim[i]
+        local k = MATH.clampInterpolate(.25, 1, .15, .8, w.bumpTime) * w.alpha
+        local r = MATH.between(w.time, 1, w.totalTime - .5) and 42 * (.5 - w.time % .5) ^ 4.2 or 0
+        windupColor[w.lv][4] = w.alpha
+        gc_setColor(windupColor[w.lv])
+        gc_mDraw(TEXTURE.windup, w.x, w.y, r, k)
+        gc_setColor(1, 1, 1, r / (42 * .5 ^ 4.2))
+        gc_mDraw(TEXTURE.windup, w.x, w.y, r, k)
+        gc_setColor(1, 1, 1, w.alpha)
+        gc_mDraw(TEXTURE.windupText[ceil(w.lv / 2)], w.x, w.y, 0, k)
+    end
+
+    -- Kill animation
+    if #GAME.koAnim > 0 then
+        -- gc_replaceTransform(SCR.xOy_ur)
+        -- gc_translate(-10, 80 - GAME.uiHide * 70)
+        gc_replaceTransform(SCR.xOy_m)
+        gc_translate(400 - 10, -260)
+        gc_scale(.6)
+        for i = 1, #GAME.koAnim do
+            local k = GAME.koAnim[i]
+            local w1, w2 = k.id1:getWidth() + 20, k.id2:getWidth() + 20
+            local x1, x2 = -w2 - 40 - w1 / 2, -w2 / 2
+            gc_ucs_move(0, (k.pos - .5) * 55)
+            gc_setLineWidth(2)
+
+            local clr = k.toOppo and koMsgColor.kill or koMsgColor.death
+            gc_setColor(clr)
+            gc_setAlpha(k.a * .42)
+            if k.toOppo then
+                if k.showP1 then
+                    gc_mRect('fill', x1, 0, w1, 45, 5)
+                end
+                gc_setColor(0, 0, 0, k.a * .42)
+                gc_mRect('fill', x2, 0, w2, 45, 5)
+            else
+                gc_mRect('fill', x2, 0, w2, 45, 5)
+                if k.showP1 then
+                    gc_setColor(0, 0, 0, k.a * .42)
+                    gc_mRect('fill', x1, 0, w1, 45, 5)
+                end
+            end
+
+            gc_setColor(clr)
+            gc_setAlpha(k.a)
+            gc_mRect('line', x2, 0, w2, 45, 5)
+            gc_mDraw(k.id2, x2, 0)
+            if k.showP1 then
+                gc_mRect('line', x1, 0, w1, 45, 5)
+                gc_mDraw(k.id1, x1, 0)
+            end
+            gc_setColor(1, 1, 1, k.a)
+            local x = -40 / 2 + 9 - w2
+            gc_setLineWidth(3)
+            gc_line(x - 20, 0, x, 0)
+            gc_line(x - 12, -12, x, 0, x - 12, 12)
+            gc_ucs_back()
+        end
+    end
+
     -- Test
     if TestMode then
         -- Watermark
@@ -1472,7 +1562,7 @@ function scene.overDraw()
     -- Fastleak cover
     if GAME.fastLeak then
         gc_replaceTransform(SCR.origin)
-        gc_setColor(0, 1, .42, (GAME.playing and .626 or 1) * (M.EX > 0 and .62 or .42))
+        gc_setColor(0, 1, .42, (GAME.playing and .626 or 1) * ((M.EX > 0 or M.DP == 2) and .62 or .42))
         gc_draw(TEXTURE.transition, 0, 0, 0, .42 / 128 * SCR.w, SCR.h)
         gc_draw(TEXTURE.transition, SCR.w, 0, 0, -.42 / 128 * SCR.w, SCR.h)
     end
@@ -1493,14 +1583,24 @@ function scene.overDraw()
         gc_mDraw(TEXTS.version, GAME.invisUI and 0 or -260 * GAME.uiHide, -10, 0, .62)
     end
 
+    -- Debug: display holding buttons
     -- GC.replaceTransform(SCR.xOy)
-    -- local y=0
-    -- GC.setColor(1,1,1)
+    -- local y = 0
+    -- GC.setColor(1, 1, 1)
     -- FONT.set(20)
-    -- for k in next,HoldingButtons do
-    --     GC.print(k,100,100+y)
-    --     y=y+30
+    -- for k in next, HoldingButtons do
+    --     GC.print(k, 100, 100 + y)
+    --     y = y + 30
     -- end
+
+    -- Debug: display KO charge
+    -- gc_replaceTransform(SCR.xOy_u)
+    -- gc_translate(0, 26)
+    -- gc_setColor(1, 1, 1)
+    -- gc_setLineWidth(1)
+    -- gc_mRect('line', 0, 0, -26 * 10, 20)
+    -- gc_setColor(1, 0, 0)
+    -- gc_mRect('fill', 0, 0, -GAME.koCharge * 10, 20)
 end
 
 local function button_start()
@@ -1689,16 +1789,16 @@ scene.widgetList = {
                     SFX.play('no')
                 end
             else
-                PieceSFXID = (PieceSFXID or 0) % #PieceData + 1
-                if PieceSFXID < #PieceData then
-                    local piece = ('zsjltoi'):sub(PieceSFXID, PieceSFXID)
+                GAME.pieceEffectID = GAME.pieceEffectID % #PieceData + 1
+                if GAME.pieceEffectID < #PieceData then
+                    local piece = ('zsjltoi'):sub(GAME.pieceEffectID, GAME.pieceEffectID)
                     SFX.play(piece, 1, 0, Tone(6))
                 else
                     SFX.play('allclear')
                 end
 
                 for i = 1, #PieceData - 1 do
-                    GAME[PieceData[i].id] = PieceSFXID == i
+                    GAME[PieceData[i].id] = GAME.pieceEffectID == i
                 end
 
                 GAME.refreshLayout()
@@ -1707,7 +1807,7 @@ scene.widgetList = {
 
                 MSG({
                     cat = 'dark',
-                    str = PieceData[PieceSFXID].popup,
+                    str = PieceData[GAME.pieceEffectID].popup,
                     time = 1.2
                 })
             end

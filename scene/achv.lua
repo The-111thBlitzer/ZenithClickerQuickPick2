@@ -87,7 +87,7 @@ function RefreshAchvList(canShuffle)
                 wreath = r >= 5 and floor(MATH.clampInterpolate(0, 0, .9999, 6, r % 1)) or 0
                 if A.type ~= 'issued' then
                     overallProgress.rank[rank] = overallProgress.rank[rank] + 1
-                    if wreath > 0 then overallProgress.wreath[wreath] = overallProgress.wreath[wreath] + 1 end
+                    overallProgress.wreath[wreath] = overallProgress.wreath[wreath] + 1
                     if A.type == 'competitive' then
                         overallProgress.ptGet = overallProgress.ptGet + floor(rank)
                         overallProgress.ptAll = overallProgress.ptAll + 5
@@ -298,7 +298,22 @@ local function refreshAchivement()
     RefreshAchvList()
 end
 
+local achvIconInit
 function scene.load()
+    if not achvIconInit then
+        achvIconInit = true
+        TEXTURE.achievement.icons = GC.initCanvas(4096, 2048, function()
+            GC.setShader(GC.newShader [[
+                vec4 effect(vec4 color, sampler2D tex, vec2 texCoord, vec2 scrCoord) {
+                    vec4 t = texture2D(tex, texCoord);
+                    return vec4(1., 1., 1., (t.r+t.g+t.b)/3.);
+                }
+            ]])
+            GC.draw(TEXTURE.achievement.icons)
+            GC.setShader()
+            TEXTURE.achievement.icons:release()
+        end)
+    end
     SetMouseVisible(true)
     if GAME.anyRev ~= colorRev then
         colorRev = GAME.anyRev

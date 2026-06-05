@@ -68,7 +68,6 @@ return {
     ]],
 
     ['rEX'] = STRING.trimIndent [[
-        Exactly same with EX in QP2, even "less kill bonus", yeah, I treat "passing a quest containing DP mod" as a kill (though it's obviously much weaker)
         Until I write this, there are still only 2 players mastered rEX in QP2, way too hard for everyone to even have a try.
         I tried to shrink cards spacing furthermore, but that turns out to be too hard, so I abandoned this idea. But you could try this challenge with...
         Anyways, Zenith Clicker's aim is to let everyone enjoy all mods! Just practice a few weeks to beat rEX here! Or use AS to skip the challenge :>
@@ -161,6 +160,10 @@ return {
         The Escape Artist, a combo ported from QP2, and it's not very...Oh I modified this one, because QP2 did
         QP2 made the target "garbage lines dig with spin", so I changed it to "quests with wound triggered".
         Hmm it's not that matching? But anyway it plays not bad lol
+    ]],
+    ['EX NH MS VL DH rAS'] = STRING.trimIndent [[
+        The Artist Trinity, an original combo from ZC community.
+        A combination of all three "artist" combos! So cool but also so hard, glhf on challenging this!
     ]],
     ['GV IN'] = STRING.trimIndent [[
         The Grandmaster, a combo ported from QP2, and it's not very worth talking about.
@@ -404,6 +407,14 @@ return {
         Empurple, an original combo from ZC community.
         Main difficulty should come from "hard mode" of reverse mod, reducing XP you could get.
     ]],
+    ['rMS rGV rIN'] = STRING.trimIndent [[
+        The Masterful Juggler, an original combo from ZC community.
+        Combined with the target "Highest B2B chain reached", this makes more sense.
+    ]],
+    ['rNH MS rGV AS'] = STRING.trimIndent [[
+        Autoplay is Awesome, an original combo from ZC community.
+        This achievement replaced "Patience is a Virtue" with mods specified, which makes it play much better.
+    ]],
     ['EX NH MS VL rAS'] = STRING.trimIndent [[
         Faltered, an original combo from ZC community.
         This is actually a multitask challenge. No surge forces imperfect passes, which send 0 with rAS.
@@ -428,10 +439,6 @@ return {
         Playing "without losing a rank" with EX VL fits so well with the community combo "Icarus"'s myth story.
         It's so unbelievable that it successfully combines mod combo & rank system & texts and plays interesting.
     ]],
-    ['rMS rGV rIN'] = STRING.trimIndent [[
-        The Masterful Juggler, an original combo from ZC community.
-        Combined with the target "Highest B2B chain reached", this makes more sense.
-    ]],
     ['DH rIN AS'] = STRING.trimIndent [[
         The Oblivious Artist, an original combo from ZC community.
         This one was "doing the inverse first", but I felt it sounds too forcing, so it got changed to this.
@@ -439,6 +446,10 @@ return {
     ['NH rVL AS'] = STRING.trimIndent [[
         Zero-to-sixty, an original combo from ZC community.
         Though this combo includes AS, it's actually easier to play with mouse lol
+    ]],
+    ['VL IN AS'] = STRING.trimIndent [[
+        Under The Radar, an original combo from ZC community.
+        "What's the exact condition of entering Gigaspeed?"
     ]],
     ['rNH MS DP'] = STRING.trimIndent [[
         Scarcity Mindset, an original combo from ZC community.

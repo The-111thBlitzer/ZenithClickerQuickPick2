@@ -12,8 +12,7 @@ STRING.install()
 
 SCR.setSize(1600, 1000)
 
-for _, v in next, {
-    'customAssets',
+FILE.createDirectory({
     'customAssets/achievements',
     'customAssets/badges',
     'customAssets/card',
@@ -24,7 +23,7 @@ for _, v in next, {
     'customAssets/revive',
     'customAssets/stat',
     'customAssets/tower',
-} do love.filesystem.createDirectory(v) end
+})
 
 
 ---@return love.Texture
@@ -131,6 +130,7 @@ TEXTURE = {
     towerBG = { assets 'tower/f1.jpg', assets 'tower/f2.jpg', assets 'tower/f3.jpg', assets 'tower/f4.jpg', assets 'tower/f5.jpg', assets 'tower/f6.jpg', assets 'tower/f7.jpg', assets 'tower/f8.jpg', assets 'tower/f9.jpg', assets 'tower/f10.png' },
     moon = assets 'tower/moon.png',
     stars = assets 'tower/stars.png',
+    warning = assets 'finalwarning.png',
 
     revive = {
         norm = assets 'revive/norm.png',
@@ -187,7 +187,7 @@ TEXTURE = {
             elegance = aq(4, 1),
             garbage_offensive = aq(3, 1),
             tower_climber = aq(8, 2),
-            tower_regular = aq(8, 2),
+            what_ever_it_takes = aq(1, 3),
             speed_player = aq(5, 2),
             plonk = aq(6, 2),
             zenith_explorer = aq(2, 3),
@@ -257,33 +257,34 @@ TEXTURE = {
             talentless = aq(3, 7),
             quest_rationing = aq(2, 7),
             the_responsible_one = aq(1, 6),
-            the_unreliable_one = aq(15, 2),
             the_responsible_one_plus = aq(1, 6),
+            the_unreliable_one = aq(15, 2),
             guardian_angel = aq(3, 6),
             carried = aq(3, 8),
-            level_19_cap = aq(16, 2),
-            the_escape_artist = aq(1, 5),
-            the_artist_trinity = aq(1, 5),
-            fel_magic = aq(9, 7),
-            empurple = aq(13, 7),
-            patience_is_a_virtue = aq(10, 6),
-            spotless = aq(16, 4),
+            overprotection = aq(12, 7),
             a_mutual_agreement = aq(13, 4),
             the_cheaters = aq(12, 4),
-            overprotection = aq(12, 7),
+            the_escape_artist = aq(1, 5),
+            the_artist_trinity = aq(11, 3),
+            level_19_cap = aq(16, 2),
+            empurple = aq(13, 7),
+            the_masterful_juggler = aq(11, 7),
             clutch_main = aq(14, 3),
+            spotless = aq(16, 4),
+            autoplay_is_awesome = aq(10, 6),
             sunk_cost = aq(11, 5),
             wax_wings = aq(12, 5),
-            the_masterful_juggler = aq(11, 7),
             the_oblivious_artist = aq(14, 7),
             zero_to_sixty = aq(10, 5),
             speed_bonus = aq(9, 4),
+            under_the_radar = aq(16, 8),
             arrogance = aq(3, 5),
             scarcity_mindset = aq(4, 1),
             detail_oriented = aq(8, 6),
             psychokinesis = aq(8, 6),
-            divine_rejection = aq(7, 6),
+            fickle_fuel = aq(9, 5),
             moon_struck = aq(7, 6),
+            slayer_of_the_tower = aq(1, 3),
             lovers_promise = aq(8, 7),
 
             hardcore_beginning = aq(16, 5),
@@ -301,7 +302,6 @@ TEXTURE = {
             dazed = aq(5, 6),
             drag_racing = aq(5, 6),
             space_race = aq(5, 6),
-            fickle_fuel = aq(9, 5),
             the_spike_of_all_time_plus = aq(5, 6),
 
             -- Special, no texture needed
@@ -448,6 +448,64 @@ TEXTURE.lightDot = GC.initCanvas(32, 32, function()
     GC.blurCircle(.26, 16, 16, 16)
 end)
 
+TEXTURE.surgeIcon = GC.initCanvas(512, 512, function()
+    GC.clear(1, 1, 1, 0)
+    GC.setColor(1, 1, 1)
+    GC.translate(256, 256)
+    for _ = 0, 2 do
+        GC.circle('fill', 0, 0, 180, 4)
+        GC.rotate(.5236)
+    end
+end)
+
+TEXTURE.windup = GC.initCanvas(128, 128, function()
+    GC.clear(1, 1, 1, 0)
+    local l = {}
+    for i = 0, 15 do
+        local a = i / 16 * MATH.tau
+        local d = i % 2 == 0 and 58 or 45
+        local dx, dy = d * math.cos(a), d * math.sin(a)
+        table.insert(l, 64 + dx)
+        table.insert(l, 64 + dy)
+    end
+    GC.setLineWidth(10)
+    GC.polygon('line', l)
+end)
+do
+    local w = 13
+    local d1 = 20
+    local d2 = 16
+    TEXTURE.windupText = {
+        GC.initCanvas(128, 128, function()
+            GC.clear(1, 1, 1, 0)
+            GC.rectangle('fill', 64 - w / 2, 64 - 31, w, 62 - w * 1.6); GC.rectangle('fill', 64 - w / 2, 64 + 31, w, -w)
+        end),
+        GC.initCanvas(128, 128, function()
+            GC.clear(1, 1, 1, 0)
+            GC.rectangle('fill', 64 - w / 2 - d1 / 2, 64 - 31, w, 62 - w * 1.6); GC.rectangle('fill', 64 - w / 2 - d1 / 2, 64 + 31, w, -w)
+            GC.rectangle('fill', 64 - w / 2 + d1 / 2, 64 - 31, w, 62 - w * 1.6); GC.rectangle('fill', 64 - w / 2 + d1 / 2, 64 + 31, w, -w)
+        end),
+        GC.initCanvas(128, 128, function()
+            GC.clear(1, 1, 1, 0)
+            GC.rectangle('fill', 64 - w / 2 - d2, 64 - 31, w, 62 - w * 1.6); GC.rectangle('fill', 64 - w / 2 - d2, 64 + 31, w, -w)
+            GC.rectangle('fill', 64 - w / 2 + 00, 64 - 31, w, 62 - w * 1.6); GC.rectangle('fill', 64 - w / 2 + 00, 64 + 31, w, -w)
+            GC.rectangle('fill', 64 - w / 2 + d2, 64 - 31, w, 62 - w * 1.6); GC.rectangle('fill', 64 - w / 2 + d2, 64 + 31, w, -w)
+        end),
+        GC.initCanvas(128, 128, function()
+            local w = w - 2
+            GC.clear(1, 1, 1, 0)
+            FONT.set(70, '_mono')
+            GC.rectangle('fill', 64 - w / 2 - 19, 64 - 31, w, 62 - w * 1.6); GC.rectangle('fill', 64 - w / 2 - 19, 64 + 31, w, -w)
+            GC.print("?", 53, 5, 0, 1.1, 1.26) -- Not very fitting, but this is not used
+        end),
+        GC.initCanvas(128, 128, function()
+            GC.clear(1, 1, 1, 0)
+            FONT.set(70, '_mono')
+            GC.print("?", 39, 6, 0, 1.26) -- Not very fitting, but this is not used
+        end),
+    }
+end
+
 TEXTURE.recRevBG = GC.initCanvas(1586, 606, function()
     GC.draw(TEXTURE.panel.glass_a)
     GC.draw(TEXTURE.panel.glass_b)
@@ -466,6 +524,7 @@ FONT.load {
     serif = "assets/AbhayaLibre-Regular.ttf",
     sans = "assets/DINPro-Medium.otf",
     led = "assets/UniDreamLED.ttf",
+    symbol = "assets/symbols.otf",
 }
 FontLoaded = SYSTEM == 'Web' or MATH.roll(.62)
 FONT.setDefaultFont(FontLoaded and 'sans' or 'serif')
@@ -484,8 +543,9 @@ TEXTS = { -- Font size can only be 30 and 50 here !!!
     zpChange   = GC.newText(FONT.get(30)),
     dcBest     = GC.newText(FONT.get(30)),
     dcTimer    = GC.newText(FONT.get(30)),
+    srTimer    = GC.newText(FONT.get(30)),
     title      = GC.newText(FONT.get(50), "EXPERT QUICK PICK"),
-    load       = GC.newText(FONT.get(50), "JOINING ROOM..."),
+    load       = GC.newText(FONT.get(50)),
     pb         = GC.newText(FONT.get(50)),
     endResult  = GC.newText(FONT.get(30)),
     endHeight  = GC.newText(FONT.get(50)),
@@ -516,7 +576,7 @@ TEXTS = { -- Font size can only be 30 and 50 here !!!
     slogan_EX  = GC.newText(FONT.get(30), "CHALLENGE THE TOWER!"),
     slogan_rEX = GC.newText(FONT.get(30), "OVERTHROW THE TOWER!"),
     forfeit    = GC.newText(FONT.get(50), "KEEP HOLDING TO FORFEIT"),
-    credit     = GC.newText(FONT.get(30), "Almost all assets from TETR.IO"),
+    credit     = GC.newText(FONT.get(30), "Most assets from TETR.IO"),
     test       = GC.newText(FONT.get(50), "TEST"),
 }
 if not FontLoaded then
@@ -551,10 +611,30 @@ Metatable = {
     best_highscore = { __index = function() return 0 end },
     best_speedrun = { __index = function() return 1e99 end },
 }
-BEST = {
-    highScore = setmetatable({}, Metatable.best_highscore),
-    speedrun = setmetatable({}, Metatable.best_speedrun),
+
+CONF = {
+    keybind = {
+        "q", "w", "e", "r", "t", "y", "u", "i", "o",
+        "a", "s", "d", "f", "g", "h", "j", "k", "l",
+        "space", "z", "x", "c"
+    },
+    fullscreen = true,
+    syscursor = false,
+    cardBrightness = 90,
+    bgBrightness = 40,
+    bg = true,
+    sfx = 60,
+    bgm = 100,
+    autoMute = false,
+    oldHitbox = false,
 }
+-- Create BEST, STAT, ACHV tables,
+-- only called when launching and on resetall
+function InitProfile()
+    BEST = {
+        highScore = setmetatable({}, Metatable.best_highscore),
+        speedrun = setmetatable({}, Metatable.best_speedrun),
+    }
 
 STAT = {
     mod = 'quickpick2',
@@ -575,53 +655,62 @@ STAT = {
     minTime = 2600,
     timeDate = "NO DATE",
 
-    zp = 0,
-    dzp = 0,
-    peakZP = 0,
-    peakDZP = 0,
-    dailyBest = 0,
-    dailyMastered = false,
-    lastDay = 0,
-    vipListCount = 0,
-    clockOutCount = 0,
-    clicker = false,
+        zp = 0,
+        dzp = 0,
+        peakZP = 0,
+        peakDZP = 0,
+        dailyBest = 0,
+        dailyMastered = false,
+        lastDay = 0,
+        vipListCount = 0,
+        clockOutCount = 0,
+        clicker = false,
 
-    totalGame = 0,
-    totalTime = 0,
-    totalQuest = 0,
-    totalPerfect = 0,
-    totalHeight = 0,
-    totalBonus = 0,
-    totalFloor = 0,
-    totalFlip = 0,
-    totalAttack = 0,
-    totalGiga = 0,
-    totalF10 = 0,
-    badge = {},
+        totalGame = 0,
+        totalTime = 0,
+        totalQuest = 0,
+        totalPerfect = 0,
+        totalHeight = 0,
+        totalBonus = 0,
+        totalFloor = 0,
+        totalFlip = 0,
+        totalAttack = 0,
+        totalGiga = 0,
+        totalF10 = 0,
+        totalKO = 0,
+        totalRevive = 0,
+        badge = {},
+    }
 
-    fullscreen = true,
-    syscursor = false,
-    cardBrightness = 90,
-    bgBrightness = 40,
-    bg = true,
-    sfx = 60,
-    bgm = 100,
+    ACHV = {}
 
-    autoMute = false,
-    oldHitbox = false,
-}
+    AchvNotice = {}
+end
 
-ACHV = {}
-
-AchvNotice = {}
+InitProfile()
 
 TestMode = false
 
-function SaveBest() if not TestMode then love.filesystem.write('best.luaon', 'return' .. TABLE.dumpDeflate(BEST)) end end
+function SaveBest()
+    if TestMode then return end
+    love.filesystem.write('best.luaon', 'return' .. TABLE.dumpDeflate(BEST))
+end
 
-function SaveStat() if not TestMode then love.filesystem.write('stat.luaon', 'return' .. TABLE.dumpDeflate(STAT)) end end
+function SaveStat()
+    if TestMode then return end
+    STAT.modTime = os.time()
+    love.filesystem.write('stat.luaon', 'return' .. TABLE.dumpDeflate(STAT))
+end
 
-function SaveAchv() if not TestMode then love.filesystem.write('achv.luaon', 'return' .. TABLE.dumpDeflate(ACHV)) end end
+function SaveAchv()
+    if TestMode then return end
+    love.filesystem.write('achv.luaon', 'return' .. TABLE.dumpDeflate(ACHV))
+end
+
+function SaveConf()
+    if TestMode then return end
+    love.filesystem.write('conf.luaon', 'return' .. TABLE.dumpDeflate(CONF))
+end
 
 local msgTime = 0
 local bufferedMsg = {}
@@ -783,6 +872,7 @@ end
 
 BgScale = 1
 
+CHAR = require 'module/char'
 require 'data/base'
 SHADER = require 'module/shader'
 GAME = require 'module/game'
@@ -897,6 +987,7 @@ BgmData = {
 }
 
 BgmPlaying = false ---@type ZC.bgmName | false
+SongNamePlaying = false -- Same as BgmPlaying, but this distinguishes f0(r) and f1(r) for album page
 BgmLooping = false
 BgmNeedSkip = false
 BgmNeedStop = false
@@ -913,34 +1004,42 @@ end
 function PlayBGM(name, force)
     if GAME.teramusic and not force then return end
 
+    SongNamePlaying = name
     local last = BgmPlaying
 
     if GAME.playing and RevMusicMode() then name = name .. 'r' end
     if name == 'fomgr' then name = 'fomg' end
-    if name:sub(1, 2) == 'f0' then
+    if name == 'f0r' then
         BgmPlaying = 'f0'
-    elseif name:sub(1, 2) == 'f1' and name:sub(1, 3) ~= 'f10' then
+    elseif name == 'f1r' then -- Note: 'f1ex' is only a track name, not musicID
         BgmPlaying = 'f1'
     else
         BgmPlaying = name
     end
 
     if not BgmData[BgmPlaying] then return end
-    BgmLooping = BgmData[BgmPlaying].loop
-    BgmNeedSkip = BgmData[BgmPlaying].teleport
+
     BgmNeedStop = false
 
     if BgmPlaying == 'f0' then
         BgmLooping = false
+        BgmNeedSkip = BgmData[BgmPlaying].teleport
+
         BGM.play(BgmSet.f0)
         RefreshBGM(name)
     elseif BgmPlaying == 'f1' then
+        BgmLooping = BgmData[BgmPlaying].loop
+        BgmNeedSkip = BgmData[BgmPlaying].teleport
+
         BGM.play(BgmSet.f1, force and '' or '-sdin')
         local start = math.random(3, 5) * BgmData.f1.introLen
         BgmNeedSkip[1] = start + BgmData.f1.introLen
         BGM.set('all', 'seek', start)
         RefreshBGM(name)
     elseif name == 'tera' then
+        BgmLooping = BgmData[BgmPlaying].loop
+        BgmNeedSkip = BgmData[BgmPlaying].teleport
+
         BGM.play('tera', '-sdin')
         local startFrom
         if last then
@@ -952,10 +1051,10 @@ function PlayBGM(name, force)
         BgmNeedSkip[1] = start + BgmData.tera.introLen
         BGM.set('all', 'seek', start)
         RefreshBGM()
-    else
-        if BGM.play(name, force and '' or '-sdin') then
-            RefreshBGM()
-        end
+    elseif BGM.play(name, force and '' or '-sdin') then
+        BgmLooping = BgmData[BgmPlaying].loop
+        BgmNeedSkip = BgmData[BgmPlaying].teleport
+        RefreshBGM()
     end
 end
 
@@ -968,7 +1067,7 @@ local normalHelp = {
 local ultraHelp = {
     COLOR.LL, "Welcome to ", COLOR.LR, "Zenith Clicker: ", COLOR.R, "Ultra Reverse", COLOR.LL, ". Activate a reversed mod to start ", COLOR.lR, "suffering.\n",
     COLOR.LL, "The higher you go in the tower, the more likely you are to ", COLOR.R, "die.\n",
-    COLOR.LL, "There are' no more achievements, and ", COLOR.lR, "you are not expected to go very high up.\n",
+    COLOR.LL, "There are no more achievements, and ", COLOR.lR, "you are not expected to go very high up.\n",
     COLOR.R, "Give Up: ", COLOR.LL, "ESC    ", COLOR.R, "Forfeit: ", COLOR.LL, "ESC    ", COLOR.R, "Quit: ", COLOR.LL, "ESC"
 }
 function RefreshHelpText()
@@ -986,7 +1085,7 @@ function RefreshHelpText()
         end
     else
         s.help.text = "?"
-        normalHelp[#normalHelp] = ("Commit: $1    Reset: $2    Forfeit/Quit: ESC"):repD(STAT.keybind[19]:upper(), STAT.keybind[20]:upper())
+        normalHelp[#normalHelp] = ("Commit: $1    Reset: $2    Forfeit/Quit: ESC"):repD(CONF.keybind[19]:upper(), CONF.keybind[20]:upper())
         s.help.floatText = normalHelp
         s.help2.text = "?"
         local hand = GAME.getHand(true)
@@ -1152,16 +1251,16 @@ function Tone(pitch)
 end
 
 function ApplySettings()
-    love.mouse.setVisible(STAT.syscursor)
-    ZENITHA.globalEvent.drawCursor = STAT.syscursor and NULL or starCursor
-    SFX.setVol(STAT.sfx / 100)
-    BGM.setVol(STAT.bgm / 100)
+    love.mouse.setVisible(CONF.syscursor)
+    ZENITHA.globalEvent.drawCursor = CONF.syscursor and NULL or starCursor
+    SFX.setVol(CONF.sfx / 100)
+    BGM.setVol(CONF.bgm / 100)
 end
 
 function ReloadTexts()
     local sep = (TEXTS.mod:getFont():getHeight() + TEXTS.title:getFont():getHeight()) / 2
     for _, text in next, TEXTS do text:setFont(FONT.get(text:getFont():getHeight() < sep and 30 or 50)) end
-    for _, text in next, ShortCut do text:setFont(FONT.get(text:getFont():getHeight() < sep and 30 or 50)) end
+    for _, text in next, CardHintText do text:setFont(FONT.get(text:getFont():getHeight() < sep and 30 or 50)) end
     for _, quest in next, GAME.quests do quest.name:setFont(FONT.get(70)) end
     TEXTS.height:setFont(FONT.get(30))
     TEXTS.time:setFont(FONT.get(30))
@@ -1296,6 +1395,15 @@ function ZENITHA.globalEvent.resize()
     end
 end
 
+local function task_saveConf()
+    TASK.yieldT(2.6)
+    SaveConf()
+end
+local function confUpdate()
+    TASK.removeTask_code(task_saveConf)
+    TASK.new(task_saveConf)
+end
+
 local KBisDown = love.keyboard.isDown
 function ZENITHA.globalEvent.keyDown(key, isRep)
     if isRep then return end
@@ -1307,60 +1415,71 @@ function ZENITHA.globalEvent.keyDown(key, isRep)
             ZENITHA.setDevMode(not ZENITHA.getDevMode() and 1 or false)
         end
     elseif key == 'f11' then
-        STAT.fullscreen = not STAT.fullscreen
-        love.window.setFullscreen(STAT.fullscreen)
-        MSG('dark', "Fullscreen: " .. (STAT.fullscreen and "ON" or "OFF"), 1)
+        CONF.fullscreen = not CONF.fullscreen
+        love.window.setFullscreen(CONF.fullscreen)
+        confUpdate()
+        MSG('dark', "Fullscreen: " .. (CONF.fullscreen and "ON" or "OFF"), 1)
     elseif key == 'f10' then
-        STAT.syscursor = not STAT.syscursor
+        CONF.syscursor = not CONF.syscursor
         SetMouseVisible(true)
         ApplySettings()
-        MSG('dark', "Star Force: " .. (STAT.syscursor and "OFF" or "ON"), 1)
+        confUpdate()
+        MSG('dark', "Star Force: " .. (CONF.syscursor and "OFF" or "ON"), 1)
     elseif key == 'f9' then
-        if not GAME.zenithTraveler then STAT.bg = not STAT.bg end
-        MSG('dark', "BG: " .. (STAT.bg and "ON" or "OFF"), 1)
+        if not GAME.zenithTraveler then CONF.bg = not CONF.bg end
+        confUpdate()
+        MSG('dark', "BG: " .. (CONF.bg and "ON" or "OFF"), 1)
     elseif key == 'f8' then
-        if STAT.bgBrightness < 80 then
-            STAT.bgBrightness = MATH.clamp(STAT.bgBrightness + 10, 30, 80)
-            MSG('dark', "BG " .. STAT.bgBrightness .. "%", 1)
+        if CONF.bgBrightness < 80 then
+            CONF.bgBrightness = MATH.clamp(CONF.bgBrightness + 10, 30, 80)
+            confUpdate()
+            MSG('dark', "BG " .. CONF.bgBrightness .. "%", 1)
         end
     elseif key == 'f7' then
-        if STAT.bgBrightness > 30 then
-            STAT.bgBrightness = MATH.clamp(STAT.bgBrightness - 10, 30, 80)
-            MSG('dark', "BG " .. STAT.bgBrightness .. "%", 1)
+        if CONF.bgBrightness > 30 then
+            CONF.bgBrightness = MATH.clamp(CONF.bgBrightness - 10, 30, 80)
+            confUpdate()
+            MSG('dark', "BG " .. CONF.bgBrightness .. "%", 1)
         end
     elseif key == 'f5' then
-        if STAT.cardBrightness > 80 then
-            STAT.cardBrightness = MATH.clamp(STAT.cardBrightness - 5, 80, 100)
-            MSG('dark', "Card " .. STAT.cardBrightness .. "%", 1)
+        if CONF.cardBrightness > 80 then
+            CONF.cardBrightness = MATH.clamp(CONF.cardBrightness - 5, 80, 100)
+            confUpdate()
+            MSG('dark', "Card " .. CONF.cardBrightness .. "%", 1)
         end
     elseif key == 'f6' then
-        if STAT.cardBrightness < 100 then
-            STAT.cardBrightness = MATH.clamp(STAT.cardBrightness + 5, 80, 100)
-            MSG('dark', "Card " .. STAT.cardBrightness .. "%", 1)
+        if CONF.cardBrightness < 100 then
+            CONF.cardBrightness = MATH.clamp(CONF.cardBrightness + 5, 80, 100)
+            confUpdate()
+            MSG('dark', "Card " .. CONF.cardBrightness .. "%", 1)
         end
     elseif key == 'f3' then
-        if STAT.sfx > 0 then
-            TempSFX = STAT.sfx
-            STAT.sfx = 0
+        if CONF.sfx > 0 then
+            TempSFX = CONF.sfx
+            CONF.sfx = 0
         else
-            STAT.sfx = TempSFX or 60
+            CONF.sfx = TempSFX or 60
             TempSFX = false
         end
-        MSG('dark', STAT.sfx > 0 and "SFX ON" or "SFX OFF", 1)
+        confUpdate()
+        MSG('dark', CONF.sfx > 0 and "SFX ON" or "SFX OFF", 1)
         ApplySettings()
         SFX.play('menuclick')
     elseif key == 'f4' then
-        if STAT.bgm > 0 then
-            TempBGM = STAT.bgm
-            STAT.bgm = 0
+        if CONF.bgm > 0 then
+            TempBGM = CONF.bgm
+            CONF.bgm = 0
         else
-            STAT.bgm = TempBGM or 100
+            CONF.bgm = TempBGM or 100
             TempBGM = false
         end
-        MSG('dark', STAT.bgm > 0 and "BGM ON" or "BGM OFF", 1)
+        confUpdate()
+        MSG('dark', CONF.bgm > 0 and "BGM ON" or "BGM OFF", 1)
         ApplySettings()
     end
 end
+
+function ZENITHA.globalEvent.quit() SaveStat() end
 
 do -- Auto mute when unfocused
     local function task_autoSoundOff()
@@ -1382,7 +1501,7 @@ do -- Auto mute when unfocused
         end
     end
     function ZENITHA.globalEvent.focus(f)
-        if not STAT.autoMute then return end
+        if not CONF.autoMute then return end
         if f then
             TASK.removeTask_code(task_autoSoundOff)
             TASK.new(task_autoSoundOn)
@@ -1565,7 +1684,21 @@ function Daemon_Slow()
         end
 
         -- HTTP returns
-        local msg = ASYNC.get('submitDaily')
+        local msg = ASYNC.get('checkUpdate')
+        if msg then
+            local suc, res = pcall(JSON.decode, msg)
+            if suc and res and res.tag_name then
+                if (require 'version'.appVer):lower() == res.tag_name then
+                    LOG('info', "Already on latest version (" .. res.tag_name .. ")")
+                else
+                    SFX.play('social_notify_major')
+                    MSG('info', "New version " .. res.tag_name .. " available!", 6.26)
+                end
+            else
+                LOG('info', "Failed to check for updates")
+            end
+        end
+        msg = ASYNC.get('submitDaily')
         if msg then
             local suc, res = pcall(JSON.decode, msg)
             local duration = GAME.playing and 0 or 10
@@ -1657,8 +1790,11 @@ function Daemon_Fast()
 
         local dt = yield()
 
+        -- Speedrun timer
+        STAT.srTimer_life = STAT.srTimer_life + dt
+
         -- Mouse holding animation
-        if not STAT.syscursor then
+        if not CONF.syscursor then
             pressValue = msIsDown(1, 2) and 1 or expApproach(pressValue, 0, dt * 12)
         end
 
@@ -1744,7 +1880,7 @@ RefreshDaily()
 TABLE.update(TextColor, BaseTextColor)
 TABLE.update(ShadeColor, BaseShadeColor)
 GAME.refreshCurrentCombo()
-TEXTS.version:set(SYSTEM .. (STAT.oldHitbox and " T" or " V") .. (require 'version'.verStr))
+TEXTS.version:set(SYSTEM .. (CONF.oldHitbox and " T" or " V") .. (require 'version'.verStr))
 
 if SYSTEM == 'Web' then
     _G[('DiscordRPC')] = { update = NULL, setEnable = NULL }

@@ -27,14 +27,14 @@ GravityLockDelay = {
 }
 
 PieceData = {
-    { id = 'nightcore', text = { COLOR.lR, "Z", }, popup = { COLOR.lR, "Z - Nightcore" } },
-    { id = 'slowmo',    text = { COLOR.lG, "S", }, popup = { COLOR.lG, "S - Sloooooow-mo" } },
-    { id = 'glassCard', text = { COLOR.lB, "J", }, popup = { COLOR.lB, "J - Glass Card" } },
-    { id = 'fastLeak',  text = { COLOR.lO, "L", }, popup = { COLOR.lO, "L - Fast Leak" } },
-    { id = 'invisUI',   text = { COLOR.lM, "T", }, popup = { COLOR.lM, "T - Invisible UI" } },
-    { id = 'invisCard', text = { COLOR.lY, "O", }, popup = { COLOR.lY, "O - Invisible Card" } },
-    { id = 'closeCard', text = { COLOR.lC, "I", }, popup = { COLOR.lC, "I - Close Card" } },
-    { id = 'allclear',  text = { COLOR.LL, "-", }, popup = { COLOR.LL, "All Clear" } },
+    { id = 'nightcore', text = { COLOR.lR, "Z" }, piece = { COLOR.lR, CHAR.brik.Z },  popup = { COLOR.lR, "Z - Nightcore" } },
+    { id = 'slowmo',    text = { COLOR.lG, "S" }, piece = { COLOR.lG, CHAR.brik.S },  popup = { COLOR.lG, "S - Sloooooow-mo" } },
+    { id = 'glassCard', text = { COLOR.lB, "J" }, piece = { COLOR.lB, CHAR.brik.J },  popup = { COLOR.lB, "J - Glass Card" } },
+    { id = 'fastLeak',  text = { COLOR.lO, "L" }, piece = { COLOR.lO, CHAR.brik.L },  popup = { COLOR.lO, "L - Fast Leak" } },
+    { id = 'invisUI',   text = { COLOR.lM, "T" }, piece = { COLOR.lM, CHAR.brik.T },  popup = { COLOR.lM, "T - Invisible UI" } },
+    { id = 'invisCard', text = { COLOR.lY, "O" }, piece = { COLOR.lY, CHAR.brik.O },  popup = { COLOR.lY, "O - Invisible Card" } },
+    { id = 'closeCard', text = { COLOR.lC, "I" }, piece = { COLOR.lC, CHAR.brik.I },  popup = { COLOR.lC, "I - Close Card" } },
+    { id = 'allclear',  text = { COLOR.LL, "-" }, piece = { COLOR.LL, CHAR.brik.O1 }, popup = { COLOR.LL, "All Clear" } },
 }
 
 RevSwampName = {
@@ -123,7 +123,7 @@ NegTexts = {
         begin = [[You find yourself in an unfamiliar place.]],
         noAS = [[You passed the security check without any prohibited items.]],
         ASoff = [[To prevent mech heart users from entering, the AS mod has been confiscated.]],
-        -- egg = [[Garbo checks the imprisoned mech heart users here from time to time, except rtxtile, who kept escaping somehow?]],
+        -- egg = [[Garbo checks the imprisoned mech heart users here from time to time, except rtxile, who kept escaping somehow?]],
     },
     b2 = { -- Zenith Restaurant
         desc = "A lively restaurant with a lovely atmosphere.\nThough the prices here are slightly outrageous...",
@@ -213,6 +213,7 @@ NegEvents = {
             GAME.attackMul = GAME.attackMul - .1
             GAME.dmgTimerMul = GAME.dmgTimerMul + .01
             GAME.mod.AS = 0
+            TEXTS.chain:set(tostring(GAME.chain))
             GAME.refreshModIcon()
             GAME.refreshRPC()
         end,
@@ -227,6 +228,7 @@ NegEvents = {
         text = 'b2.effStart',
         event = function()
             GAME.nightcore = true
+            GAME.refreshPieceFstr()
             RefreshBGM()
         end
     },
@@ -265,6 +267,7 @@ NegEvents = {
     {
         event = function()
             GAME.nightcore = false
+            GAME.refreshPieceFstr()
             RefreshBGM()
         end
     },
@@ -275,12 +278,42 @@ NegEvents = {
     { event = { 'attackMul', -.1, 'timerMul', -.15 } },
     { h = -155 }, { text = 'b3.begin' },
     { h = -160 }, { text = 'b3.effStart' },
-    { h = -165 }, { event = { 'invisUI', true } },
-    { h = -170 }, { event = { 'invisUI', false } },
-    { h = -175 }, { event = { 'invisUI', true } },
+    { h = -165 },
+    {
+        event = function()
+            GAME.invisUI = true
+            GAME.refreshPieceFstr()
+        end
+    },
+    { h = -170 },
+    {
+        event = function()
+            GAME.invisUI = false
+            GAME.refreshPieceFstr()
+        end
+    },
+    { h = -175 },
+    {
+        event = function()
+            GAME.invisUI = true
+            GAME.refreshPieceFstr()
+        end
+    },
     { h = -180 }, { text = 'b3.mid1' },
-    { h = -185 }, { event = { 'invisUI', false } },
-    { h = -195 }, { event = { 'invisUI', true } },
+    { h = -185 },
+    {
+        event = function()
+            GAME.invisUI = false
+            GAME.refreshPieceFstr()
+        end
+    },
+    { h = -195 },
+    {
+        event = function()
+            GAME.invisUI = true
+            GAME.refreshPieceFstr()
+        end
+    },
     { h = -200 },
     { text = 'b3.noGV', color = 'lB', cond = function() return GAME.mod.GV == 0 end },
     {
@@ -297,12 +330,42 @@ NegEvents = {
             RefreshBGM()
         end,
     },
-    { h = -200 }, { event = { 'invisUI', false } },
-    { h = -210 }, { event = { 'invisUI', true } },
+    { h = -200 },
+    {
+        event = function()
+            GAME.invisUI = false
+            GAME.refreshPieceFstr()
+        end
+    },
+    { h = -210 },
+    {
+        event = function()
+            GAME.invisUI = true
+            GAME.refreshPieceFstr()
+        end
+    },
     { h = -220 }, { text = 'b3.mid2' },
-    { h = -250 }, { event = { 'invisUI', false } },
-    { h = -260 }, { event = { 'invisUI', true } },
-    { h = -280 }, { event = { 'invisUI', false } },
+    { h = -250 },
+    {
+        event = function()
+            GAME.invisUI = false
+            GAME.refreshPieceFstr()
+        end
+    },
+    { h = -260 },
+    {
+        event = function()
+            GAME.invisUI = true
+            GAME.refreshPieceFstr()
+        end
+    },
+    { h = -280 },
+    {
+        event = function()
+            GAME.invisUI = false
+            GAME.refreshPieceFstr()
+        end
+    },
 
     -- B4: The Bunker
     { h = -300 }, { event = { 'dmgDelay', -1, 'dmgCycle', -.5 } },
@@ -310,7 +373,14 @@ NegEvents = {
     { h = -310 },
     { text = 'b4.begin' },
     { event = function() GAME.dmgWrong = math.min(GAME.dmgWrong, 2) end },
-    { h = -320 }, { text = 'b4.effStart', event = { 'glassCard', true } },
+    { h = -320 },
+    {
+        text = 'b4.effStart',
+        event = function()
+            GAME.glassCard = true
+            GAME.refreshPieceFstr()
+        end
+    },
     { h = -380 },
     { text = 'b4.noMS', color = 'lB', cond = function() return GAME.mod.MS == 0 end },
     {
@@ -327,7 +397,13 @@ NegEvents = {
             GAME.refreshRPC()
         end,
     },
-    { h = -450 }, { event = { 'glassCard', false } },
+    { h = -450 },
+    {
+        event = function()
+            GAME.glassCard = false
+            GAME.refreshPieceFstr()
+        end
+    },
 
     -- B5: The Infirmary
     { h = -450 }, { event = { 'dmgDelay', -1, 'dmgCycle', -.5 } },
@@ -338,6 +414,7 @@ NegEvents = {
     {
         event = function()
             GAME.slowmo = true
+            GAME.refreshPieceFstr()
             RefreshBGM()
         end
     },
@@ -360,6 +437,7 @@ NegEvents = {
     {
         event = function()
             GAME.slowmo = false
+            GAME.refreshPieceFstr()
             RefreshBGM()
         end
     },
@@ -369,7 +447,14 @@ NegEvents = {
     { event = { 'attackMul', -.1 } },
     { event = function() GAME.dmgWrong = math.min(GAME.dmgWrong, 2) end },
     { h = -660 }, { text = 'b6.begin' },
-    { h = -670 }, { text = 'b6.effStart', event = { 'invisCard', true } },
+    { h = -670 },
+    {
+        text = 'b6.effStart',
+        event = function()
+            GAME.invisCard = true
+            GAME.refreshPieceFstr()
+        end
+    },
     { h = -720 },
     { text = 'b6.noNH', color = 'lB', cond = function() return GAME.mod.NH == 0 end },
     {
@@ -387,7 +472,13 @@ NegEvents = {
             GAME.refreshRPC()
         end,
     },
-    { h = -850 }, { event = { 'invisCard', false } },
+    { h = -850 },
+    {
+        event = function()
+            GAME.invisCard = false
+            GAME.refreshPieceFstr()
+        end
+    },
 
     -- B7: Sacreligious Ruins
     { h = -850 }, { event = { 'dmgDelay', -1, 'dmgCycle', -.5 } },
@@ -414,6 +505,7 @@ NegEvents = {
     {
         event = function()
             GAME.nightcore = true
+            GAME.refreshPieceFstr()
             RefreshBGM()
         end
     },
@@ -422,6 +514,7 @@ NegEvents = {
     {
         event = function()
             GAME.nightcore = false
+            GAME.refreshPieceFstr()
             RefreshBGM()
         end
     },
@@ -450,6 +543,7 @@ NegEvents = {
             GAME.lifeLeak = 0
             GAME.dmgWrong = 1
             GAME.invisCard = true
+            GAME.refreshPieceFstr()
             GAME.dmgTimerMul = 1e99
             GAME.height = -1650
             GAME.heightBonus = 0
@@ -472,11 +566,11 @@ NegEvents = {
             GAME.mod.EX = 2
         end,
     },
-    { h = -1660 }, { text = 'b10.end1', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(STAT.bgm / 100 * .85) end },
-    { h = -1690 }, { text = 'b10.end2', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(STAT.bgm / 100 * .7) end },
-    { h = -1720 }, { text = 'b10.end3', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(STAT.bgm / 100 * .5) end },
-    { h = -1750 }, { text = 'b10.end4', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(STAT.bgm / 100 * .3) end },
-    { h = -1780 }, { text = 'b10.end5', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(STAT.bgm / 100 * 0) end },
+    { h = -1660 }, { text = 'b10.end1', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(CONF.bgm / 100 * .85) end },
+    { h = -1690 }, { text = 'b10.end2', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(CONF.bgm / 100 * .7) end },
+    { h = -1720 }, { text = 'b10.end3', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(CONF.bgm / 100 * .5) end },
+    { h = -1750 }, { text = 'b10.end4', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(CONF.bgm / 100 * .3) end },
+    { h = -1780 }, { text = 'b10.end5', color = 'L', duration = 6.26, sfx = 'piece_change', event = function() BGM.setVol(CONF.bgm / 100 * 0) end },
     { h = -1800 },
     {
         event = function()
@@ -484,9 +578,10 @@ NegEvents = {
             GAME.height = -1800
             FloatOnCard = nil
             GAME.refreshLayout()
+            local firstClear = not STAT.clicker
             STAT.clicker = true
             SFX.play('warp')
-            SCN.go('ending', "warp")
+            SCN.go('ending', "warp", firstClear)
         end
     },
     { h = -1e99 },
@@ -506,6 +601,7 @@ end
 
 ModData = require 'data/mod'
 ComboData = require 'data/combo'
+UsernameData = require 'data/username'
 Fatigue = require 'data/fatigue'
 RevivePrompts = require 'data/revive'
 Achievements = require 'data/achievement'

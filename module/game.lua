@@ -140,13 +140,15 @@ local GAME = {
     bgLastH = 0,
     lifeShow = 0,
     lifeShow2 = 0,
-    prevPB = -260,
+    prevPB = -2600,
     modIB = GC.newSpriteBatch(TEXTURE.modIcon),
     resIB = GC.newSpriteBatch(TEXTURE.modIcon),
     comboMP = 0,
     comboZP = 1,
     isUltraRun = false,
     endFloorFstr = {},
+    pieceFstr = {},
+    pieceFstrObj = GC.newText(FONT.get(70, 'symbol')),
 
     completion = { -- 0=not mastered, 1=mastered, 2=rev mastered
         EX = 0,
@@ -182,8 +184,13 @@ local GAME = {
     hasseenDPnerf = false,
     gigaspeedFloor = {},
     teraspeedFloor = {},
+    windupAnim = {}, ---@type Windup[]
+    koCharge = 0,
+    koBuffer = {}, ---@type {uid:string, timer:number, valid:boolean}[]
+    koAnim = {}, ---@type {id1:love.Text, id2:love.Text, a:number, timer:number, pos:number, showP1:boolean, toOppo:boolean}[]
 
     zenithTraveler = false,
+    pieceEffectID = 0,
     nightcore = false,
     slowmo = false,
     glassCard = false,
@@ -211,7 +218,7 @@ local GAME = {
     achv_escapeQuest = nil,
     achv_felMagicBurnt = nil,
     achv_felMagicQuest = nil,
-    achv_resetCount = nil,
+    achv_artistTrinityH = nil,
     achv_noResetH = nil,
     achv_obliviousQuest = nil,
     achv_doublePass = nil,
@@ -230,8 +237,10 @@ GAME.time = 0
 GAME.spikeCounter = 0
 GAME.spikeTimer = 0
 GAME.floorTime = 0
+GAME.f10Time = love.timer.getTime()
 GAME.reviveTime = false
 GAME.floor = 1
+GAME.negFloor = 1
 GAME.rank = 1
 GAME.xp = 0
 GAME.height = 0
@@ -241,6 +250,10 @@ GAME.surge = 0
 local M = GAME.mod
 local MD = ModData
 local CD = Cards
+
+function GAME.ultrafyComboName(n)
+    return n:sub(1, 1) == '"' and '"ULTRA ' .. n:sub(n:sub(2, 4) == "THE" and 6 or 2) or "ULTRA " .. n
+end
 
 ---Unsorted, like {'rEX','NH',...}
 ---@param real boolean current mod setting or literally selected cards
@@ -2146,6 +2159,10 @@ function GAME.commit(auto)
                         SFX.play('b2bcharge_4', .626)
                     end
                 end
+            end
+
+            if correct == 1 and M.DH == 2 then
+                GAME.blightTrigger = true
             end
 
                 if M.EX == 1 then

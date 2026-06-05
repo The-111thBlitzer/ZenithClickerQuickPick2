@@ -292,7 +292,7 @@ function GAME.getComboZP(list)
     local m = TABLE.getValueSet(list)
     local zp = 1
     if m.EX then zp = zp * 1.5 elseif m.rEX then zp = zp * 2.6 end
-    if m.NH then zp = zp * 1.1 elseif m.rNH then zp = zp * (1.85 + .05 * (#list - 1)) end
+    if m.NH then zp = zp * 1.1 elseif m.rNH then zp = zp * 1.85 end
     if m.MS then zp = zp * 1.15 elseif m.rMS then zp = zp * 2 end
     if m.GV then zp = zp * 1.2 elseif m.rGV then zp = zp * 1.5 end
     if m.VL then zp = zp * 1.05 elseif m.rVL then zp = zp * (1.2 + .02 * (#list - 1)) end
@@ -341,7 +341,10 @@ function GAME.getComboName(list, mode)
         end
 
         -- Named combo
-        local combo = (M.DH == 2 and ComboData.gameEX or ComboData.game)[table.concat(TABLE.sort(list), ' ')]
+        local combo = (ComboData.game)[table.concat(TABLE.sort(list), ' ')]
+        if M.DH == 2 and MATH.roll() then
+            combo = (M.DH == 2 and ComboData.gameEX)[table.concat(TABLE.sort(list), ' ')]
+        end
         if combo then
             fstr = combo.name:atomize()
             if URM and M.DH == 2 then
@@ -640,26 +643,8 @@ function GAME.genQuest()
             -- Reduce DP on rDH
             pool.DP = pool.DP * .5
         end
-        for _ = 1, questCount do
-            local mod = MATH.randFreqAll(pool)
-            pool[mod] = 0
-            local p = TABLE.find(CD, CD[mod])
-            if p then
-                if p > 1 then
-                    local left = CD[p - 1].id
-                    pool[left] = max(pool[left] * (1 - GAME.questFavor * .01), 0)
-                end
-                if p < 9 then
-                    local right = CD[p + 1].id
-                    pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
-                end
-            end
-            ins(combo, mod)
-        end
-
-        if M.DH == 1 then
-            if MATH.roll() then
-                GAME.dhMod = nil
+        if M.MS < 2 or M.MS == 2 and GAME.totalQuest > 3 then
+            for _ = 1, questCount do
                 local mod = MATH.randFreqAll(pool)
                 pool[mod] = 0
                 local p = TABLE.find(CD, CD[mod])
@@ -673,7 +658,60 @@ function GAME.genQuest()
                         pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
                     end
                 end
-                GAME.dhMod = mod
+                ins(combo, mod)
+            end
+            if M.DH == 1 then
+            if MATH.roll() then
+                    GAME.dhMod = nil
+                    local mod = MATH.randFreqAll(pool)
+                    pool[mod] = 0
+                    local p = TABLE.find(CD, CD[mod])
+                    if p then
+                        if p > 1 then
+                            local left = CD[p - 1].id
+                            pool[left] = max(pool[left] * (1 - GAME.questFavor * .01), 0)
+                        end
+                        if p < 9 then
+                            local right = CD[p + 1].id
+                            pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
+                        end
+                    end
+                    GAME.dhMod = mod
+                    ins(combo, mod)
+                end
+            elseif M.DH == 2 then
+                for _ = 1, MATH.rand(1, 3) do
+                    local mod = MATH.randFreqAll(pool)
+                    pool[mod] = 0
+                    local p = TABLE.find(CD, CD[mod])
+                    if p then
+                        if p > 1 then
+                            local left = CD[p - 1].id
+                            pool[left] = max(pool[left] * (1 - GAME.questFavor * .01), 0)
+                        end
+                        if p < 9 then
+                            local right = CD[p + 1].id
+                            pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
+                        end
+                    end
+                    ins(combo, mod)
+                end
+            end
+        else
+            for _ = 1, 6 do
+                local mod = MATH.randFreqAll(pool)
+                pool[mod] = 0
+                local p = TABLE.find(CD, CD[mod])
+                if p then
+                    if p > 1 then
+                        local left = CD[p - 1].id
+                        pool[left] = max(pool[left] * (1 - GAME.questFavor * .01), 0)
+                    end
+                    if p < 9 then
+                        local right = CD[p + 1].id
+                        pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
+                    end
+                end
                 ins(combo, mod)
             end
         end
@@ -1630,24 +1668,29 @@ function GAME.task_cancelAll(instant)
         -- end
         GAME.achv_totalResetCount = GAME.achv_totalResetCount + 1
     end
-    local list = TABLE.copy(CD, 0)
-    local needFlip = {}
-    local spinMode = not instant and M.AS > 0
-    for i = 1, #CD do
-        needFlip[i] = spinMode or CD[i].active
-    end
-    local interval = not instant and .042 * (M.AS == 2 and .62 or 1) * (1 + 2 * M.NH) * (GAME.slowmo and 2.6 or 1) * (GAME.nightcore and 1 / 2.6 or 1)
-    for i = 1, #list do
-        if needFlip[i] then
-            list[i]:setActive(true)
-            if M.AS == 1 then
-                list[i].burn = false
-            end
-            if interval then
-                SFX.play('card_slide_' .. rnd(4), .62)
-                TASK.yieldT(interval)
+
+    if (not M.NH == 2 or instant) or M.NH < 2 then
+        local list = TABLE.copy(CD, 0)
+        local needFlip = {}
+        local spinMode = not instant and M.AS > 0
+        for i = 1, #CD do
+            needFlip[i] = spinMode or CD[i].active
+        end
+        local interval = not instant and .042 * (M.AS == 2 and .62 or 1) * (1 + 2 * M.NH) * (GAME.slowmo and 2.6 or 1) * (GAME.nightcore and 1 / 2.6 or 1)
+        for i = 1, #list do
+            if needFlip[i] then
+                list[i]:setActive(true)
+                if M.AS == 1 then
+                    list[i].burn = false
+                end
+                if interval then
+                    SFX.play('card_slide_' .. rnd(4), .62)
+                    TASK.yieldT(interval)
+                end
             end
         end
+    else
+        SFX.play('no')
     end
 end
 
@@ -1662,6 +1705,7 @@ function GAME.commit(auto)
     local allyWasDead = GAME[GAME.getLifeKey(true)] == 0
 
     if #hand == 0 and GAME.questTime < .1 then return SFX.play('no') end
+    if M.MS == 2 and GAME.questTime < 1.15 then return SFX.play('no') end
 
     if M.DP > 0 and not (GAME.achv_shareModH and GAME.achv_noShareModH) and GAME.totalQuest >= 1 then
         local noRep = #TABLE.subtract(TABLE.copy(hand), GAME.lastCommit) == #hand
@@ -1982,8 +2026,13 @@ function GAME.commit(auto)
                 GAME.incrementPrompt('spin_'..GAME.SelectedCard)
                 if GAME.spinCount > 3 then GAME.spinCount = 3 end
                 if GAME.spinCount > 0 then
-                    attack = ((M.NH == 2 and GAME.spinCount - 1) or GAME.spinCount * 2)
-                    SFX.play('clearspin', .5)
+                    if not M.DH == 2 or M.DH == 2 and (GAME.blightTrigger or GAME.blightActive) then
+                        attack = ((M.NH == 2 and GAME.spinCount - 1) or GAME.spinCount * 2)
+                        SFX.play('clearspin', .5)
+                        if M.DH == 2 and GAME.blightActive then
+                            attack = attack * 1.75
+                        end
+                    end
                     if GAME.chain >= 1 then attack = attack + 1 end
                     if M.AS < 1 and M.NH < 2 then
                         if GAME.spinCount == 1 then xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
@@ -2015,20 +2064,32 @@ function GAME.commit(auto)
             elseif GAME.chain >= 1 then
                 GAME.incrementPrompt('clear')
                 GAME.incrementPrompt('clear_quadchain')
-                attack = attack + 3 
+                if not (M.DH == 2 and GAME.blightTrigger) or M.AS < 2 then
+                    attack = attack + 3 
+                elseif M.DH == 2 and GAME.blightTrigger then
+                    attack = attack + 3
+                    GAME.blightActive = true
+                    GAME.blightTrigger = false
+                elseif M.DH == 2 and GAME.blightActive then
+                    attack = (attack + 3) * 1.75
+                end
                 SFX.play('clearbtb', .5)
                 GAME.Clear = 'QUAD'
                 xp = xp + 4
             else
                 GAME.incrementPrompt('clear')
                 GAME.incrementPrompt('clear_quadchain')
-                attack = attack + 2
+                if not (M.DH == 2 and GAME.blightTrigger) or M.AS < 2 then
+                    attack = attack + 2
+                elseif M.DH == 2 and GAME.blightTrigger and M.AS < 2 then
+                    attack = MATH.round(4 * 1.75)
+                end
                 SFX.play('clearquad', .5)
                 GAME.Clear = 'QUAD'
                 xp = xp + 4
             end
 
-            if M.AS == 2 then
+            if M.AS == 2 and M.DH < 2 then
                 if GAME.spinAttack then 
                     if GAME.chain >= 4 then
                         attack = attack + 1 
@@ -2064,7 +2125,7 @@ function GAME.commit(auto)
                 end
             end
 
-            if correct == 1 then
+            if correct == 1 and M.DH < 2 then
                 if GAME.spinAttack and GAME.spinCount > 0 then -- Spin clears
                     GAME.chain = GAME.chain + 1
                 elseif M.AS == 2 and GAME.spinAttack and GAME.spinCount == 0 and GAME.chain >= 4 then -- rAS Spin zeros
@@ -2291,7 +2352,7 @@ function GAME.commit(auto)
         --  end
         --end
 
-        if M.NH < 2 then GAME.cancelAll(true) end
+        GAME.cancelAll(true)
         GAME.cancelBurn()
         GAME.dmgTimer = min((GAME.dmgTimer + max(2.6, GAME.dmgDelay / 2)), GAME.dmgDelay)
 
@@ -2407,9 +2468,10 @@ function GAME.commit(auto)
         GAME.dmgWrongExtra = GAME.dmgWrongExtra + .5
 
         if M.GV > 0 then GAME.gravTimer = GAME.gravDelay end
-        if M.EX > 0 then
-            if M.NH < 2 then GAME.cancelAll(true) end
-        elseif M.AS == 1 then
+        if M.EX > 0 or M.NH == 2 then
+            GAME.cancelAll(true)
+        end
+        if M.AS == 1 then
             GAME.cancelBurn()
         end
     end
@@ -2509,20 +2571,20 @@ function GAME.start()
     -- Params
     GAME.maxQuestCount = M.NH == 2 and 2 or 3
     GAME.maxQuestSize = (M.NH < 2 and M.DH == 2) and 3 or 4
-    GAME.extraQuestBase = M.NH == 2 and (M.DH > 0 and 2.42 - M.DH or 1.26) or M.DH == 1 and 0.26 or 0
-    GAME.extraQuestVar = M.DH == 1 and .626 or 1
-    GAME.questMessiness = 0 + (GAME.floor * 1.62) + (M.MS == 1 and 12.6 or M.MS == 2 and 62 or M.VL == 1 and -15 or M.VL == 2 and -30 or 0)
+    GAME.extraQuestBase = 0 + (M.NH == 2 and (M.DH > 0 and 2.42 - M.DH or 1.26) or 0) + (M.DH == 1 and 0.26 or 0) + (M.MS == 2 and 3.26 or 0)
+    GAME.extraQuestVar = 1 + (M.DH == 1 and .626 or 0) +(M.MS == 2 and 6.262 or 0) + (M.DH == 2 and 6.66 or 0)
+    GAME.questMessiness = M.DH == 2 and 666 or 0 + (GAME.floor * 1.62) + (M.MS == 1 and 12.6 or M.MS == 2 and 62 or M.VL == 1 and -15 or M.VL == 2 and -30 or 0)
     GAME.messierQuest = MATH.random(0,0.62 * MATH.abs(GAME.floor))
     GAME.cleanerQuest = MATH.random(-0.26 * MATH.abs(GAME.floor), 0)
     GAME.questFavor = 0 -- Initialized in GAME.upFloor()
     GAME.dmgHealMul = M.VL == 1 and 2 or 1
-    GAME.dmgHeal = 2 * GAME.dmgHealMul
-    GAME.dmgWrong = 1 + (M.EX > 0 and 1 or 0)
-    GAME.dmgMul = M.VL == 1 and 2 or M.VL == 2 and 3 or 1
-    GAME.dmgTime = 2 + (M.EX > 0 and 1 or 0)
+    GAME.dmgHeal = 2 * GAME.dmgHealMul - (M.DH == 2 and 1 or 0)
+    GAME.dmgWrong = 1 + (M.EX > 0 and 1 or 0) - (M.DH == 2 and .5 or 0)
+    GAME.dmgMul = 1 * (M.VL == 1 and 2 or M.VL == 2 and 3 or 1) * (M.DH == 2 and 0.75 or 1) 
+    GAME.dmgTime = 2 + (M.EX > 0 and 1 or 0) - (M.DH == 2 and 1 or 0)
     GAME.dmgTimerMul = 1
-    GAME.dmgDelay = GAME.hardMode and 12 or 15
-    GAME.dmgCycle = GAME.hardMode and 2.5 or 5
+    GAME.dmgDelay = M.VL == 2 and 10.5 or 15
+    GAME.dmgCycle = M.EX > 0 and 2.4 or 5.5
     GAME.lifeLeak = 0
     GAME.spinAttack = false
     GAME.spinCount = 0
@@ -2534,11 +2596,12 @@ function GAME.start()
     GAME.extraMod = false
     GAME.dhMod = nil
     GAME.hardDmg = 0
+    GAME.dmgWrongExtra = 0
 
     -- Player
-    GAME.fullHealth = 22
-    GAME.startingHealth = GAME.fullHealth
-    GAME.life = GAME.fullHealth
+    GAME.fullHealth = M.VL == 2 and 16 or (M.DH == 2 and M.VL < 2 and 18) or 22
+    GAME.startingHealth = 22
+    GAME.life = (M.DH == 2 and 10) or((M.AS == 2 and M.DH < 2) and GAME.fullHealth - 10) or ((M.IN == 2 and not (M.AS == 2 or M.DH == 2)) and GAME.fullHealth - 3) or GAME.fullHealth
     GAME.dmgTimer = GAME.dmgDelay
     GAME.chain = 0
     GAME.gigaspeed = false
@@ -2557,6 +2620,8 @@ function GAME.start()
     GAME.Clear = ''
     GAME.SelectedCard = nil
     GAME.woundTrigger = false
+    GAME.blightTrigger = false
+    GAME.blightActive = false
 
     -- Spike
     GAME.spikeTimer = 0
@@ -2567,7 +2632,7 @@ function GAME.start()
 
     -- rDP
     GAME.onAlly = false
-    GAME.life2 = GAME.fullHealth
+    GAME.life2 = GAME.life
     GAME.rankLimit = 26000
     GAME.reviveCount = 0
     GAME.reviveDifficulty = 0
@@ -2581,32 +2646,6 @@ function GAME.start()
         GAME.rankLimit = 8 + 4 * M.EX
         GAME.dmgHeal = 3 * GAME.dmgHealMul
     end
-
-    -- (Max) HP altering
-    if M.IN == 2 then
-        if not (M.AS == 2 or M.DH == 2) then
-            GAME.startingHealth = GAME.startingHealth - 3
-            GAME.life = GAME.startingHealth
-        end
-    end
-    if M.AS == 2 and not M.DH == 2 then
-        GAME.startingHealth = GAME.startingHealth - 10
-        GAME.life = GAME.startingHealth
-    end
-    if M.DH == 2 then 
-        GAME.startingHealth = GAME.startingHealth - 12
-        GAME.life = GAME.startingHealth
-        if not M.VL == 2 then
-            GAME.fullHealth = GAME.fullHealth - 4 
-        end
-    end
-    if M.VL == 2 then
-        GAME.startingHealth = GAME.fullHealth
-        GAME.life = GAME.fullHealth
-        GAME.fullHealth = GAME.fullHealth - 6
-    end
-
-
 
     GAME.refreshLifeState()
 
@@ -3393,7 +3432,7 @@ function GAME.update(dt)
     end
 
     -- Damage
-    local dmgTimerMulGV = M.GV == 1 and 0.75 - 0.03 * (GAME.floor - 1) or M.GV == 2 and 0.26 - 0.0125 * (GAME.floor - 1) or 1
+    local dmgTimerMulGV = M.GV == 1 and 0.75 - 0.03 * (GAME.floor - 1) or M.GV == 2 and 0.525 - 0.01 * (GAME.floor - 1) or 1
     GAME.dmgTimer = GAME.dmgTimer - dt / (GAME.dmgTimerMul * dmgTimerMulGV)
     if GAME.dmgTimer <= 0 then
         GAME.dmgTimer = GAME.dmgCycle

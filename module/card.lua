@@ -65,7 +65,7 @@ local function task_refreshBGM()
     RefreshBGM()
 end
 function Card:setActive(auto, key)
-    if TASK.getLock('cannotFlip') or GAME.playing and M.NH == 1 and not auto and self.active then
+    if TASK.getLock('cannotFlip') or GAME.playing and M.NH >= 1 and not auto and self.active then
         self:flick()
         SFX.play('no')
         return
@@ -235,7 +235,7 @@ function Card:setActive(auto, key)
             for _, C in ipairs(CD) do C:flip() end
             noSpin = M.IN == 1
         end
-        SCN.scenes.tower.widgetList.reset:setVisible(not GAME.zenithTraveler)
+        SCN.scenes.tower.widgetList.reset:setVisible(not (GAME.zenithTraveler or M.NH == 2))
         GAME.hardMode = M.EX > 0 or GAME.anyRev and not URM
         GAME.refreshPBText()
         GAME.refreshRPC()

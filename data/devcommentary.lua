@@ -74,31 +74,31 @@ return {
         Anyways, Zenith Clicker's aim is to let everyone enjoy all mods! Just practice a few weeks to beat rEX here! Or use AS to skip the challenge :>
     ]],
     ['rNH'] = STRING.trimIndent [[
-        I want to reproduce the feeling of "classic" like what QP2 does, so I tried many combinations of "limited next queue" "no cancel" "no reset button".
-        And finally I decided to make it "limited next queue" + "no auto cancel", and "remove +1 atk on perfect pass".
-        Though it doesn't look like very "classic", it does need you read the only next quest and plan ahead, just like classical Tetris.
+        A more 'classic' feel to QP2, no holding, no cancelling and no resetting, and one next, one active piece and one next piece only.
+        Asceticism takes on some more effects to No Hold, though there are more quests you need to clear since all garbage lines have 2 holes adjacently.
+        Also, All Spins are demoted to Mini-Spins, just like how T-Spins are demoted to Mini T-Spins
     ]],
     ['rMS'] = STRING.trimIndent [[
-        What about... shuffling cards after each quest? Sounds evil but that's how reversed mods should be like, right?
-        Well, I still want it to be playable for skilled players, here's the secret: the last clicked card and its neighbors won't be shuffled on pass.
-        Being lenient, it's the key to make a game enjoyable, and sometimes helps creating more possibility of strategies. Go try speedrunning with it now!
+        If Messier Quests is bad enough, then Loaded Dice is much more brutal. 
+        Since the board state starts with a dice depiction of a 6, this gives me an idea to make 6 hextuple mod quests at the start of the game.
+        Also, after each pass, you cannot commit for a short amount of time. Good luck speedrunning this...
     ]],
     ['rGV'] = STRING.trimIndent [[
-        20G Tetris players love pure speed. So let's go faster, just faster, and nothing else changed.
-        And being lenient: pause the timer for a while on passing previous quest, and reset the timer on wrong commit & reset cards.
-        You said you didn't noticed that? Good, now you know how many details I added :>
+        20G Tetris in Zenith Clicker form!
+        Timers gets even faster, meaning you have to click your way quick to be able to beat the clock. 
+        Seems fast and harsh, but that is what reversed mods are.
         Btw do you wanna take a more exciting challenge? Go activating rGV + nightco... oops maybe I shouldn't give you hint about this XD
     ]],
     ['rVL'] = STRING.trimIndent [[
-        Double clicks? Quadruple clicks! Due to health reasons, Left+Right click is allowed here, it's still very tiring to double double clicks for each card,
-        and you could even use keyboard to further reduce the inputs, but that's also harder to coordinate. Which strat is the best? Up to you.
-        Oh and don't forget that in QP2 there's only triple garbages but no triple cancelling, so you need to click 4 times to cancel a card too :>
-        Tips: EX or any reversed mod activates "hard mode", reducing your XP gain from selecting (clearing single gives 1 atk in QP2). So what if XP lea...
+        Double the damage? Triple the damage!
+        Last Stand is the harder version of Volatility, receive triple the damage, but you can only heal normally, making mistakes even more deadlier.
+        And to add to the pressure, 6 less rows on the playing field!
+        So what if XP lea... ...from what you can attain?
     ]],
     ['rDH'] = STRING.trimIndent [[
-        When I came to design this mod, QP2's rDH was still "messy garbage + no cancelling", not the current "messy garbage + dig to attack" one
-        so I had no idea about how rDH should be, then I saw the "naming every combo" spreadsheet in tetrio community, it could be the answer...?
-        Anyways it was chosen, rDH changes all quests into... maybe it's not much related but it introduces community interactions, so fun!
+        After TETR.IO 1.7.1 Beta reworked Damnation to have a dig to attack function instead of no cancel, why not do the same in Zenith Clicker?
+        Within Damnation, you can't attack unless your clear triggers BLIGHTED, in which passing a quest 
+        containing a few cards the same as the last commit will cause BLIGHTED to occur, giving a stronger attack.
     ]],
     ['rIN'] = STRING.trimIndent [[
         Time to play real invisible! Reversed invisible should be really invisible. Let's hide quests after a few seconds...

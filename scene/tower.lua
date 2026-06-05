@@ -1062,7 +1062,19 @@ function scene.overDraw()
             elseif GAME.comboStr == 'VLrGV' then
                 GC.mStr(floor(GAME.achv_altFromSurge) .. "m", 326, 240)
             end
+--[[
+            --Blight
+                local _t = GAME.questTime
+                local bk = _t < .12 and 1 + 62 * _t * (.12 - _t) or 1
+                local k = clampInterpolate(6, .7, 26, 2, c)
+            if M.DH == 2 then
+                local blightState = TEXTS['BLIGHTED']
+                gc_setColor(COLOR.R)
+                gc_strokeDraw('full', k * 2, blightState, 326, 268, 0, k * bk)
 
+
+            end
+]]
             -- Damage Timer
             local delay = GAME.dmgDelay
             local w = -360 * min(GAME.dmgTimerMul ^ .5, 1)

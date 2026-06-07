@@ -14,88 +14,6 @@ local textColor = { COLOR.HEX("54B06D") }
 local scoreColor = { COLOR.HEX("B0FFC0") }
 local setup = { stencil = true, card }
 
-local crProgress = {
-    f10 = 0,
-    sr = 0,
-    achvGet = 0,
-    achvAll = 0,
-}
-
-local function getF10Completion()
-    local s = 0
-    for i = 1, #ModData.deck do
-        local id = ModData.deck[i].id
-        if BEST.highScore[id] >= Floors[9].top then s = s + 1 end
-        if BEST.highScore['r' .. id] >= Floors[9].top then s = s + 1 end
-    end
-    return s
-end
-local function getSpeedrunCompletion()
-    local s = 0
-    for i = 1, #ModData.deck do
-        local id = ModData.deck[i].id
-        if BEST.speedrun[id] < 1e26 then s = s + 1 end
-        if BEST.speedrun['r' .. id] < 1e26 then s = s + 1 end
-    end
-    return s
-end
-local function getAchvCompletion()
-    local p, P = 0, 0
-    for i = 1, #Achievements do
-        local A = Achievements[i]
-        if A.type == 'competitive' then
-            P = P + 5
-            if ACHV[A.id] then
-                local rank = floor(A.rank(ACHV[A.id]))
-                p = p + rank
-            end
-        end
-    end
-    return p, P
-end
-local function norm(x, k) return 1 + (x - 1) / (k * x + 1) end
-local function calculateRating()
-    local cap = 25000
-    local cr = 0
-
-    -- Best height (5K)
-    cr = cr + 5000 * norm(MATH.icLerp(50, 6200, STAT.maxHeight), 6.2)
-
-    -- Best time (5K)
-    cr = cr + 5000 * norm(MATH.icLerp(420, 76.2, STAT.minTime), -.5)
-
-    -- Mod completion (3K)
-    cr = cr + 3000 * norm(MATH.icLerp(0, #ModData.deck * 2, crProgress.f10), .62)
-
-    -- Mod speedrun (2K)
-    cr = cr + 2000 * norm(MATH.icLerp(0, #ModData.deck * 2, crProgress.sr), .62)
-
-    -- Zenith point (3K)
-    cr = cr + 3000 * norm(MATH.icLerp(0, 26e4, STAT.zp), 4.2)
-
-    -- Daily challenge (2K)
-    cr = cr + 2000 * norm(MATH.icLerp(0, 6200, STAT.dzp), 2.6)
-
-    -- Achievement (5K)
-    cr = cr + 5000 * norm(MATH.icLerp(0, crProgress.achvAll, crProgress.achvGet), 2.6)
-
-    -- ACHV Wreath (competitive achievement count)
-    for i = 1, #Achievements do
-        local A = Achievements[i]
-        if A.type == 'competitive' then
-            cap = cap + 1
-            local r = A.rank(ACHV[A.id] or A.noScore or 0)
-            if r == 5.9999 then
-                cr = cr + 1
-            end
-        end
-    end
-
-    if cr >= 25000 then IssueSecret('champion', true) end
-
-    return MATH.round(cr), cap
-end
-
 local sawMap = {
     { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
     { 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0 },
@@ -231,15 +149,16 @@ function RefreshProfile()
         scene.widgetList[i]:setVisible(false)
     end
 
+    local rating, cap = CalculateCR()
+
     -- Clicker Badge
     if STAT.clicker then
         GC.setColor(1, 1, 1)
         GC.mDraw(TEXTURE.stat.clicker, 970, 182, 0, .626)
-        local rating, cap = calculateRating()
         local clickerLV = 0
         if STAT.totalTime >= 3600 * 26 then clickerLV = clickerLV + 1 end
         if STAT.maxHeight >= 10000 and STAT.minTime <= 42 then clickerLV = clickerLV + 1 end
-        if MATH.sumAll(GAME.completion) == 18 then clickerLV = clickerLV + 1 end
+        if MATH.sumAll(GAME.completion) == 2 * #ModData.deck then clickerLV = clickerLV + 1 end
         if rating >= 25000 then clickerLV = clickerLV + 1 end
         if rating == cap then clickerLV = clickerLV + 1 end
         for i = 0, clickerLV - 1 do
@@ -263,7 +182,6 @@ function RefreshProfile()
     local bw, bh = 370, 120
 
     -- Rating
-    local rating, cap = calculateRating()
     GC.ucs_move(25, 370)
     GC.setColor(boxColor)
     GC.rectangle('fill', 0, 0, bw, bh)
@@ -290,23 +208,24 @@ function RefreshProfile()
     GC.setColor(scoreColor)
     dblMidDraw(t30, bw / 2 + t50:getWidth() / 2 + t30:getWidth() / 2, bh / 2 + 4)
     -- Rank
-    local rank =
-        STAT.totalTime / 60 + STAT.totalFloor / 9 + STAT.totalGiga / 2 <= 62 and 0 or
-        MATH.clamp(math.ceil(rating / 1400), 1, 18)
+    local zRank = STAT.totalTime / 60 + STAT.totalFloor / 9 + STAT.totalGiga / 2 <= 62
+    local rank = MATH.clamp(math.ceil(rating / 1400), 1, 18)
     local rankIcon = TEXTURE.stat.rank[rank]
     GC.setColor(1, 1, 1)
-    GC.mDraw(rankIcon, bw / 2 - t50:getWidth() / 2 - 26, bh / 2, 0, 62 / rankIcon:getWidth())
-    if rank > 0 then
-        -- Progress Bar
-        GC.setColor(rating <= 25000 and textColor or scoreColor)
-        GC.line(7, bh - 30,
-            MATH.lerp(7, bw - 7,
-                rank <= 17 and rating % 1400 / 1400 or
-                rating <= 25000 and MATH.iLerp(23800, 25000, rating) or
-                MATH.iLerp(25000, cap, rating)),
-            bh - 30
-        )
+    local iconX, iconY = bw / 2 - t50:getWidth() / 2 - 26, bh / 2
+    GC.mDraw(TEXTURE.stat.rank[zRank and 0 or rank], iconX, iconY, 0, 62 / rankIcon:getWidth())
+    if zRank and STAT.srActive then
+        GC.mDraw(TEXTURE.stat.rank[rank], iconX + 31 / 2, iconY + 31 / 2, 0, 31 / rankIcon:getWidth())
     end
+    -- Progress Bar
+    GC.setColor(rating <= 25000 and textColor or scoreColor)
+    GC.line(7, bh - 30,
+        MATH.lerp(7, bw - 7,
+            rank <= 17 and rating % 1400 / 1400 or
+            rating <= 25000 and MATH.iLerp(23800, 25000, rating) or
+            MATH.iLerp(25000, cap, rating)),
+        bh - 30
+    )
     GC.ucs_back()
 
     -- Height
@@ -360,9 +279,9 @@ function RefreshProfile()
         { t = { textColor, "1-Mod Ascent" },                                                      x = 16,  y = 33 },
         { t = { textColor, "1-Mod Speedrun" },                                                    x = 16,  y = 58 },
         { t = { textColor, "Achievements" },                                                      x = 16,  y = 83 },
-        { t = { scoreColor, crProgress.f10 .. " / " .. maxComp },                                 x = 190, y = 33 },
-        { t = { scoreColor, crProgress.sr .. " / " .. maxComp },                                  x = 190, y = 58 },
-        { t = { scoreColor, crProgress.achvGet .. " / " .. crProgress.achvAll },                  x = 190, y = 83 },
+        { t = { scoreColor, CRprogress.f10 .. " / " .. maxComp },                                 x = 190, y = 33 },
+        { t = { scoreColor, CRprogress.sr .. " / " .. maxComp },                                  x = 190, y = 58 },
+        { t = { scoreColor, CRprogress.achvGet .. " / " .. CRprogress.achvAll },                  x = 190, y = 83 },
         { t = { textColor, "Best Altitude" },                                                     x = 300, y = 8 },
         { t = { textColor, "Best Speedrun" },                                                     x = 300, y = 33 },
         { t = { textColor, "Zenith Points" },                                                     x = 300, y = 58 },
@@ -421,9 +340,7 @@ function scene.load()
         TWEEN.new(function(t) cardShow = t end):setDuration(.1):run()
     end)
 
-    crProgress.f10 = getF10Completion()
-    crProgress.sr = getSpeedrunCompletion()
-    crProgress.achvGet, crProgress.achvAll = getAchvCompletion()
+    RefreshCRprogress()
 
     RefreshProfile()
 end

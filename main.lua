@@ -628,6 +628,11 @@ CONF = {
     autoMute = false,
     oldHitbox = false,
 }
+SR = {}
+
+TABLE.update(CONF, FILE.safeLoad('conf.luaon', '-luaon') or NONE)
+TABLE.update(SR, FILE.safeLoad('speedrun.luaon', '-luaon') or NONE)
+
 -- Create BEST, STAT, ACHV tables,
 -- only called when launching and on resetall
 function InitProfile()
@@ -640,6 +645,8 @@ STAT = {
     mod = 'quickpick2',
     version = nil, -- will be set after loading
     system = SYSTEM,
+        srMilestone = {},
+        srActive = true,
     joinDate = os.date("%b %Y"),
     hid = os.date("%d%S%m%M%y%H") .. math.random(26000, 42000) .. math.random(42000, 62000),
     uid = "ANON-" .. os.date("%d_") .. math.random(2600, 6200),
@@ -710,6 +717,93 @@ end
 function SaveConf()
     if TestMode then return end
     love.filesystem.write('conf.luaon', 'return' .. TABLE.dumpDeflate(CONF))
+end
+
+function SaveSR()
+    if TestMode then return end
+    love.filesystem.write('speedrun.luaon', 'return' .. TABLE.dumpDeflate(SR))
+end
+
+CRprogress = {
+    f10 = 0,
+    sr = 0,
+    achvGet = 0,
+    achvAll = 0,
+}
+function RefreshCRprogress()
+    local s
+
+    s = 0
+    for i = 1, #ModData.deck do
+        local id = ModData.deck[i].id
+        if BEST.highScore[id] >= Floors[9].top then s = s + 1 end
+        if BEST.highScore['r' .. id] >= Floors[9].top then s = s + 1 end
+    end
+    CRprogress.f10 = s
+
+    s = 0
+    for i = 1, #ModData.deck do
+        local id = ModData.deck[i].id
+        if BEST.speedrun[id] < 1e26 then s = s + 1 end
+        if BEST.speedrun['r' .. id] < 1e26 then s = s + 1 end
+    end
+    CRprogress.sr = s
+
+    local p, P = 0, 0
+    for i = 1, #Achievements do
+        local A = Achievements[i]
+        if A.type == 'competitive' then
+            P = P + 5
+            if ACHV[A.id] then
+                local rank = math.floor(A.rank(ACHV[A.id]))
+                p = p + rank
+            end
+        end
+    end
+    CRprogress.achvGet, CRprogress.achvAll = p, P
+end
+
+local function norm(x, k) return 1 + (x - 1) / (k * x + 1) end
+function CalculateCR()
+    local cap = 25000
+    local cr = 0
+
+    -- Best height (5K)
+    cr = cr + 5000 * norm(MATH.icLerp(50, 6200, STAT.maxHeight), 6.2)
+
+    -- Best time (5K)
+    cr = cr + 5000 * norm(MATH.icLerp(420, 76.2, STAT.minTime), -.5)
+
+    -- Mod completion (3K)
+    cr = cr + 3000 * norm(MATH.icLerp(0, #ModData.deck * 2, CRprogress.f10), .62)
+
+    -- Mod speedrun (2K)
+    cr = cr + 2000 * norm(MATH.icLerp(0, #ModData.deck * 2, CRprogress.sr), .62)
+
+    -- Zenith point (3K)
+    cr = cr + 3000 * norm(MATH.icLerp(0, 26e4, STAT.zp), 4.2)
+
+    -- Daily challenge (2K)
+    cr = cr + 2000 * norm(MATH.icLerp(0, 6200, STAT.dzp), 2.6)
+
+    -- Achievement (5K)
+    cr = cr + 5000 * norm(MATH.icLerp(0, CRprogress.achvAll, CRprogress.achvGet), 2.6)
+
+    -- ACHV Wreath (competitive achievement count)
+    for i = 1, #Achievements do
+        local A = Achievements[i]
+        if A.type == 'competitive' then
+            cap = cap + 1
+            local r = A.rank(ACHV[A.id] or A.noScore or 0)
+            if r == 5.9999 then
+                cr = cr + 1
+            end
+        end
+    end
+
+    if not STAT.badge.champion and cr >= 25000 then IssueSecret('champion', true) end
+
+    return MATH.round(cr), cap
 end
 
 local msgTime = 0
@@ -791,6 +885,22 @@ function IssueSecret(id, silent)
             if not GAME.playing then
                 ReleaseAchvBuffer()
             end
+        end
+    end
+end
+
+function IssueSpeedrunMilestone(id)
+    if not STAT.srMilestone[id] then
+        local t = MATH.roundUnit(STAT.srTimer_game, .001)
+        STAT.srMilestone[id] = t * (STAT.srActive and 1 or -1)
+        if STAT.srActive then
+            if t < (SR[id] or 1e99) then
+                SR[id] = t
+                SaveSR()
+            end
+        end
+        if t < 3600 * 2.6 then
+            MSG('speedrun', SpeedrunData[id].name .. ": " .. STRING.time(STAT.srMilestone[id]), 6.26)
         end
     end
 end
@@ -886,6 +996,7 @@ end
 MSG.setSafeY(75)
 MSG.addCategory('dark', COLOR.D, COLOR.L)
 MSG.addCategory('bright', COLOR.L, COLOR.D)
+MSG.addCategory('speedrun', COLOR.LG, COLOR.D)
 for i = 0, 6 do MSG.addCategory(AchvData[i].id, AchvData[i].bg, COLOR.L, TEXTURE.achievement.frame[i]) end
 for i = 1, 6 do MSG.addCategory("wreath_" .. i, AchvData[5].bg, COLOR.L, GC.load { w = 256, { 'draw', TEXTURE.achievement.frame[5] }, { 'draw', TEXTURE.achievement.wreath[i] } }) end
 
@@ -1277,6 +1388,9 @@ function ReloadTexts()
     DevNoteText:setFont(FONT.get(30))
     EndText:setFont(FONT.get(70))
     EndText2:setFont(FONT.get(70))
+    for _, text in next, SRSplitText1 do text:setFont(FONT.get(50)) end
+    for _, text in next, SRSplitText2 do text:setFont(FONT.get(50)) end
+    for _, text in next, SRSplitText3 do text:setFont(FONT.get(30)) end
     if SCN.cur == 'stat' then RefreshProfile() end
     if SCN.cur == 'records' then SCN.scenes.records.load() end
     if SCN.cur == 'achv' then RefreshAchvList() end
@@ -1412,7 +1526,7 @@ function ZENITHA.globalEvent.keyDown(key, isRep)
         if TASK.lock('dev') then
             MSG('check', "Zenith Clicker is powered by Love2d & Zenitha, not Web!", 6.26)
         else
-            ZENITHA.setDevMode(not ZENITHA.getDevMode() and 1 or false)
+            ZENITHA.setDebugMode(not ZENITHA.getDebugMode() and 1 or false)
         end
     elseif key == 'f11' then
         CONF.fullscreen = not CONF.fullscreen

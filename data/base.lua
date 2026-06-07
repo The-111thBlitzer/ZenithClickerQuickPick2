@@ -580,6 +580,7 @@ NegEvents = {
             GAME.refreshLayout()
             local firstClear = not STAT.clicker
             STAT.clicker = true
+            IssueSpeedrunMilestone('clicker')
             SFX.play('warp')
             SCN.go('ending', "warp", firstClear)
         end
@@ -606,5 +607,6 @@ Fatigue = require 'data/fatigue'
 RevivePrompts = require 'data/revive'
 Achievements = require 'data/achievement'
 BadgeData = require 'data/badge'
+SpeedrunData = require 'data/speedrun'
 DevScore = require 'data/devscore'
 DevCommentary = require 'data/devcommentary'

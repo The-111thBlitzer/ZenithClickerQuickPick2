@@ -1121,7 +1121,7 @@ function GAME.awardKO(id1, id2, valid, toOppo)
         toOppo = toOppo,
     })
     if toOppo then
-        GAME.koCount = GAME.koCount + 1
+        if not id2:match("^GHOST%-") then GAME.koCount = GAME.koCount + 1 end
         SFX.play('elim', .5)
     end
 end
@@ -3157,7 +3157,16 @@ function GAME.finish(reason)
             for id in next, MD.name do if BEST.highScore['r' .. id] >= Floors[9].top then _t = _t + 1 end end
             if _t >= #MD.deck then IssueSecret('mastery_2') end
         end
-        if not ACHV.false_god and MATH.sumAll(GAME.completion) >= 2 * #MD.deck then IssueAchv('false_god', STAT.badge.mastery_2) end
+        if TABLE.countAll(GAME.completion, 0) == 0 then
+            IssueSpeedrunMilestone('star_9')
+        end
+        if TABLE.countAll(GAME.completion, 2) == #MD.deck then
+            IssueAchv('false_god', STAT.badge.mastery_2)
+            IssueSpeedrunMilestone('star_18')
+        end
+        if not STAT.srMilestone.speedrun_1 and STAT.badge.speedrun_1 then IssueSpeedrunMilestone('mod_up') end
+        if not STAT.srMilestone.speedrun_2 and STAT.badge.speedrun_2 then IssueSpeedrunMilestone('mod_rev') end
+        if not STAT.srMilestone.rank_ss and CalculateCR() >= 19600 then IssueSpeedrunMilestone('rank_ss') end
 
         if not ACHV.the_harbinger then
             local allRevF5 = true
@@ -3400,7 +3409,7 @@ function GAME.update(dt)
 
     if not GAME.playing then return end
 
-    GAME.koCharge = max(GAME.koCharge - dt * min(GAME.height, 6200) / 2600, 0)
+    GAME.koCharge = max(GAME.koCharge - dt * min(abs(GAME.height), 6200) / 2600, 0)
     while GAME.koCharge > 26 do
         GAME.koCharge = GAME.koCharge - 26
         local t = MATH.lerp(.62, 2.6, math.random() ^ 2)

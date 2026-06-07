@@ -5,9 +5,14 @@ local scene = {}
 -- 1. Video & Audio
 -- 2. Utils
 -- 3. Album
+-- 4. Speedrun
 local page = 1
-local maxPage = 3
+local maxPage = 4
 local uidList = {} ---@type ({uid: string, modTime?: string} | false)[]
+SRSplitText1 = {} ---@type love.Text[]
+SRSplitText2 = {} ---@type love.Text[]
+SRSplitText3 = {} ---@type love.Text[]
+local SRrank = {}
 
 local anonUser
 local resetall_cnt, resetall_anim, lastClear
@@ -159,6 +164,36 @@ function scene.load()
     MSG.clear()
     bindBuffer = nil
     resetall_cnt, resetall_anim, lastClear = 0, 0, false
+    for i = 1, #SpeedrunData do
+        local id = SpeedrunData[i].id
+        if not SRSplitText1[i] then
+            SRSplitText1[i] = GC.newText(FONT.get(50), "")
+            SRSplitText2[i] = GC.newText(FONT.get(50), "")
+            SRSplitText3[i] = GC.newText(FONT.get(30), "")
+            SRrank[i] = 0
+        end
+        SRSplitText1[i]:set(SpeedrunData[i].name)
+        local t = STAT.srMilestone[id]
+        if not t then
+            SRSplitText2[i]:set("N/A")
+        elseif t < 0 then
+            SRSplitText2[i]:set("*" .. STRING.time(-t))
+        else
+            SRSplitText2[i]:set(STRING.time(t))
+        end
+        if SR[id] then
+            SRSplitText3[i]:set(STRING.time(SR[id]))
+            if SR[id] <= DevScore.srMilestone[id] then
+                SRrank[i] = 3
+            elseif SR[id] <= SpeedrunData[i].par1 then
+                SRrank[i] = 2
+            elseif SR[id] <= SpeedrunData[i].par2 then
+                SRrank[i] = 1
+            end
+        else
+            SRSplitText3[i]:set("N/A")
+        end
+    end
     SetMouseVisible(true)
     if GAME.anyRev ~= colorRev then
         colorRev = GAME.anyRev
@@ -233,7 +268,7 @@ function scene.keyDown(key, isRep)
                 if #bindBuffer >= 22 then
                     CONF.keybind = bindBuffer
                     bindBuffer = nil
-                    SaveStat()
+                    SaveConf()
                     MSG('dark', "Keybinding updated.")
                     SFX.play('social_notify_major')
                 else
@@ -283,17 +318,18 @@ local baseX, baseY = 800 - w / 2, 500 - h / 2 + 10
 
 local gc = love.graphics
 local gc_replaceTransform = gc.replaceTransform
+local gc_line, gc_setLineWidth = gc.line, gc.setLineWidth
 local gc_draw, gc_setColor, gc_rectangle = gc.draw, gc.setColor, gc.rectangle
 local gc_print, gc_printf = gc.print, gc.printf
 local gc_ucs_move, gc_ucs_back = GC.ucs_move, GC.ucs_back
 local gc_setAlpha, gc_mRect, gc_mStr = GC.setAlpha, GC.mRect, GC.mStr
-
+local setFont = FONT.set
 local function drawSliderComponents(y, title, t1, t2, value)
     gc_ucs_move(0, y)
     gc_setColor(0, 0, 0, .26)
     gc_mRect('fill', w / 2, 0, w - 40, 65, 5)
     gc_mRect('fill', w - 90, 0, 123, 48, 3)
-    FONT.set(30)
+    setFont(30)
     gc_setColor(clr.T)
     gc_print(title, 40, -20, 0, .85, 1)
     gc_setAlpha(.42)
@@ -349,7 +385,7 @@ function scene.draw()
 
         -- Keybind
         if bindBuffer then
-            FONT.set(30)
+            setFont(30)
             gc_print("Press key for...", 600, 670, 0, .872)
             gc_print(bindHint[#bindBuffer + 1], 600, 700, 0, .872)
         end
@@ -367,17 +403,17 @@ function scene.draw()
         gc_setColor(1, t % .16 < .08 and .2 + resetall_anim * .6 or .2, .2, resetall_anim ^ .26 * .26)
         gc_mRect('fill', 450, 420, 520 * resetall_anim, 140, 20)
         gc_setColor(1, 1, 1, .1)
-        FONT.set(50)
+        setFont(50)
         gc_print("0", 200, 345)
-        FONT.set(30)
+        setFont(30)
         gc_setColor(clr.LT)
         gc_mStr(uidList[0].uid, 450, 360)
         for i = 1, 3 do
             local y = 220 + 330 + (i - 1) * 90
             gc_setColor(1, 1, 1, .1)
-            FONT.set(50)
+            setFont(50)
             gc_print(i, 30, y - 45)
-            FONT.set(30)
+            setFont(30)
             gc_setColor(0, 0, 0, .26)
             gc_mRect('fill', 450, y, 860, 80, 20)
             gc_setColor(clr.L)
@@ -400,7 +436,7 @@ function scene.draw()
         gc_ucs_move(50, 120)
 
         -- Time
-        FONT.set(30)
+        setFont(30)
         gc_setColor(clr.T)
         gc_print(STRING.time_simp(playTime), 0, 49, 0, .626)
         gc_print(playingBgmLengthStr, len - 45, 49, 0, .626)
@@ -462,6 +498,42 @@ function scene.draw()
             gc_mRect('fill', len * BgmNeedSkip[2] / playingBgmLength, 48, 2, 9)
         end
         gc_ucs_back()
+    elseif page == 4 then
+        -- Glowing Background
+        gc_setColor(COLOR.rainbow_light(t, .26))
+        gc_draw(TEXTURE.transition, 0, 0, 0, .42 / 128 * w, h)
+        gc_draw(TEXTURE.transition, w, 0, 0, -.42 / 128 * w, h)
+
+        gc_setLineWidth(2)
+        setFont(30)
+        local textH = SRSplitText1[1]:getHeight()
+        local x1 = 130
+        local x2 = w - 130
+        local achv = TEXTURE.achievement
+        for i = 1, #SpeedrunData do
+            local y = i * 115
+            gc_setColor(clr.T)
+            gc_draw(SRSplitText1[i], x1, y, 0, 1, 1, 0, textH / 2)
+            gc_draw(SRSplitText2[i], x2, y, 0, 1, 1, SRSplitText2[i]:getWidth(), textH / 2)
+            gc_setAlpha(.62)
+            gc_line(x1 + SRSplitText1[i]:getWidth() + 20, y, x2 - SRSplitText2[i]:getWidth() - 20, y)
+            gc_setColor(clr.L)
+            gc_print(SpeedrunData[i].desc, x1, y + 26, 0, .626)
+            gc_setAlpha(.62)
+            local w3 = SRSplitText3[i]:getWidth()
+            gc_draw(SRSplitText3[i], x2, y + 26, 0, .626, .626, w3)
+            if SRrank[i] > 0 then
+                if SRrank[i] >= 3 then
+                    gc_setColor(1, 1, 1, .16)
+                    GC.mDraw(achv.overDev, x2 - 42, y + 12, 0, .36)
+                end
+                gc_setColor(clr.LT)
+                GC.mDraw(achv.frame[5], x2 - w3 * .626 - 18, y + 38, 0, .1)
+                if SRrank[i] >= 2 then
+                    GC.mDraw(achv.wreath[6], x2 - w3 * .626 - 18, y + 38, 0, .1)
+                end
+            end
+        end
     end
 
     -- Top bar & title
@@ -473,7 +545,7 @@ function scene.draw()
     gc_rectangle('fill', -1300, 70, 2600, 3)
     gc_replaceTransform(SCR.xOy_ul)
     gc_setColor(clr.L)
-    FONT.set(50)
+    setFont(50)
     if GAME.anyRev then
         gc_print("CONFIG", 15, 68, 0, 1, -1)
     else
@@ -489,7 +561,7 @@ function scene.draw()
     gc_rectangle('fill', -1300, -50, 2600, -3)
     gc_replaceTransform(SCR.xOy_dl)
     gc_setColor(clr.L)
-    FONT.set(30)
+    setFont(30)
     gc_print("TWEAK YOUR SETTINGS FOR A BETTER CLICKING EXPERIENCE", 15, -45, 0, .85, 1)
 end
 
@@ -781,6 +853,10 @@ local page2 = {
                     SFX.play('warp')
                     SCN.go('ending', 'warp')
                 elseif data == 'test' then
+                    if STAT.srActive then
+                        STAT.srActive = false
+                        SaveStat()
+                    end
                     TestMode = true
                     SFX.play('maintenance')
                 elseif data == 'dev' then
@@ -927,7 +1003,7 @@ local page2 = {
             SFX.play('thunder' .. math.random(6))
             MSG.clear()
             SCN._pop()
-            SCN.swapTo('joining', 'fade', true)
+            SCN.swapTo('joining', 'fade', 'reset')
         end,
     },
 }
@@ -937,7 +1013,7 @@ local function saveSlot(i)
         MSG('dark', "You are not a good person.")
         return
     end
-    if uidList[i] and STAT.uid ~= uidList[i].uid then
+    if uidList[i] and STAT.uid ~= uidList[i].uid and not uidList[i].uid:match("^ANON%-") then
         SFX.play('staffwarning')
         MSG('dark', "For safety, you can only update a backup with same username", 4.2)
         return
@@ -955,6 +1031,21 @@ local function saveSlot(i)
     WIDGET._reset()
 end
 local function loadSlot(i)
+    if not anonUser then
+        local hasBackup
+        for _, user in next, uidList do
+            if user and STAT.uid == user.uid then
+                hasBackup = true
+                break
+            end
+        end
+        if not hasBackup then
+            SFX.play('staffwarning')
+            MSG('dark', "For safety, you can only load a backup when current save is backed up", 4.2)
+            return
+        end
+    end
+
     if TASK.lock('load_slot' .. i, 2.6) then
         SFX.play('hyperalert')
         MSG('warn', "Load from slot " .. i .. "? Current save will be overwritten. Press again to confirm.", 4.2)
@@ -966,9 +1057,14 @@ local function loadSlot(i)
     FILE.copy('save' .. i .. '/best.luaon', 'best.luaon')
     SFX.play('levelup'); SFX.play('levelup')
     SCN._pop()
-    SCN.swapTo('joining', 'fade', true)
+    SCN.swapTo('joining', 'fade', 'load')
 end
 local function clearSlot(i)
+    if uidList[i] and STAT.uid ~= uidList[i].uid and not uidList[i].uid:match("^ANON%-") then
+        SFX.play('staffwarning')
+        MSG('dark', "For safety, you can only delete a backup with same username", 4.2)
+        return
+    end
     if TASK.lock('clear_slot' .. i, 2.6) then
         SFX.play('hyperalert')
         MSG('warn', "Clear slot " .. i .. "? This action cannot be undone. Press again to confirm.", 4.2)
@@ -1101,7 +1197,7 @@ for i = 0, 10 do
             GAME.height = (bgmHeight[i] + bgmHeight[i + 1]) / 2
             PlayBGM('f' .. i .. 'r')
         end,
-        visibleFunc = function() return page == 3 and STAT.maxFloor >= 10 and TABLE.findAll(GAME.completion, 2) end,
+        visibleFunc = function() return page == 3 and STAT.maxFloor >= 10 and TABLE.countAll(GAME.completion, 2) > 0 end,
     }
 end
 albumBtn {
@@ -1168,6 +1264,13 @@ local tab = {
         color = { COLOR.HEX '383838' },
         fontSize = 30, text = "ALBUM  ", textColor = 'DL',
         onClick = function() love.keypressed('3') end,
+    },
+    WIDGET.new {
+        type = 'button',
+        pos = { 1, 0 }, x = -60, y = 410, w = 160, h = 60,
+        color = { COLOR.HEX '383838' },
+        fontSize = 30, text = "SPLITS ", textColor = 'DL',
+        onClick = function() love.keypressed('4') end,
     },
 }
 

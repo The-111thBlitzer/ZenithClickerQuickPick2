@@ -26,11 +26,12 @@ function LoadSave()
     local stat = FILE.safeLoad('stat.luaon', '-luaon')
     if stat then
         TABLE.update(STAT, stat)
-        STAT.srTimer_game, STAT.srTimer_life = STAT.totalTime, MATH.roundUnit(STAT.totalTime * 1.26, .001)
+        if not STAT.srTimer_game then
+            STAT.srTimer_game, STAT.srTimer_life = STAT.totalTime, MATH.roundUnit(STAT.totalTime * 1.26, .001)
+        end
     end
     TABLE.update(BEST, FILE.safeLoad('best.luaon', '-luaon') or NONE)
     TABLE.update(ACHV, FILE.safeLoad('achv.luaon', '-luaon') or NONE)
-    TABLE.update(CONF, FILE.safeLoad('conf.luaon', '-luaon') or NONE)
 end
 
 LoadSave()
@@ -81,6 +82,14 @@ function Initialize(save)
                 STAT.totalRevive = ((ACHV.the_responsible_one or 0) + (ACHV.the_unreliable_one or 0)) * 6
             end
             STAT.version = 194
+        end
+        if STAT.version == 194 then
+            ACHV.slayer_of_the_tower = math.min(ACHV.slayer_of_the_tower or 0, 42)
+            STAT.version = 195
+        end
+        if STAT.version == 195 then
+            STAT.badge.exceed_dev_half, STAT.badge.exceed_dev = nil, nil
+            STAT.version = 196
         end
     end
 

@@ -32,7 +32,6 @@ local function switchVisitor(bool)
         love.mouse.setRelativeMode(bool)
         ZENITHA._cursor.active = not bool
         for _, W in next, scene.widgetList do W:setVisible(not bool) end
-        scene.widgetList.help2:setVisible()
         if usingTouch then scene.widgetList.help:setVisible(true) end
         if bool then IssueAchv('zenith_traveler') end
         TABLE.clear(HoldingButtons)
@@ -1360,12 +1359,20 @@ function scene.overDraw()
         end
 
         -- Speedrun Timer
-        gc_replaceTransform(SCR.xOy_dl)
-        setFont(30)
-        gc_setColor(TextColor)
-        gc_setAlpha(.42)
-        TEXTS.srTimer:set(STRING.time(STAT.srTimer_game) .. "/ " .. STRING.time(STAT.srTimer_life, 2))
-        gc_draw(TEXTS.srTimer, 7, -70 + GAME.uiHide * 30)
+        do
+            gc_replaceTransform(SCR.xOy_dl)
+            gc_translate(0, GAME.uiHide * 30)
+            setFont(30)
+            gc_setColor(TextColor)
+            gc_setAlpha(.42)
+            TEXTS.srTimer:set(STRING.time(STAT.srTimer_game) .. "/ " .. STRING.time(STAT.srTimer_life, 2))
+            gc_draw(TEXTS.srTimer, 7, -70)
+            if STAT.srActive then
+                gc_setBlendMode('add')
+                gc_mDrawQ(TEXTURE.achievement.icons, TEXTURE.achievement.iconQuad.zenith_speedrun, 26, -90, 0, -.18, .18)
+                gc_setBlendMode('alpha')
+            end
+        end
 
         -- Card Info
         if not GAME.playing and FloatOnCard then

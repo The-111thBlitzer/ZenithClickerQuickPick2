@@ -246,6 +246,7 @@ GAME.xp = 0
 GAME.height = 0
 GAME.chain = 0
 GAME.surge = 0
+GAME.shareMod = nil
 
 local M = GAME.mod
 local MD = ModData
@@ -1906,10 +1907,29 @@ function GAME.commit(auto)
         if MATH.between(Floors[GAME.floor].top - (GAME.height + GAME.heightBuffer), 0, 2) then GAME.addHeight(3, true) end
 
         local dp = TABLE.find(hand, 'DP')
-        local attack = 2
+        local attack = M.DH == 2 and 0 or 2
         local surge = 0
         local xp = 0
         local check_achv_romantic_homicide
+
+        if M.DH == 2 then
+            local Rep = #TABLE.subtract(TABLE.copy(hand), GAME.lastCommit) == #hand
+            if not Rep then
+                if not GAME.shareMod then
+                    GAME.shareMod = true
+                    GAME.blightTrigger = true
+                    SFX.play('b2bcharge_start')
+                end
+            else 
+                if GAME.blightActive then
+                    GAME.shareMod = false
+                    GAME.blightActive = false
+                    SFX.play('b2bcharge_blast_1')
+                    attack = attack * 1.75 + 1
+                end
+        end
+
+    end
         if GAME.fault then
             -- Non-perfect
             if GAME.currentTask then
@@ -2113,11 +2133,14 @@ function GAME.commit(auto)
                 GAME.incrementPrompt('spin_'..GAME.SelectedCard)
                 if GAME.spinCount > 3 then GAME.spinCount = 3 end
                 if GAME.spinCount > 0 then
-                    if not M.DH == 2 or M.DH == 2 and (GAME.blightTrigger or GAME.blightActive) then
+                    if M.DH < 2 or M.DH == 2 and (GAME.blightTrigger or GAME.blightActive) then
                         attack = ((M.NH == 2 and GAME.spinCount - 1) or GAME.spinCount * 2)
                         SFX.play('clearspin', .5)
                         if M.DH == 2 and GAME.blightActive then
                             attack = attack * 1.75
+                        elseif M.DH == 2 and GAME.blightTrigger then
+                            GAME.blightTrigger = false
+                            GAME.blightActive = true
                         end
                     end
                     if GAME.chain >= 1 then attack = attack + 1 end
@@ -2149,31 +2172,35 @@ function GAME.commit(auto)
                     end
                 end
             elseif GAME.chain >= 1 then
-                GAME.incrementPrompt('clear')
-                GAME.incrementPrompt('clear_quadchain')
-                if not (M.DH == 2 and GAME.blightTrigger) or M.AS < 2 then
-                    attack = attack + 3 
-                elseif M.DH == 2 and GAME.blightTrigger then
-                    attack = attack + 3
-                    GAME.blightActive = true
-                    GAME.blightTrigger = false
-                elseif M.DH == 2 and GAME.blightActive then
-                    attack = (attack + 3) * 1.75
+                if M.AS < 2 then
+                    GAME.incrementPrompt('clear')
+                    GAME.incrementPrompt('clear_quadchain')
+                    if not (M.DH == 2 and GAME.blightTrigger) or M.AS < 2 then
+                        attack = attack + 3 
+                    elseif M.DH == 2 and GAME.blightTrigger then
+                        attack = attack + 3
+                        GAME.blightActive = true
+                        GAME.blightTrigger = false
+                    elseif M.DH == 2 and GAME.blightActive then
+                        attack = (attack + 3) * 1.75
+                    end
+                    SFX.play('clearbtb', .5)
+                    GAME.Clear = 'QUAD'
+                    xp = xp + 4
                 end
-                SFX.play('clearbtb', .5)
-                GAME.Clear = 'QUAD'
-                xp = xp + 4
             else
-                GAME.incrementPrompt('clear')
-                GAME.incrementPrompt('clear_quadchain')
-                if not (M.DH == 2 and GAME.blightTrigger) or M.AS < 2 then
-                    attack = attack + 2
-                elseif M.DH == 2 and GAME.blightTrigger and M.AS < 2 then
-                    attack = MATH.round(4 * 1.75)
+                if M.AS < 2 then
+                    GAME.incrementPrompt('clear')
+                    GAME.incrementPrompt('clear_quadchain')
+                    if not (M.DH == 2 and GAME.blightTrigger) or M.AS < 2 then
+                        attack = attack + 2
+                    elseif M.DH == 2 and GAME.blightTrigger and M.AS < 2 then
+                        attack = MATH.round(4 * 1.75)
+                    end
+                    SFX.play('clearquad', .5)
+                    GAME.Clear = 'QUAD'
+                    xp = xp + 4
                 end
-                SFX.play('clearquad', .5)
-                GAME.Clear = 'QUAD'
-                xp = xp + 4
             end
 
             if M.AS == 2 and M.DH < 2 then

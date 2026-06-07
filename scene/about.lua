@@ -28,11 +28,11 @@ local function addSection(y)
 end
 
 for d = .5, 2.5, .5 do
-    addText({ COLOR.LD, "ZENITH CLICKER" }, 150 + d, 20 + d)
-    addText({ COLOR.O, "QUICK PICK 2" }, 180 + d, 95 + d)
+    addText({ COLOR.LD, "ZENITH CLICKER" }, 195 + d, 20 + d)
+    addText({ COLOR.F, "QUICK PICK 2" }, 225 + d, 95 + d)
 end
-addText("ZENITH CLICKER", 150, 20)
-addText("QUICK PICK 2", 180, 95)
+addText("ZENITH CLICKER", 195, 20)
+addText({COLOR.O,"QUICK PICK 2"}, 225, 95)
 
 addSection(220)
 

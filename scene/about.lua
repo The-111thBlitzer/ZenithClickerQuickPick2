@@ -139,10 +139,10 @@ addMajorCredit(0000, 060, { COLOR.HEX '1CAFD4' }, "THE_111THBLITZER", "CREATOR O
 addMajorCredit(-440, 190, { COLOR.HEX 'F880F0' }, "FLOWERLING", "Programming Assistance", "Creator of Zenith Clicker Unabstracted")
 addMajorCredit(0000, 190, { COLOR.HEX '00FF00' }, "TREVOR SMITHY", "Programming Assistance", "Creator of Zenith Clicker: Easy Mode")
 addMajorCredit(0440, 190, { COLOR.HEX '80CCFF' }, "MRZ", "Programming Assistance", "Creator of Zenith Clicker")
+addText({ COLOR.O, "HELPFUL CONTRIBUTORS" }, 0, 290, .3)
+addMajorCredit(-240, 320, { COLOR.HEX 'FFFFFF' }, "F1E308")
+addMajorCredit(0240, 320, { COLOR.HEX 'FFFFFF' }, "THEBESTNOOB")
 
-addSection(1750)
-addText({ COLOR.R, "ZENITH CLICKER QUICK PICK 2 IS A WORK IN PROGRESS" }, 0, 20, .3)
-addText({ COLOR.R, "PLEASE REPORT BUGS AND CRASH INFO WHEN YOU SEE THEM." }, 0, 40, .3)
 
 local timer
 function scene.load()

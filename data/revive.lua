@@ -20,7 +20,7 @@ local function notNH() return GAME.mod.NH < 1 end
 local function notrNH() return GAME.mod.NH < 2 end
 local function notrDP() return GAME.mod.DP < 2 end
 local function notrAS() return GAME.mod.AS < 2 end -- Some prompts are impossible with Warlock as non spin clears are void
-local function isrDP() return GAME.mod.DP == 2 end
+local function goodbye() return math.max(GAME.floor, GAME.negFloor) >= 1 and GAME.mod.DP == 2 end
 
 ---@class Prompt
 ---@field rank number[]
@@ -135,7 +135,7 @@ local d = {
     { rank = { 3, 5 }, prompt = 'keep_no_perfect',      target = 12,  short = "No perfect 12s",          text = "Have no perfect\npasses for 12 seconds" },
     { rank = { 4, 6 }, prompt = 'keep_no_imperfect',    target = 14,  short = "No imperfect 14s",        text = "Have no imperfect\npasses for 14 seconds",    cond = F6 },
     { rank = { 3, 5 }, prompt = 'keep_no_reset',        target = 16,  short = "No reset 16s",            text = "Don't reset\nfor 16 seconds" },
-    { rank = { 9999, 9999 }, prompt = 'simultaneousquest',        target = 1,  short = "2 Simultaneous Quests",            text = "Clear 2 quests\n simultaneously",  cond = isrDP},
+    { rank = { 9999, 9999 }, prompt = 'simultaneousquest',        target = 1,  short = "2 Simultaneous Quests",            text = "Clear 2 quests\n simultaneously",  cond = goodbye},
 }
 for i = 1, #d do d[i]._prompt = d[i].prompt end
 

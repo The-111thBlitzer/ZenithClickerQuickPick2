@@ -555,9 +555,10 @@ TEXTS = { -- Font size can only be 30 and 50 here !!!
     height     = GC.newText(FONT.get(30)),
     time       = GC.newText(FONT.get(30)),
     rank       = GC.newText(FONT.get(30)),
+    basechain  = GC.newText(FONT.get(30)),
     chain      = GC.newText(FONT.get(50)),
     chain2     = GC.newText(FONT.get(50, 'led')),
-    b2b        = GC.newText(FONT.get(30), "B2B x"),
+    b2b        = GC.newText(FONT.get(30), "B2B x "),
     spike      = GC.newText(FONT.get(50)),
     gigaspeed  = GC.newText(FONT.get(50), {
         COLOR.dR, "H", COLOR.dO, "Y", COLOR.dY, "P",
@@ -1397,7 +1398,7 @@ function ReloadTexts()
 end
 
 VALENTINE = false
-VALENTINE_TEXT = "FLOOD THE TOWER SIDE BY SIDE WITH WHAT COULD BE"
+VALENTINE_TEXT = "SCALE THE TOWER TOGETHER WITH SOMEONE YOU HOLD CLOSE"
 XMAS = false
 ZDAY = false
 function RefreshDaily()

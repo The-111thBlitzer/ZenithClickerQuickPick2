@@ -1,8 +1,8 @@
-# Zenith Clicker
+# Zenith Clicker Quick Pick 2
 
-    Welcome to Zenith Clicker, where the goal is to select required Tarot cards and send players to scale the tower.  
-    As you keep climbing, more tricky players will come!  
-    Leaderboards aren't available, but how high can you reach?
+    Welcome to Zenith Clicker Quick Pick 2, where the goal is to select required Tarot cards and send players to scale the tower.  
+    As you keep climbing, the harder the game gets!  
+    Leaderboards on the Daily Challenge reset every day, how high can you reach?
 
 > Almost all art and sounds are from [TETR.IO](https://tetr.io), a modern yet familiar online stacker game by osk with amazing graphics and music.
 
@@ -50,41 +50,44 @@ Each mod creates a unique experience by twisting the rules, but also increases t
 - Cards are deactivated after failure.
 - All actions happen on button **release** instead of button press.
 - AS keyboard hints are not shown (if enabled).
+- Healing reduces xp gain
 
 ### No Hold (`NH`)
 
 - You cannot manually deselect cards.
 
-### Messiness (`MS`)
+### Messier Quests (`MS`)
 
-- Cards are **lightly shuffled** at the start of **F1 F2 F5 F7 F9**. The cards will always be in or adjacent to their correct position.
+- Quests become much messier
 
 ### Gravity (`GV`)
 
-- **Automatically commit** some time after the first card flip. The timer starts at **9s** at floor 1, and decreases every floor until **4s** at floor 10. The timer will also automatically start if you flip no cards for 2.6s.
+- **Automatically select a card** when the timer runs out and after lock delay is finished. The timer starts at **4s** at floor 1, and decreases every floor until **1.62s** at floor 10. The timer always starts and can reset by selecting a card or committing.
+- Damage timer is scaled up harshly.
 
 ### Volatility (`VL`)
 
 - Cards are **20px (18%)** further apart.
-- Cards must be pressed **twice** to activate, but deactivating still takes a single press.
+- Taking damage is now doubled, however, you can also heal up double the health.
 
 ### Double Hole (`DH`)
 
 - Quests are harder.
-- Quests can sometimes be slightly shuffled.
-- TODO: add specifics to difficulty change
+- One mod may be added to a quest.
+- Certain difficulty aspects applied such as a weaker spin attack.
 
 ### Invisible (`IN`)
 
 - All cards are **face down**.
 - Quest colours are desaturated.
-- Quest hints are only shown for a moment **every two seconds**..
+- Cards reveal themselves every **5** seconds.
 
 ### All-Spin (`AS`)
 
 - You can flip cards with your keyboard: on ANSI QWERTY layout, the inputs are 1-9, Q-O, or A-L. If cards are shuffled by `(r)MS`, they are flipped based on their *position*, not by which card they are.
 - The RESET button is replaced with **SPIN**. Using SPIN quickly flips all cards one-by-one.
 - Flipping a card will apply a **burn** to it, indicated by it flashing yellow. Burns last **3s** and this duration increases by **0.5s per floor**. They can be removed by committing (even if the selected card is a wrong one) or pressing SPIN. Flipping a burned card will cause you to get **wounded**, force-flipping two cards. These cards do *not* get a Burn.
+- Spin attack system is now displayed, doing the same clear twice makes you take 1 damage
 
 ### Duo (`DP`)
 
@@ -111,40 +114,47 @@ Make sure you've discovered most contents before reading this section!
 
 - **Has ALL the effects of Expert.**
 - Fatigue is much harsher.
-- Passing a quest with Duo no longer gives +2 attack.
+- KO'ing another player reduces altitude gain.
 - **You fall downward** instead of passively climbing. The speed increases quadratically from **0.6m/s** on Floor 1 to **6m/s** on Floor 10.
-- Staying on the same floor for over 30 seconds will slowly increase damage on mistake.
+- Staying on the same floor for over 60 seconds will slowly increase damage on mistake, Quests also get harder too.
 
 ### Asceticism (`rNH`)
 
-- Disable +1 attack on perfect pass.
+- **Has ALL the effects of No Hold**
+- Cannot reset card selections
+- All Spin attacks are now mini Spins.
 - Reduce length of **next queue** to 2.
-- Cards are **not deselected** after committing.
+- Cards are **always deselected** after committing.
 
 ### Loaded Dice (`rMS`)
 
-- Cards are shuffled at the start of **every floor**. This effect gets stronger for every odd-numbered floor reached, with cards straying further from their correct positions.
-- On commit, **swap two cards**, three on Floor 9/10. The cards must be within a five-card range.
+- Start the game with 6 hextuple mods, and quests are even more messier. (4 if rVL is active)
+- Cannot commit for 1.15 seconds after passing one.
 
 ### Freefall (`rGV`)
 
-- The auto-commit timer starts at **3.2s** and decreases every floor down to a minimum of **2s**.
+- The auto-select timer starts at **2s** and decreases every floor down to a minimum of **1s**.
+- Damage timer is scaled up harsher
 
 ### Last Stand (`rVL`)
 
+- Start the game with 16 HP
 - Cards are **40px (36%)** further apart.
-- Cards must be pressed **four times** to activate *and* to **deactivate**!
+- Receive **3 times** the damage, and heal is normal.
 
 ### Damnation (`rDH`)
 
+- Start the game with 12 less HP
 - Quests are harder.
-- Most combos are given a **community name**!
-- TODO: specifics again
+- Most combos may be given a **community name**!
+- B2B is replaced with BLIGHT!
+- Cannot attack unless BLIGHT is triggered or active (when active, attack is **1.75 times** of your normal attack)
 
 ### The Exile (`rIN`)
 
 - **Has ALL the effects of Invisible, plus...**
-- Quest hints are **not shown** at all!
+- Start the game with 3 less HP
+- Quest hints are **not shown** at all, neither will the cards either!
 - The 1st quest **fade away** after a short time, faster as you reach higher floors. (but reappear if you make a wrong commit)
 - The 2nd and 3rd quests also fade away but slower (4x & 9x without DP, 2x & 9x with DP).
 
@@ -164,10 +174,12 @@ Make sure you've discovered most contents before reading this section!
 ### The Warlock (`rAS`)
 
 - **Has ALL the effects of All-Spin, plus...**
+- Start the game with 10 less HP
 - SPINs are faster than normal.
 - Wounds flip **four cards** instead of two.
 - SPINs and wrong commits will **not remove Burns**, and they aren't removed over time!
 - B2B >= 4 sends **+1 attack**, but passing imperfectly **sends nothing**!
+- Doing the same type of clear makes you take 20 damage.
 
 ### Bleeding Hearts (`rDP`)
 
@@ -257,14 +269,16 @@ You gain ZP after a run, with `ZP = altitude * multiplier`, which `multiplier` i
 
 |   Mod    |  EX   |    NH     |  MS   |  GV   |    VL     |  DH   |  IN   |  AS   |  DP   |
 | :------: | :---: | :-------: | :---: | :---: | :-------: | :---: | :---: | :---: | :---: |
-| Upright  |  1.4  |    1.1    |  1.2  |  1.1  |    1.1    |  1.2  |  1.2  | 0.85  | 0.95  |
-| Reversed |  2.6  | 1.4+.05*M |  1.7  |  1.2  | 1.2+.02*M |  1.6  |  1.6  |  1.0  |  2.1  |
+| Upright  |  1.5  |    1.1    |  1.15 |  1.2  |    1.05   |  1.25 |  1.2  | 1.05  | 0.9   |
+| Reversed |  2.6  |    1.8    |  2.0  |  1.35 | 1.2+.02*M |  1.85 |  1.45 |  1.2  | 1.75  |
 
 > **Special Bonuses** (applied when both activated):  
 > rMS+rGV 1.1x  
 > rEX+rVL 1.2x  
 > rDH+rIN 1.4x  
 > rEX+rDP 0.84x
+> rDH+rAS 0.95x
+> rMS+rVL 0.88x
 
 > M = [Total Mod Count] -1  
 > `Hard Mode Decay` = 0.99, applies `number_of_EX_or_Rev - 1` times  

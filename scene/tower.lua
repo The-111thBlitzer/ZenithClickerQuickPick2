@@ -962,8 +962,8 @@ function scene.overDraw()
             if M.DP > 0 then
                 if GAME.comboStr == 'rDP' and not GAME.achv_protectH then
                     gc_setColor(COLOR.lG)
-                    gc_mRect('fill', 800 + 1540 / 2 * 10 / GAME.startingHealth, 442, 4, 20)
-                    gc_mRect('fill', 800 - 1540 / 2 * 10 / GAME.startingHealth, 442, 4, 20)
+                    gc_mRect('fill', 800 + 1540 / 2 * 16 / GAME.startingHealth, 442, 4, 20)
+                    gc_mRect('fill', 800 - 1540 / 2 * 16 / GAME.startingHealth, 442, 4, 20)
                 end
                 if not GAME.achv_shareModH then
                     gc_setColor(COLOR.M)
@@ -991,15 +991,19 @@ function scene.overDraw()
                 local clr = GAME.Clear
                 local s = GAME.SelectedCard
                 if not GAME.woundTrigger then
-                        gc_strokePrint('full', 5, COLOR.L, COLOR.D , clr, 800, 460, 260, 'center')
+                    gc_setColor(COLOR.L)
+                    FONT.set(50)
+                    GC.mStr(clr, 205, 275)
                 else
-                    gc_strokePrint('full', 5, COLOR.R, COLOR.lR , clr, 800, 460, 260, 'center')
+                    gc_setColor(COLOR.R)
+                    FONT.set(50)
+                    GC.mStr(clr, 205, 275)
                 end
             end
 
-            if GAME.chain >= 4 then
+            if GAME.chain >= 1 and M.DH < 2 or (GAME.chain >= 1 and M.DH == 2 and M.AS == 2) then
                 -- Chain Counter
-                local c = GAME.chain
+                local c = GAME.chain - 3
                 local _t = GAME.questTime
                 local bk = _t < .12 and 1 + 62 * _t * (.12 - _t) or 1
                 local k = clampInterpolate(6, .7, 26, 2, c)
@@ -1015,74 +1019,112 @@ function scene.overDraw()
                         c < 8 and .26 or 1
                     )
                 else
-                    r, g, b, a = COLOR.HSV(
-                        clampInterpolate(4, .76, 26, 0.926, c), 1, 1,
-                        .16
-                    )
-                    gc_setColor(0, 0, 0)
-                    gc_mDraw(TEXTURE.surgeIcon, 326, 270, GAME.time * 2.6, .25 * k * bk)
+                    if GAME.chain >= 4 then
+                        r, g, b, a = COLOR.HSV(
+                            clampInterpolate(4, .76, 26, 0.926, c), 1, 1,
+                            .16
+                        )
+                        gc_setColor(0, 0, 0)
+                        gc_mDraw(TEXTURE.surgeIcon, 326, 270, GAME.time * 2.6, .25 * k * bk)
+                    end
                 end
 
                 if URM and M.NH == 2 then
                     r, g, b = .626 + r * .26, .626 + g * .26, .626 + b * .26
                 end
+                if GAME.chain >= 4 then
 
-                -- Spike ball
-                gc_setColor(r, g, b, a)
-                gc_blurCircle(-.26, 326, 270, 100 * k)
-                gc_mDraw(TEXTURE.surgeIcon, 326, 270, GAME.time * 2.6, .25 * k * bk)
+                    -- Spike ball
+                    gc_setColor(r, g, b, a)
+                    gc_blurCircle(-.26, 326, 270, 100 * k)
+                    gc_mDraw(TEXTURE.surgeIcon, 326, 270, GAME.time * 2.6, .25 * k * bk)
 
-                -- Spark
-                if not (URM and M.NH == 2) then
-                    gc_setColor(.7 + r * .3, .7 + g * .3, .7 + b * .3)
-                    for i = 1, 3 do gc_draw(SparkPS[i], 326, 270, 0, k * .8) end
+                    -- Spark
+                    if not (URM and M.NH == 2) then
+                        gc_setColor(.7 + r * .3, .7 + g * .3, .7 + b * .3)
+                        for i = 1, 3 do gc_draw(SparkPS[i], 326, 270, 0, k * .8) end
+                    end
                 end
 
                 -- "B2B x"
-                local x = 255 - 50 * k * bk
-                gc_setColor(COLOR.D)
-                gc_draw(TEXTS.b2b, x, 216)
-                gc_setColor(r, g, b)
-                gc_draw(TEXTS.b2b, x, 214)
+                local x = 205 - 50 * k * bk
+                local x2 = 305 - 50 * k * bk
+                local b2bchain = TEXTS[TEXTS.basechain:set(tostring(GAME.chain))]
+                if GAME.chain >= 4 then
+                    gc_setColor(COLOR.D)
+                    gc_draw(TEXTS.b2b, x, 216)
+                    gc_setColor(r, g, b)
+                    gc_draw(TEXTS.b2b, x, 214)
+                    if M.AS < 2 then
+                    gc_setColor(COLOR.D)
+                    gc_draw(TEXTS.basechain, x2, 216)
+                    gc_setColor(r, g, b)
+                    gc_draw(TEXTS.basechain, x2, 214)
+                    end
+                elseif GAME.chain < 4 and GAME.chain >= 1 then
+                    gc_setColor(COLOR.D)
+                    gc_draw(TEXTS.b2b, x, 216)
+                    gc_setColor(.9, .8, .3)
+                    gc_draw(TEXTS.b2b, x, 214)
+                    gc_setColor(COLOR.D)
+                    gc_draw(TEXTS.basechain, x2, 216)
+                    gc_setColor(.9, .8, .3)
+                    gc_draw(TEXTS.basechain, x2, 214)
+                end
 
                 -- Number
                 local chain = TEXTS[M.AS < 2 and 'chain' or 'chain2']
-                if M.AS < 2 then
-                    if c >= 8 then
-                        gc_setColor(COLOR.L)
-                        gc_strokeDraw('full', k * 2, chain, 326, 268, 0, k * bk, nil,
-                            chain:getWidth() / 2, chain:getHeight() / 2)
-                        gc_setColor(COLOR.D)
-                    end
-                    gc_mDraw(chain, 326, 268, 0, k * bk)
-                else
-                    gc_draw(WoundPS, 326, 266)
+                if GAME.chain >= 4 and M.AS < 2 then
+                    local b2b = TEXTS[TEXTS.chain:set(tostring(GAME.chain - 3))]
+                end
+                local surgechain = TEXTS['chain']
+                if GAME.chain >= 4 then
+                    if M.AS < 2 then
+                        if c >= 8 then
+                            gc_setColor(COLOR.L)
+                            gc_strokeDraw('full', k * 2, surgechain, 326, 268, 0, k * bk, nil,
+                                surgechain:getWidth() / 2, surgechain:getHeight() / 2)
+                            gc_setColor(COLOR.D)
+                        end
+                        gc_mDraw(surgechain, 326, 268, 0, k * bk)
+                    else
+                        gc_draw(WoundPS, 326, 266)
 
-                    if not GAME.fault then
-                        gc_setColor(r, g, b, .26 + .1 * math.sin(GAME.time * 4.2))
-                        gc_setBlendMode('add')
-                        gc_strokeDraw('full', 3.55 * k, chain, 326, 268, 0, k * bk)
-                        gc_setBlendMode('alpha')
+                        if not GAME.fault then
+                            gc_setColor(r, g, b, .26 + .1 * math.sin(GAME.time * 4.2))
+                            gc_setBlendMode('add')
+                            gc_strokeDraw('full', 3.55 * k, chain, 326, 268, 0, k * bk)
+                            gc_setBlendMode('alpha')
+                        end
+                        gc_setColor(COLOR.L)
+                        gc_draw(chain, 326, 268, 0, k * bk)
                     end
-                    gc_setColor(COLOR.L)
-                    gc_draw(chain, 326, 268, 0, k * bk)
                 end
             elseif GAME.comboStr == 'VLrGV' then
                 GC.mStr(floor(GAME.achv_altFromSurge) .. "m", 326, 240)
             end
---[[
+
             --Blight
-                local _t = GAME.questTime
-                local bk = _t < .12 and 1 + 62 * _t * (.12 - _t) or 1
-                local k = clampInterpolate(6, .7, 26, 2, c)
-            if M.DH == 2 then
-                local blightState = TEXTS['BLIGHTED']
-                gc_setColor(COLOR.R)
-                gc_strokeDraw('full', k * 2, blightState, 326, 268, 0, k * bk)
-
-
+            if M.DH == 2 and GAME.rDH_blighted then
+                local dt = GAME.time
+                gc_setColor(255, .26 + .62 * math.sin(dt * 2.6)^2, 0)
+                FONT.set(60)
+                GC.mStr("BLIGHTED", 205, 216)
             end
-]]
+
+            --Required cards
+            if M.DH == 2 then
+                gc_setColor(255, 0, 0)
+                FONT.set(30)
+                gc.print(GAME.uniqueCardsRemaining, 1210, 250)
+            end
+
+            -- Spin Power
+            if M.AS == 2 then
+                gc.setColor(.02, .55, .38)
+                FONT.set(30)
+                gc.print(GAME.spinCount, 1210, 275)
+            end
             -- Damage Timer
             local delay = GAME.dmgDelay
             local w = -360 * min(GAME.dmgTimerMul ^ .5, 1)

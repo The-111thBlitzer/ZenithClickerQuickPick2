@@ -148,16 +148,47 @@ function Card:setActive(auto, key)
                     GAME.dmgTimeRecoveryCap = GAME.dmgTimeRecoveryCap - 1
                 end
             end
-            if GAME.spinAttack then
-                if not self.active then
-                    GAME.spinCount = GAME.spinCount - 1
-                else
-                    GAME.spinCount = GAME.spinCount + 1
+            if M.AS < 2 then
+                if CD.AS.active then
+                    GAME.spinAttack = true
                 end
-            end
-            if CD.AS.active then 
-                GAME.spinAttack = true
-                if M.AS >= 1 then GAME.spinCount = GAME.spinCount + 1 end
+                if GAME.spinAttack then
+                    if not self.active and GAME.spinCount > 0 then
+                        GAME.spinCount = GAME.spinCount - 1
+                    else
+                        GAME.spinCount = GAME.spinCount + 1
+                    end
+                end
+            else
+                if not GAME.fault or not GAME.faultWrong then
+                    local spinState = 1
+                    if CD.AS.active then
+                        if spinState == 1 then
+                            spinState = 2
+                        else
+                            spinState = 1
+                        end
+                    end
+                    GAME.spinAttack = true
+                    if spinState == 1 then
+                        if not self.active then
+                            GAME.spinCount = GAME.spinCount - 1
+                            if GAME.spinCount < 0 then GAME.spinCount = 3 end
+                        else
+                            GAME.spinCount = GAME.spinCount + 1
+                            if GAME.spinCount > 3 then GAME.spinCount = 0 end
+                        end
+                    else
+                        if not self.active then
+                            GAME.spinCount = GAME.spinCount + 1
+                            if GAME.spinCount > 3 then GAME.spinCount = 0 end
+                        else
+                            GAME.spinCount = GAME.spinCount - 1
+                        end
+                    end
+                else
+                    GAME.spinAttack = false
+                end
             end
             if not GAME.achv_noManualFlipH then
                 GAME.achv_noManualFlipH = GAME.roundHeight
@@ -170,6 +201,7 @@ function Card:setActive(auto, key)
             elseif not GAME.fault and not self.burn then
                 GAME.fault = true
                 if not GAME.faultWrong then GAME.faultCount = 1 end
+                if M.AS == 2 then GAME.lastSpinCount = -1 end
             end
         end
         if M.DP > 0 and not auto and self.id == 'DP' and self.active and not (URM and M.DP == 2) then
@@ -525,9 +557,11 @@ function Card:draw()
     local r1, g1, b1, a1
     local r2, g2, b2, a2
     if playing then
+        if self.active then
+            GAME.SelectedCard = self.id
+        end
         if M.IN < 2 then
             if self.active then
-                GAME.SelectedCard = self.id
                 if self.required or self.required2 then
                     if self.required then
                         r1, g1, b1 = 1, .26, 0

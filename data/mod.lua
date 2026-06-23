@@ -70,26 +70,26 @@ return {
         DP = "EVEN AS WE BLEED, WE KEEP HOLDING ON...",
     },
     ultraName = {
-        EX = "- PSYCHOTIC SOVEREIGN -",
-        NH = "- ASCENDED VIRTUE -",
-        MS = "- ENTROPY -",
-        GV = "- COLLAPSING GALAXY -",
-        VL = "- DIMINISHING VOLITION -",
-        DH = "- BLASPHEMY -",
-        IN = "- PARADOXICAL NIHILITY -",
-        AS = "- DEPRAVED GRIMOIRE -",
-        DP = "- SEVERED EDEN -",
+        EX = "- ??? -", -- PHYSCHOTIC SOVEREIGN
+        NH = "- ??? -", -- ASCENDED VIRTUE
+        MS = "- ??? -", -- ENTROPY
+        GV = "- ??? -", -- COLLAPSING GALAXY
+        VL = "- ??? -", -- RELENTLESS SPIRIR
+        DH = "- ??? -", -- BLASPHEMY
+        IN = "- ??? -", -- PARADOXICAL NIHILITY
+        AS = "- ??? -", -- DEPRAVED GRIMOIRE
+        DP = "- ??? -", -- SEVERED EDEN
     },
     ultraDesc = {
-        EX = "ROTTEN AUTHORITY AND UNJUST LAW, USURPED THY MORAL AND PEASANTRY",
-        NH = "FOR THY SACRIFICES, TRANSCENDENCE AWAITS, MORTAL...",
-        MS = "A DISTORTED FATE RESULTED FROM UNGOVERNED ENIGMATA",
-        GV = "THE UNIVERSE CRUMBLES, WITH ESCAPE MERELY TEMPORARY",
-        VL = "CRUSHED BENEATH DESPAIR, RESISTANCE FADES TO NOTHING",
-        DH = "HARK! THE HOPELESS, DAMNED WEEPING OF THY WILL...",
-        IN = "ETERNALLY DROWNING IN ENIGMATIC DOUBTS, UNCERTAINTY AND HYSTERIA",
-        AS = "ILL-NATURED, TENEBRIOUS, LIFE-DRAINING MAGIC CLASPS THY SOUL...",
-        DP = "WHAT ONCE WAS INTERTWINED NOW NEVER TO COEXIST",
+        EX = "...", -- ROTTEN AUTHORITY AND UNJUST LAW, USURPED THY MORAL AND PEASANTRY
+        NH = "...", -- TRANSCENDENCE AND REBIRTH AWAIT YOUR FATE, MORTAL...
+        MS = "...", -- A DISTORTED FATE RESULTED FROM UNGOVERNED ENIGMATA
+        GV = "...", -- THE UNIVERSE CRUMBLES, WITH ESCAPE MERELY TEMPORARY
+        VL = "...", -- EVEN IN AGONY, ONE'S SPIRIT SHALL REMAIN DESPERATE TO LIVE
+        DH = "...", -- HARK! THE HOPELESS, DAMNED WEEPING OF THY WILL...
+        IN = "...", -- ETERNALLY DROWNING IN ENIGMATIC DOUBTS, UNCERTAINTY AND HYSTERIA
+        AS = "...", -- ILL-NATURED, TENEBRIOUS, LIFE-DRAINING MAGIC CLASPS THY SOUL...
+        DP = "...", --WHAT ONCE WAS INTERTWINED NOW NEVER TO COEXIST
     },
     ultraImpactTone = {
         EX = { 0, nil, 0 }, -- 6 6
@@ -157,6 +157,16 @@ return {
         rIN = "BELIEVED",
         rAS = "OMNI-SPIN",
         rDP = "PIERCING",
+        --[[
+        uEX = "SOVEREIGNITY",
+        uNH = "TRANSCENDANT",
+        uMS = "ENTROPIC",
+        uGV = "IMPLODED",
+        uVL = "AGONIZED",
+        uDH = "BLASPHEMED",
+        uIN = "NIHILIST",
+        uAS = "DEPRAVED",
+        uDP = "SEVERED",]]
     },
     noun = {
         EX = "EXPERT",
@@ -177,5 +187,15 @@ return {
         rIN = "BELIEF",
         rAS = "OMNI-SPIN",
         rDP = "HEARTACHE",
+        --[[
+        uEX = "SOVEREIGNITY",
+        uNH = "TRANSCENDENCE",
+        uMS = "ENTROPY",
+        uGV = "IMPLODE",
+        uVL = "AGONY",
+        uDH = "BLASPHEMY",
+        uIN = "NIHILITY",
+        uAS = "DEPRAVITY",
+        uDP = "SEVERANCE",]]
     },
 }

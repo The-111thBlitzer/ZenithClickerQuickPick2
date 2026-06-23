@@ -68,14 +68,14 @@ return {
     ]],
 
     ['rEX'] = STRING.trimIndent [[
-        Until I write this, there are still only 2 players mastered rEX in QP2, way too hard for everyone to even have a try.
-        I tried to shrink cards spacing furthermore, but that turns out to be too hard, so I abandoned this idea. But you could try this challenge with...
-        Anyways, Zenith Clicker's aim is to let everyone enjoy all mods! Just practice a few weeks to beat rEX here! Or use AS to skip the challenge :>
+        As of now, TETR.IO Quick Play 2 has only seen 3 players master The Tyrant, 5HAN (MANOSABA), CABOOZLED_PIE, and most recently, ICLY
+        With The Tyrant, you're in a descent down to the floor, attacking only gets you higher, but quests only get harder the longer you stay.
+        Another challenge awaits at with...  ...though are you prepared for it?
     ]],
     ['rNH'] = STRING.trimIndent [[
-        A more 'classic' feel to QP2, no holding, no cancelling and no resetting, and one next, one active piece and one next piece only.
+        A more 'classic' feel to QP2, no holding, no cancelling and no resetting, one active piece and one next piece only.
         Asceticism takes on some more effects to No Hold, though there are more quests you need to clear since all garbage lines have 2 holes adjacently.
-        Also, All Spins are demoted to Mini-Spins, just like how T-Spins are demoted to Mini T-Spins
+        Also, All Spins are demoted to Mini-Spins, just like how T-Spins are demoted to Mini T-Spins.
     ]],
     ['rMS'] = STRING.trimIndent [[
         If Messier Quests is bad enough, then Loaded Dice is much more brutal. 
@@ -96,25 +96,24 @@ return {
     ]],
     ['rDH'] = STRING.trimIndent [[
         After TETR.IO 1.7.1 Beta reworked Damnation to have a dig to attack function instead of no cancel, why not do the same in Zenith Clicker?
-        Within Damnation, you can't attack unless your clear triggers BLIGHTED, in which passing a quest 
-        containing a few cards the same as the last commit will cause BLIGHTED to occur, giving a stronger attack.
+        Within Damnation, you can't attack unless your clear triggers BLIGHTED, in which passing a quest in a sufficient amount of cards will cause 
+        BLIGHTED to occur, giving a stronger attack.
     ]],
     ['rIN'] = STRING.trimIndent [[
-        Time to play real invisible! Reversed invisible should be really invisible. Let's hide quests after a few seconds...
-        Wait, should we just hide all of them, which could be too hard, or only hiding current one, which could be too easy if you just pre-read one quest?
-        Maybe I can take the compromise: current one first, then the latter ones. And don't forget to be lenient: show quests when player make mistake.
+        Invisible gets much harder now, and hence a real Invisible challenge with The Exile!
+        First quest gets hidden and the latter ones, just like in Zenith Clicker, but also, you will never see the card colours again
+        And don't forget to be lenient: show quests when player make mistake.
         Btw can you imagine a challenge that both quests and your cards are invisible?
     ]],
     ['rAS'] = STRING.trimIndent [[
-        Just like in QP2, rAS makes player stronger but also more fragile. So let's take the +1 attack on B2B x 4+,
-        and make the punishment stricter: flipping a card twice will mess up more cards, and you cannot cancel the burning effect.
-        Well, it's still a strong buff if you are skilled enough, enjoy it!
+        The Warlock, a dark counterpart to The Magician.
+        In QP2, you cannot make spins that clear the same lines, however, making a B2B chain of at least 4 gives you 1 extra attack!
+        You are stronger here, but you are also more fragile, as non spin clears are void, do that twice and... that won't end well for you.
     ]],
     ['rDP'] = STRING.trimIndent [[
-        Why rDP in QP2 is only available for a few da... oh it's permanent now, nvm
-        Same as DP, except your attacks will also be sent to the other player, you have to master switching players now.
-        Though the "backfire" doesn't give you garbage to send more, your max rank is still limited just like in QP2.
-        Can you FEEL the rhythm of switching between players even you...
+        Why did Bleeding Hearts have to last for 1 wee... Oh it's permanent after the Second Chances event now.
+        In this reversed mod, any form of attacks inject a portion of that attack to your ally, so you'll have to switch players to keep the run going.
+        And if one of your partner dies, you can't gain altitude at all.
     ]],
 
     ['uEX'] = STRING.trimIndent [[
@@ -299,6 +298,126 @@ return {
     ['AS DP'] = STRING.trimIndent [[
         Talents combined to become greater or lesser?
             - Collaboration
+    ]],
+    ['EX NH MS'] = STRING.trimIndent [[
+        All gamblers quit before they win big
+            - Online Gambling
+    ]],
+    ['EX NH GV'] = STRING.trimIndent [[
+        The kill screen was a while ago, turning back would be ideal
+            - Beyond Death
+    ]],
+    ['EX NH VL'] = STRING.trimIndent [[
+        Heavenly punishment.
+            - Archangel
+    ]],
+    ['EX NH IN'] = STRING.trimIndent [[
+        The master in patience and solitude
+            - The Friar
+    ]],
+    ['EX NH AS'] = STRING.trimIndent [[
+        Not being able to decide kills a leader and its nation.
+            - Indecision
+    ]],
+    ['EX NH DP'] = STRING.trimIndent [[
+        Judicious leaders united in caution and clarity, balancing power with insight and forethought.
+            - The Prudent Parliament
+    ]],
+    ['EX MS GV'] = STRING.trimIndent [[
+        Go down to go up.
+            - Mining Operation
+    ]],
+    ['EX MS VL'] = STRING.trimIndent [[
+        Greed is good.
+            - The Wolf of Wall Street
+    ]],
+    ['EX MS DH'] = STRING.trimIndent [[
+        Every line of garbage sent is a line of garbage uncancelled.
+            - No Warning
+    ]],
+    ['EX MS IN'] = STRING.trimIndent [[
+        Illogical thoughts flood your mind.
+            - Irrational
+    ]],
+    ['EX GV VL'] = STRING.trimIndent [[
+        Keep your surroundings in your mind... maybe.
+            - Relaxation
+    ]],
+    ['EX GV IN'] = STRING.trimIndent [[
+        Rise above perfection in a world of chaos.
+            - The Super Grandmaster
+    ]],
+    ['EX GV AS'] = STRING.trimIndent [[
+        T-Spin everything into oblivion.
+            - Master of the T
+    ]],
+    ['EX GV DP'] = STRING.trimIndent [[
+        Falling for them all over again.
+            - Sinking
+    ]],
+    ['EX VL DH'] = STRING.trimIndent [[
+        The kingdom has fallen.
+            - The Mad Lord
+    ]],
+    ['EX VL IN'] = STRING.trimIndent [[
+        Somehow, the bigger the target, the harder it is to hit.
+            - Bounty Hunter
+    ]],
+    ['EX DH IN'] = STRING.trimIndent [[
+        Even on a crumbling foundation, you find the blueprint for success.
+            - The Architect
+    ]],
+    ['EX DH AS'] = STRING.trimIndent [[
+        King of the tricksters.
+            - Loki
+    ]],
+    ['EX DH DP'] = STRING.trimIndent [[
+        Within the shadows, infidelitous mutterings awaken cravings their bond can no longer satisfy.
+            - Whispers of Sin
+    ]],
+    ['EX IN AS'] = STRING.trimIndent [[
+        One must face many pains to get to the top.
+            - Expertise
+    ]],
+    ['EX IN DP'] = STRING.trimIndent [[
+        Does the imbalance in a relationship help it or destroy it?
+            - Dominance
+    ]],
+    ['NH MS GV'] = STRING.trimIndent [[
+        The world's pretty heavy, you know...
+            - Atlas' Burden
+    ]],
+    ['NH MS VL'] = STRING.trimIndent [[
+        Channel all your strength into your attack, leaving nothing behind.
+            - The Glass Cannon
+    ]],
+    ['NH MS IN'] = STRING.trimIndent [[
+        To you, divining the future is more a matter of luck than foresight.
+            - The False Prophet
+    ]],
+    ['NH MS AS'] = STRING.trimIndent [[
+        You'll never know what happebns next.
+            - Unpredictable Outcome
+    ]],
+    ['NH GV VL'] = STRING.trimIndent [[
+        When comfort meets class.
+            - Traditional
+    ]],
+    ['NH GV DH'] = STRING.trimIndent [[
+        All those who seek to scale the tower are doomed to fall, in time...
+            - Unstable Footing
+    ]],
+    ['NH GV IN'] = STRING.trimIndent [[
+        Even with al the chaos, the absolute grandmasters remain at peace and take things as they arrive.
+            - Evanescence
+    ]],
+    ['NH GV AS'] = STRING.trimIndent [[
+        The classic takes a new approach.
+            - A Modern Twist
+    ]],
+    ['NH GV DP'] = STRING.trimIndent [[
+        Memories of a life well lived.
+            - Nostalgia
     ]],
     ['NH MS GV VL DH IN AS'] = STRING.trimIndent [[
         Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.

@@ -923,12 +923,22 @@ local page2 = {
                 MSG('error', "Cannot import data from future versions\nPlease update your game first!")
                 SFX.play('staffwarning')
                 return
-            elseif res1.mod and res1.mod ~= 'vanilla' then
-                MSG('dark', "Cannot import data from modded version")
+            elseif res1.mod and res1.mod ~= 'quickpick2' then
+                local modText = "Cannot import data from a different modded version"
+                if res1.mod == "A Fool's Mod" then modText = "Foolish! Hath thou no shame against thine sorcery of the Major Arcana this way?"
+                elseif res1.mod == "vanilla" then modText = "Powers of the light and dark forces prevent the disruption of magic from this sorcery."
+                elseif res1.mod == "easyMode" then modText = "The Creator disallows anything new from the tarot cards that brings struggle,\nand prefers his traditional ways of ease and leniency."
+                elseif res1.mod == "evilvile" then modText = "Damned souls are not allowed to enter, left in woe for their vile deeds."
+                elseif res1.mod == "shimmer" then modText = "Neither the glistening liquids nor the unknown field of magic can bind together here."
+                elseif res1.mod == "unabstracted" then modText = "All of what you have seen once before fades away."
+                elseif res1.mod == "finalmixbeg" then modText = "Occultish magic that has nothing to do with the tarot cards are forbidden." 
+                elseif res1.mod == "Rodinia's Domain" or res1.mod == "Rodinia" or res1.mod == "Extra" then modText = "No trace of Rodinia the Celestial Overseer is ever found,\nthe question of her existence here lays unanswered." end
+                MSG('dark', modText)
                 SFX.play('staffwarning')
                 return
             end
             TABLE.update(STAT, res1)
+            STAT.mod = 'quickpick2'
             BEST, ACHV = res2, res3
             setmetatable(BEST.highScore, Metatable.best_highscore)
             GAME.refreshLockState()
@@ -941,7 +951,7 @@ local page2 = {
             if TestMode then
                 MSG('dark', "Progress imported, but won't be saved.")
             else
-                MSG('dark', "Progress imported!")
+                MSG('dark', "Progress imported! Feel the cards impulse at your hands. Mastery is everything!")
             end
             SFX.play('social_notify_major')
         end,

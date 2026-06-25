@@ -2037,7 +2037,7 @@ function GAME.commit(auto)
         end
         if MATH.between(Floors[GAME.floor].top - (GAME.height + GAME.heightBuffer), 0, 2) then GAME.addHeight(3, true) end
 
-        if M.AS == 2 and GAME.spinCount < 0 and not GAME.fault then
+        if M.AS == 2 and GAME.spinCount < 0 and not GAME.fault or M.AS == 2 and GAME.fault then
             GAME.spinAttack = false
         end
 

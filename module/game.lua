@@ -2065,7 +2065,7 @@ function GAME.commit(auto)
                     end
                     if M.AS == 2 and GAME.chain < 4 then 
                         attack = 0 
-                        GAME.spinAttack = 0
+                        GAME.spinAttack = false
                         GAME.Clear = 'VOID'  
                     
                     else
@@ -2800,7 +2800,7 @@ function GAME.commit(auto)
                 GAME.takeDamage(1, 'wrong')
                 SFX.play('garbagerise')
                 SFX.play('wound')
-            elseif M.AS == 2 and (GAME.spinAttack and GAME.spinCount == GAME.lastSpinCount) or GAME.Clear == GAME.previousClear then
+            elseif M.AS == 2 and (GAME.spinAttack and not GAME.fault and GAME.spinCount == GAME.lastSpinCount) or GAME.Clear == GAME.previousClear then
                 GAME.woundTrigger = true
                 wounded = wounded + 20
                 GAME.takeDamage(20, 'wrong')

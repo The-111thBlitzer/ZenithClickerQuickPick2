@@ -2037,7 +2037,7 @@ function GAME.commit(auto)
         end
         if MATH.between(Floors[GAME.floor].top - (GAME.height + GAME.heightBuffer), 0, 2) then GAME.addHeight(3, true) end
 
-        if M.AS == 2 and GAME.spinCount < 0 and not GAME.fault or M.AS == 2 and GAME.fault then
+        if (M.AS == 2 and GAME.spinCount < 0 and not GAME.fault) or (M.AS == 2 and GAME.fault) then
             GAME.spinAttack = false
         end
 
@@ -2063,9 +2063,8 @@ function GAME.commit(auto)
                     else
                         if GAME.faultCount - 1 >= attack then attack = 0 else attack = attack - (GAME.faultCount - 1) end
                     end
-                    if M.AS == 2 and GAME.chain < 4 then 
+                    if M.AS == 2 then 
                         attack = 0 
-                        GAME.spinAttack = false
                         GAME.Clear = 'VOID'  
                     
                     else
@@ -2968,7 +2967,7 @@ function GAME.start()
         GAME.maxQuestSize = (M.NH < 2 and M.DH == 2) and 3 or 4
         GAME.extraQuestBase = 0 + (M.NH == 2 and (M.DH > 0 and 2.42 - M.DH or 1.26) or 0) + (M.DH == 1 and 0.26 or 0.062) + (M.MS == 2 and 3.26 or 0) + (M.AS == 2 and 1.62 or 0)
         GAME.extraQuestVar = 1 + (M.DH == 1 and .626 or 1) + (M.MS == 2 and 6.262 or .5) + (M.DH == 2 and 6.66 or 0) + (M.AS == 2 and 0.62 or 0)
-        GAME.questMessiness = M.DH == 2 and 666 or 0 + (GAME.floor * 1.62) + (M.MS == 1 and 12.6 or M.MS == 2 and 62 or M.VL == 1 and -15 or M.VL == 2 and -30 or 0) + (M.AS == 2 and 3.25 or 0)
+        GAME.questMessiness = M.DH == 2 and 666 or 0 + (GAME.floor * 1.62) + (M.MS == 1 and 12.6 or M.MS == 2 and 262 or M.VL == 1 and -15 or M.VL == 2 and -30 or 0) + (M.AS == 2 and 3.25 or 0)
         GAME.messierQuest = MATH.random(0,0.62 * MATH.abs(GAME.floor))
         GAME.cleanerQuest = MATH.random(-0.26 * MATH.abs(GAME.floor), 0)
         GAME.questFavor = 0 -- Initialized in GAME.upFloor()

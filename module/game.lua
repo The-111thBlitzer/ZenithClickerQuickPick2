@@ -1969,6 +1969,7 @@ function GAME.commit(auto)
         correct = 2
         GAME.incrementPrompt('pass_second')
     end
+    if M.DH == 2 then GAME.uniqueCardsRemaining = MATH.floor(GAME.uniqueCardsRemaining) end
 
     if correct then
 

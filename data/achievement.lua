@@ -898,15 +898,6 @@ local d = {
         scoreSimp = function(time) return string.format("%.2fs", time) end,
         rank = numberRankRev(260, 180, 162, 142, 135, 126, 120),
     },
-    { -- arrogance
-        ex = true,
-        id = 'arrogance',
-        name = "Arrogance",
-        desc = [[HAR without getting perfect passes, with rAS]],
-        quote = [[Maintaining arrogance constantly is not easy.]],
-        rank = numberRank(10, 16, 26, 42, 50, 100, 150),
-        hide = function() return GAME.completion.AS == 0 end,
-    },
     { -- scarcity_mindset
         id = 'scarcity_mindset',
         name = "Scarcity Mindset",

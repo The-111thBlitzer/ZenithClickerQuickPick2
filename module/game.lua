@@ -3526,8 +3526,8 @@ function GAME.finish(reason)
             SubmitAchv('the_oblivious_artist', GAME.achv_obliviousQuest)
         elseif GAME.comboStr == 'rGV' then
             SubmitAchv('spotless', GAME.achv_noDamageH or GAME.roundHeight)
-        elseif GAME.comboStr == 'rAS' then
-            SubmitAchv('arrogance', GAME.achv_noPerfectH or GAME.roundHeight)
+        --elseif GAME.comboStr == 'rAS' then
+        --    SubmitAchv('arrogance', GAME.achv_noPerfectH or GAME.roundHeight)
         elseif GAME.comboStr == 'rDP' then
             SubmitAchv('overprotection', GAME.achv_protectH or GAME.roundHeight)
         elseif GAME.comboStr == 'DHVLrIN' then

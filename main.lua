@@ -278,7 +278,6 @@ TEXTURE = {
             zero_to_sixty = aq(10, 5),
             speed_bonus = aq(9, 4),
             under_the_radar = aq(16, 8),
-            arrogance = aq(3, 5),
             scarcity_mindset = aq(4, 1),
             detail_oriented = aq(8, 6),
             psychokinesis = aq(8, 6),

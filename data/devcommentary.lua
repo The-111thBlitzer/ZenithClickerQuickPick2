@@ -408,7 +408,7 @@ return {
             - Unstable Footing
     ]],
     ['NH GV IN'] = STRING.trimIndent [[
-        Even with al the chaos, the absolute grandmasters remain at peace and take things as they arrive.
+        Even with all the chaos, the absolute grandmasters remain at peace and take things as they arrive.
             - Evanescence
     ]],
     ['NH GV AS'] = STRING.trimIndent [[

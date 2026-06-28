@@ -631,7 +631,8 @@ return {
         OTHER THAN A ZENITH CLICKER.
     ]],
     ['rEX rNH rMS rGV rVL rDH rIN rAS'] = STRING.trimIndent [[
-        DO YOU DARE TRACE THE SAME STEPS OF THE HUNDREDS BEFORE YOU THAT SOUGHT DEIFICATION?
+        DO YOU DARE TRACE THE SAME STEPS OF THE HUNDREDS BEFORE YOU 
+        THAT SOUGHT DEIFICATION?
                                                             -Ambrosia
     ]],
 

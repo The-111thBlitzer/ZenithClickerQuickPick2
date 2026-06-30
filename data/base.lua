@@ -56,14 +56,14 @@ RevSwampName = {
 Floors = {
     [0] = { top = 0, name = "The Basement" },
     { top = 50,   event = {},                                                  name = "Hall of Beginnings" },
-    { top = 150,  event = { 'dmgDelay', -2, 'dmgWrong', 1 },                   name = "The Hotel",           MSshuffle = 1 },
+    { top = 150,  event = { 'dmgDelay', -2, 'dmgWrong', 1 },                   name = "The Hotel",            },
     { top = 300,  event = { 'dmgDelay', -2, 'dmgCycle', -.5 },                 name = "The Casino" },
     { top = 450,  event = { 'dmgDelay', -1, 'dmgCycle', -.5 },                 name = "The Arena" },
-    { top = 650,  event = { 'dmgDelay', -1, 'dmgCycle', -.5, 'dmgWrong', 1 },  name = "The Museum",          MSshuffle = 2 },
+    { top = 650,  event = { 'dmgDelay', -1, 'dmgCycle', -.5, 'dmgWrong', 1 },  name = "The Museum",           },
     { top = 850,  event = { 'dmgDelay', -1, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
-    { top = 1100, event = { 'dmgDelay', -1, 'dmgCycle', -.5 },                 name = "The Laboratory",      MSshuffle = 3 },
+    { top = 1100, event = { 'dmgDelay', -1, 'dmgCycle', -.5 },                 name = "The Laboratory",       },
     { top = 1350, event = { 'dmgDelay', -1, 'dmgCycle', -.5 },                 name = "The Core" },
-    { top = 1650, event = { 'dmgDelay', -.5, 'dmgWrong', 1 },                  name = "Corruption",          MSshuffle = 4 },
+    { top = 1650, event = { 'dmgDelay', -.5, 'dmgWrong', 1 },                  name = "Corruption",           },
     { top = 1e99, event = { 'dmgDelay', -.5, 'dmgCycle', -.5, 'dmgTime', 1 },  name = "Platform of the Gods" },
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
     -- Initial: Delay=15. Cycle=5, Wrong=1
@@ -73,14 +73,14 @@ Floors = {
 HardModeFloors = {
     [0] = { top = 0, name = "The Basement" },
     { top = 50,   event = {},                                                  name = "Hall of Beginnings" },
-    { top = 150,  event = { 'dmgDelay', -1, 'dmgWrong', 1 },                   name = "The Hotel",           MSshuffle = 1 },
+    { top = 150,  event = { 'dmgDelay', -1, 'dmgWrong', 1 },                   name = "The Hotel",            },
     { top = 300,  event = { 'dmgDelay', -1},                 name = "The Casino" },
     { top = 450,  event = { 'dmgDelay', -1},                 name = "The Arena" },
-    { top = 650,  event = { 'dmgDelay', -.5, 'dmgWrong', 1 },  name = "The Museum",          MSshuffle = 2 },
+    { top = 650,  event = { 'dmgDelay', -.5, 'dmgWrong', 1 },  name = "The Museum",           },
     { top = 850,  event = { 'dmgDelay', -.5, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
-    { top = 1100, event = { 'dmgDelay', -.5},                 name = "The Laboratory",      MSshuffle = 3 },
+    { top = 1100, event = { 'dmgDelay', -.5},                 name = "The Laboratory",      },
     { top = 1350, event = { 'dmgDelay', -.5,},                 name = "The Core" },
-    { top = 1650, event = { 'dmgDelay', -.25},                  name = "Corruption",          MSshuffle = 4 },
+    { top = 1650, event = { 'dmgDelay', -.25},                  name = "Corruption",          },
     { top = 1e99, event = { 'dmgDelay', -.25, 'dmgTime', 1 },  name = "Platform of the Gods" },
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
     -- Initial: Delay=12.5. Cycle=2.5, Wrong=1
@@ -90,14 +90,14 @@ HardModeFloors = {
 RevModFloors = {
     [0] = { top = 0, name = "The Basement" },
     { top = 50,   event = {},                                                  name = "Hall of Beginnings" },
-    { top = 150,  event = { 'dmgDelay', -1, 'dmgWrong', 1, 'dmgCycle', -.5 },                   name = "The Hotel",           MSshuffle = 1 },
+    { top = 150,  event = { 'dmgDelay', -1, 'dmgWrong', 1, 'dmgCycle', -.5 },                   name = "The Hotel",           },
     { top = 300,  event = { 'dmgDelay', -1, 'dmgCycle', -.5},                 name = "The Casino" },
     { top = 450,  event = { 'dmgDelay', -1, 'dmgCycle', -.5},                 name = "The Arena" },
-    { top = 650,  event = { 'dmgDelay', -.5, 'dmgWrong', 1, 'dmgCycle', -.5 },  name = "The Museum",          MSshuffle = 2 },
+    { top = 650,  event = { 'dmgDelay', -.5, 'dmgWrong', 1, 'dmgCycle', -.5 },  name = "The Museum",           },
     { top = 850,  event = { 'dmgDelay', -.5, 'dmgTime', 1, 'maxQuestSize', 1, 'dmgCycle', -.5 }, name = "Abandoned Offices" },
-    { top = 1100, event = { 'dmgDelay', -.5, 'dmgCycle', -.5},                 name = "The Laboratory",      MSshuffle = 3 },
+    { top = 1100, event = { 'dmgDelay', -.5, 'dmgCycle', -.5},                 name = "The Laboratory",       },
     { top = 1350, event = { 'dmgDelay', -.5,},                 name = "The Core" },
-    { top = 1650, event = { 'dmgDelay', -.25},                  name = "Corruption",          MSshuffle = 4 },
+    { top = 1650, event = { 'dmgDelay', -.25},                  name = "Corruption",           },
     { top = 1e99, event = { 'dmgDelay', -.25, 'dmgTime', 1 },  name = "Platform of the Gods" },
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
     -- Initial: Delay=12.5 Cycle=5, Wrong=1
@@ -106,16 +106,16 @@ RevModFloors = {
 
 rASHardModeFloors = {
     [0] = { top = 0, name = "The Basement" },
-    { top = 50,   event = {},                                                  name = "Hall of Beginnings" },
-    { top = 150,  event = { 'dmgWrong', 1 },                   name = "The Hotel",           MSshuffle = 1 },
-    { top = 300,  event = {}, name = "The Casino" },
-    { top = 450,  event = {}, name = "The Arena" },
-    { top = 650,  event = { 'dmgWrong', 1 },  name = "The Museum",          MSshuffle = 2 },
-    { top = 850,  event = { 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
-    { top = 1100, event = {}, name = "The Laboratory",      MSshuffle = 3 },
-    { top = 1350, event = {}, name = "The Core" },
-    { top = 1650, event = {}, name = "Corruption",          MSshuffle = 4 },
-    { top = 1e99, event = { 'dmgTime', 1 },  name = "Platform of the Gods" },
+    { top = 50,   event = {'dmgDelay', -1},                                                  name = "Hall of Beginnings" },
+    { top = 150,  event = { 'dmgWrong', 1 },                   name = "The Hotel",           },
+    { top = 300,  event = {'dmgDelay', -1}, name = "The Casino" },
+    { top = 450,  event = {'dmgDelay', -.5}, name = "The Arena" },
+    { top = 650,  event = {'dmgDelay', -.5, 'dmgWrong', 1 },  name = "The Museum",         },
+    { top = 850,  event = {'dmgDelay', -.5, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
+    { top = 1100, event = {'dmgDelay', -.5}, name = "The Laboratory",       },
+    { top = 1350, event = {'dmgDelay', -.5}, name = "The Core" },
+    { top = 1650, event = {'dmgDelay', -.5}, name = "Corruption",           },
+    { top = 1e99, event = {'dmgDelay', -.5, 'dmgTime', 1 },  name = "Platform of the Gods" },
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
     -- Initial: Delay=12.5. Cycle=2.5, Wrong=1
     -- Total: Wrong +2

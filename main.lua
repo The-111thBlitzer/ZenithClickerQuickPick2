@@ -1957,6 +1957,11 @@ function Daemon_Fast()
                 changed = false
             end
 
+            if M.MS == 2 and GAME.playing then
+                local W = SCN.scenes.tower.widgetList.start
+                rMSCommit(true)
+            end
+
             if M.AS == 0 then
                 if resetBtnPtr > 1 then
                     resetBtnPtr = resetBtnPtr - 1

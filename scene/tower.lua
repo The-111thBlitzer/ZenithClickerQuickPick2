@@ -702,6 +702,21 @@ local function drawPBline(h, pb, spd, textObj)
     gc_rectangle('fill', -1.26 * (obj:getWidth() + 12), y - 2, -2600, 4)
 end
 
+function rMSCommit(LoadedDice)
+    local alpha = GAME.questTime / 3
+    local W = scene.widgetList.start
+    if GAME.questTime >= 1.15 and LoadedDice then
+        W.color[1] = .35 + (.5 - alpha)
+        W.color[2] = .12 + (.5 - alpha)
+        W.color[3] = .05 + (.5 - alpha)
+        if W.color[1] <= .35 or W.color[2] <= .12 or W.color[3] <= .05 then
+            W.color[1] = .35
+            W.color[2] = .12
+            W.color[3] = .05
+        end
+    end
+end
+
 function scene.draw()
     local t = love.timer.getTime()
     if GAME.zenithTraveler then

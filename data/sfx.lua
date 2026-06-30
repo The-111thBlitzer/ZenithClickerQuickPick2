@@ -228,7 +228,7 @@ return {
     -- garbage_out_medium=          {770, 1},
     -- garbage_out_large=           {373, 1},
     garbagerise = { 336, 1.2 },
-    -- garbagesmash=                {624, 2.1},
+    garbagesmash =                {624, 2.1},
     garbagewindup_1 = { 145, 1.29 },
     garbagewindup_2 = { 217, 1.46 },
     garbagewindup_3 = { 413, 1.64 },

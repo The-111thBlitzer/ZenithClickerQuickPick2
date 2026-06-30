@@ -96,6 +96,11 @@ local ins, rem = table.insert, table.remove
 ---@field shuffleMessiness number | false
 ---@field lastCommit string[]
 ---
+---@field combo number
+---@field combotime number
+---@field timeCommitted number
+---@field LastQuestTime number
+---
 ---@field woundTrigger boolean
 ---@field woundRequirement number
 ---@field woundTally number
@@ -363,7 +368,7 @@ function GAME.getComboName(list, mode)
 
         -- Named combo
         local combo = (ComboData.game)[table.concat(TABLE.sort(list), ' ')]
-        if M.DH == 2 and MATH.roll() then
+        if M.DH == 2 then
             combo = (M.DH == 2 and ComboData.gameEX)[table.concat(TABLE.sort(list), ' ')]
         end
         if combo then
@@ -939,7 +944,7 @@ function GAME.heal(hp)
 end
 
 ---@param dmg number
----@param reason 'wrong' | 'time'
+---@param reason 'wrong' | 'time' | 'fatigue'
 ---@param toAlly? boolean
 function GAME.takeDamage(dmg, reason, toAlly)
     if GAME.currentTask then
@@ -950,13 +955,17 @@ function GAME.takeDamage(dmg, reason, toAlly)
 
         local k = GAME.getLifeKey(toAlly)
         GAME[k] = max(GAME[k] - dmg, 0)
-        SFX.play(
-            toAlly and 'inject' or
-            dmg <= 2 and 'damage_small' or
-            dmg < 6 and 'damage_medium' or
-            dmg <= 2600 and 'damage_large' or
-            'bombdetonate', .872
-        )
+        if reason == 'wrong' or reason == 'time' then
+            SFX.play(
+                toAlly and 'inject' or
+                dmg <= 2 and 'damage_small' or
+                dmg < 6 and 'damage_medium' or
+                dmg <= 2600 and 'damage_large' or
+                'bombdetonate', .872
+            )
+        elseif reason == 'fatigue' then
+            SFX.play('garbagesmash')
+        end
 
         if M.DH >= 1 then
             GAME.hardDmg = GAME.hardDmg + dmg / 2
@@ -1088,15 +1097,6 @@ function GAME.stopTeraspeed(mode)
     end
 end
 
-function GAME.readyShuffle(messiness, noSnd)
-    if not messiness then return end
-    GAME.shuffleMessiness = messiness
-    if GAME.totalQuest > 0 then
-        if not noSnd then SFX.play('rsg_go', 1, 0, Tone(2)) end
-        for _, C in ipairs(CD) do C:shake() end
-    end
-end
-
 function GAME.showFloorText(f, name, duration)
     if GAME.invisUI then return end
     TEXT:add {
@@ -1215,13 +1215,6 @@ function GAME.upFloor()
 
     GAME.floor = GAME.floor + 1
     GAME.floorTime = 0
-    if GAME.floor > 1 then
-        if M.MS == 1 then
-            GAME.readyShuffle(Floors[GAME.floor].MSshuffle)
-        elseif M.MS == 2 and not URM then
-            GAME.readyShuffle(GAME.floor * 2.6)
-        end
-    end
 
     GAME.questFavor =
         M.VL == 2 and 50 or (
@@ -1369,6 +1362,30 @@ function GAME.nextFatigue()
             GAME.achv_level19capH = GAME.roundHeight
         end
     end
+    local t = stage.time
+    if Fatigue.normal then
+        if t == 480 then
+            GAME.takeDamage(2, 'fatigue')
+        elseif t == 600 then
+            GAME.takeDamage(3, 'fatigue')
+        elseif t == 720 then
+            GAME.takeDamage(5, 'fatigue')
+        end
+    elseif Fatigue.rEX then
+        if t == 480 then
+            GAME.takeDamage(3, 'fatigue')
+        elseif t == 600 then
+            GAME.takeDamage (5, 'fatigue')
+        elseif t == 720 then
+            GAME.takeDamage(12, 'fatigue')
+        end
+    elseif Fatigue.rDP then
+        if t == 330 then
+            GAME.takeDamage(4, 'fatigue')
+        elseif t == 600 then
+            GAME.takeDamage(12, 'fatigue')
+        end
+    end
     if stage.final then
         if GAME.fatigueSet == Fatigue.normal then
             IssueAchv('final_defiance')
@@ -1385,13 +1402,7 @@ end
 function GAME.downFloor()
     GAME.negFloor = GAME.negFloor + 1
     GAME.floorTime = 0
-    if GAME.negFloor > 1 then
-        if M.MS == 1 then
-            GAME.readyShuffle(Floors[GAME.negFloor].MSshuffle)
-        elseif M.MS == 2 and not URM then
-            GAME.readyShuffle(GAME.negFloor * 2.6)
-        end
-    end
+
 
     GAME.questFavor =
         M.VL == 2 and 50 or (
@@ -2432,16 +2443,17 @@ function GAME.commit(auto)
                 if M.DH == 2 and M.AS == 2 then attack = MATH.round(attack * 1.75) end
             else
                 if GAME.rDH_blighted and not GAME.blightTrigger then
+                    if GAME.spinCount > 3 then GAME.spinCount = 3 end
                     if not GAME.spinAttack then
                         attack = MATH.round(4 * 1.75)
                         xp = xp + 4
                         SFX.play('clearquad', .5)
                         GAME.incrementPrompt('clear')
                         GAME.incrementPrompt('clear_quadchain')
+                        GAME.Clear = 'QUAD'
                     else
                         GAME.nixPrompt('clear_quadchain')
                         SFX.play('clearspin', .5)
-                        if GAME.spinCount > 3 then GAME.spinCount = 3 end
                         attack = MATH.round(M.NH == 2 and GAME.spinCount - 1 or GAME.spinCount * 3.5)
                         if M.AS < 1 and M.NH < 2 then
                             if GAME.spinCount == 1 then xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
@@ -2464,12 +2476,14 @@ function GAME.commit(auto)
                 elseif GAME.blightTrigger and not GAME.rDH_blighted then
                         GAME.blightTrigger = false
                         GAME.rDH_blighted = true
+                        if GAME.spinCount > 3 then GAME.spinCount = 3 end
                         if not GAME.spinAttack then
                             attack = 4
                             xp = xp + 4
                             SFX.play('clearquad', .5)
                             GAME.incrementPrompt('clear')
                             GAME.incrementPrompt('clear_quadchain')
+                            GAME.Clear = 'QUAD'
                         else
                             GAME.nixPrompt('clear_quadchain')
                             SFX.play('clearspin', .5)
@@ -2492,12 +2506,32 @@ function GAME.commit(auto)
                                 else GAME.Clear = 'MINI-' .. GAME.SelectedCard .. 'SPIN TRIPLE' xp = xp + 3 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end 
                             end
                         end
-                    else
-                        attack = 0
-                        SFX.play('clearline', .5)
+                else
+                    attack = 0
+                    SFX.play('clearline', .5)
+                    if not GAME.spinAttack then
                         GAME.clear = 'QUAD'
+                    else
+                        if M.AS < 1 and M.NH < 2 then
+                                if GAME.spinCount == 1 then xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                                elseif GAME.spinCount == 2 then xp = xp + 4 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                                else xp = xp + 6 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
+                            elseif M.AS >= 1 and M.NH < 2 then
+                                if GAME.spinCount == 1 then GAME.Clear = GAME.SelectedCard .. 'SPIN SINGLE' xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                                elseif GAME.spinCount == 2 then GAME.Clear = GAME.SelectedCard .. 'SPIN DOUBLE' xp = xp + 4 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                                else GAME.Clear = GAME.SelectedCard .. 'SPIN TRIPLE' xp = xp + 6 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
+                            elseif M.AS < 1 and M.NH == 2 then
+                                if GAME.spinCount == 1 then xp = xp + 1 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                                elseif GAME.spinCount == 2 then xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                                else xp = xp + 3 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
+                            else
+                                if GAME.spinCount == 1 then GAME.Clear = 'MINI-' .. GAME.SelectedCard .. 'SPIN SINGLE' xp = xp + 1 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
+                                elseif GAME.spinCount == 2 then GAME.Clear = 'MINI-' .. GAME.SelectedCard .. 'SPIN DOUBLE' xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2')
+                                else GAME.Clear = 'MINI-' .. GAME.SelectedCard .. 'SPIN TRIPLE' xp = xp + 3 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end 
+                        end
                     end
                 end
+            end
 
                 if M.EX == 1 then
                     if GAME.life < GAME.fullHealth then
@@ -2683,6 +2717,30 @@ function GAME.commit(auto)
                 if check_achv_romantic_homicide then IssueAchv('romantic_homicide') end
             end
         end
+--[[
+            -- Combo attacks
+            GAME.combotime = GAME.questTime - GAME.timeCommitted
+            if GAME.combotime < GAME.LastQuestTime then
+                GAME.combo = GAME.combo + 1
+                attack = attack * (1+0.25*GAME.combo)
+                if MATH.roll() then
+                    SFX.play('combo_'..GAME.combo..'_power')
+                    if GAME.combo > 16 then
+                        SFX.play('combo_16_power')
+                    end
+                else
+                    SFX.play('combo_'..GAME.combo)
+                    if GAME.combo > 16 then
+                        SFX.play('combo_16')
+                    end
+                end
+            else
+                if GAME.combo > 2 then
+                    SFX.play('combobreak')
+                end
+                GAME.combo = 0
+                GAME.combotime = 0
+            end]]
 
         attack = MATH.roundRnd(attack)
 
@@ -2821,16 +2879,17 @@ function GAME.commit(auto)
         end
 
         GAME.faultCount = 0
-        if M.AS < 2 then
-            GAME.spinAttack = false
-            GAME.spinCount = 0
-        end
+        GAME.spinAttack = false
+        GAME.spinCount = 0
         if M.AS == 2 then
             GAME.spinAttack = true
             if GAME.spinCount < 0 then
                 GAME.spinCount = 0
             end
         end
+        GAME.LastQuestTime = GAME.combotime
+        GAME.questTime = 0
+        GAME.timeCommitted = 0
         GAME.extraMod = false
         GAME.gravLockState = false
     else
@@ -2851,6 +2910,7 @@ function GAME.commit(auto)
         GAME.fault = true
         GAME.faultWrong = true
         GAME.faultCount = GAME.faultCount + 1
+        GAME.timeCommitted = GAME.questTime
 
         --if M.VL == 1 then
         --    GAME.dmgWrong = GAME.dmgWrong + (MATH.abs(#hand - #list))
@@ -2992,6 +3052,10 @@ function GAME.start()
         GAME.dhMod = nil
         GAME.hardDmg = 0
         GAME.dmgWrongExtra = 0
+        GAME.combo = 0
+        GAME.combotime = 0
+        GAME.LastQuestTime = 0
+        GAME.timeCommitted = 0
 
         -- Player
         GAME.fullHealth = M.VL == 2 and 16 or (M.DH == 2 and M.VL < 2 and 18) or 22
@@ -3051,6 +3115,11 @@ function GAME.start()
         if M.DP == 2 then
             GAME.rankLimit = 8 + 4 * M.EX
             GAME.dmgHeal = 3 * GAME.dmgHealMul
+        end
+
+        -- Functions
+        if M.MS == 2 then
+            rMSCommit(true)
         end
 
         -- Achievements
@@ -3753,9 +3822,10 @@ function GAME.update(dt)
         GAME.gravTimer = GAME.gravDelay
     end
     if M.EX == 2 and GAME.floorTime > 60 then
-        GAME.dmgWrong = GAME.dmgWrong + 0.05 * dt * GAME.dmgMul
-        GAME.extraQuestBase = GAME.extraQuestBase + 0.03 * dt
-        GAME.extraQuestVar = GAME.extraQuestVar + 0.06 * dt
+        GAME.dmgWrong = GAME.dmgWrong + 0.05 * dt
+        GAME.dmgMul = GAME.dmgMul + 0.05 * dt
+        GAME.extraQuestBase = GAME.extraQuestBase + 0.1 * dt
+        GAME.extraQuestVar = GAME.extraQuestVar + 0.1 * dt
     end
     if GAME.reviveTime then
         GAME.reviveTime = GAME.reviveTime + dt
@@ -3909,6 +3979,7 @@ function GAME.update(dt)
 
     -- Damage
     local dmgTimerMulGV = M.GV == 1 and 0.75 - 0.03 * (GAME.floor - 1) or M.GV == 2 and 0.525 - 0.01 * (GAME.floor - 1) or 1
+    if dmgTimerMulGV < 0.15 then dmgTimerMulGV = 0.15 end
     GAME.dmgTimer = GAME.dmgTimer - dt / (GAME.dmgTimerMul * dmgTimerMulGV)
     if GAME.dmgTimer <= 0 then
         GAME.dmgTimer = GAME.dmgCycle

@@ -628,9 +628,23 @@ function Card:draw()
 
     if GAME.glassCard then
         local w, h = 240, 330
-        gc_setColor((faceUp and ModData.textColor or ModData.color)[self.id])
+        if GAME.playing then
+            if M.IN == 1 then
+                if MATH.floor(GAME.time) % 5 == 0 then
+                    gc_setColor((faceUp and ModData.textColor or ModData.color)[self.id])
+                else
+                    gc_setColor((faceUp and ModData.INtextColor or ModData.INcolor)[self.id])
+                end
+            elseif M.IN == 2 then
+                gc_setColor((faceUp and ModData.INtextColor or ModData.INcolor)[self.id])
+            end
+        else
+            gc_setColor((faceUp and ModData.textColor or ModData.color)[self.id])
+        end
         gc_setAlpha((CONF.cardBrightness / 100) ^ 2 * .872)
         gc_mRect('fill', 0, 0, w * 2, h * 2, 26)
+
+        
 
         if self.burn then
             if URM and M.AS == 2 then

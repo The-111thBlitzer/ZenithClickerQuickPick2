@@ -117,29 +117,29 @@ return {
     ]],
 
     ['uEX'] = STRING.trimIndent [[
-        No more leniency. Cards spacing tightened.
+        No more leniency. Cards spacing tightened. And increased damage overtime until the next floor.
         I doubt is it possible to drop from F10 to...
     ]],
     ['uNH'] = STRING.trimIndent [[
-        No more leniency. No XP protection, no Surge attack.
+        No more leniency. No XP protection, no Surge attack. Only one quest visible
     ]],
     ['uMS'] = STRING.trimIndent [[
-        No more leniency. Let's shuffle the whole deck on each pass.
+        No more leniency. Let's shuffle the whole quest on each pass. And no controls on every commit for a short while
     ]],
     ['uGV'] = STRING.trimIndent [[
-        No more leniency. Timer starts immediately and never resets.
+        No more leniency. Timers are set at the absolute maximum.
     ]],
     ['uVL'] = STRING.trimIndent [[
-        No more leniency. Everything must be clicked 4 times.
+        No more leniency. Receive quadruple the damage and all UI must be clicked 4 times.
     ]],
     ['uDH'] = STRING.trimIndent [[
         No more leniency. All phrases are scrambled letter by letter.
     ]],
     ['uIN'] = STRING.trimIndent [[
-        No more leniency. Quests will never show again.
+        No more leniency. Quests will never show again. And neither will the card outlines
     ]],
     ['uAS'] = STRING.trimIndent [[
-        No more leniency. Flipping a card twice ends the run.
+        No more leniency. Doing the same clear by card or type instantly kills you.
     ]],
     ['uDP'] = STRING.trimIndent [[
         No more leniency. 54% more damage to ally.
@@ -564,11 +564,10 @@ return {
     ]],
     ['NH rVL AS'] = STRING.trimIndent [[
         Zero-to-sixty, an original combo from ZC community.
-        Though this combo includes AS, it's actually easier to play with mouse lol
     ]],
     ['VL IN AS'] = STRING.trimIndent [[
         Under The Radar, an original combo from ZC community.
-        "What's the exact condition of entering Gigaspeed?"
+        "What's the exact condition of entering Hyperspeed again?"
     ]],
     ['rNH MS DP'] = STRING.trimIndent [[
         Scarcity Mindset, an original combo from ZC community.

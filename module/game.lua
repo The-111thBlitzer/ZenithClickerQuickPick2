@@ -143,6 +143,13 @@ local GAME = {
     revTimer = 0,
     revDeckSkin = false,
     uiHide = 0,
+    boardAnim = 0,
+    boardDim = { 1, 1, 1 },
+    boardColorPatch = {
+        timer = 0,
+        color = COLOR.L,
+    },
+    shakeTimer = 0,
     bgX = 0,
     bgXdir = 0,
     bgH = 0,
@@ -238,6 +245,7 @@ local GAME = {
 }
 
 GAME.playing = false
+GAME.maxQuestCount = 0
 GAME.finishTime = -2600
 GAME.fullHealth = 22
 GAME.startingHealth = 22
@@ -541,8 +549,8 @@ function GAME.anim_setMenuHide(t)
     ---@cast w -nil
     w.stat.x = cLerp(60, -90, t * 1.5 - .5)
     w.stat:resetPos()
-    w.achv.x = cLerp(60, -90, t * 1.5)
-    w.achv:resetPos()
+    w.chnl.x = cLerp(60, -90, t * 1.5)
+    w.chnl:resetPos()
     w.conf.x = cLerp(-60, 90, t * 1.5 - .5)
     w.conf:resetPos()
     w.about.x = cLerp(-60, 90, t * 1.5)
@@ -558,10 +566,39 @@ function GAME.anim_setMenuHide_rev(t)
     GAME.anim_setMenuHide(1 - t)
 end
 
+function GAME.anim_setBoardAnim(t)
+    GAME.boardAnim = t
+end
+
+function GAME.anim_setBoardAnim_rev(t)
+    GAME.anim_setBoardAnim(1 - t)
+end
+
 local floorHeights = {}
 for i = 0, 9 do ins(floorHeights, Floors[i].top) end
 function GAME.calculateFloor(h)
     return floor(1 + 9 * MATH.ilLerp(floorHeights, h))
+end
+
+function GAME.calculateSurgeColor(c)
+    local r, g, b, a
+    if M.AS < 2 then
+        r, g, b, a = COLOR.HSL(
+            26 / (c + 22) + 1.3, 1,
+            icLerp(-260, 420, c),
+            c < 8 and .26 or 1
+        )
+    else
+        r, g, b, a = COLOR.HSV(
+            clampInterpolate(4, .76, 26, 0.926, c), 1, 1,
+            .16
+        )
+    end
+
+    if URM and M.NH == 2 then
+        r, g, b = .626 + r * .26, .626 + g * .26, .626 + b * .26
+    end
+    return r, g, b, a
 end
 
 function GAME.task_gigaspeed()
@@ -765,7 +802,7 @@ function GAME.genQuest()
         ins(GAME.quests, {
             combo = combo,
             name = GC.newText(FONT.get(70), GAME.getComboName(TABLE.copy(combo), 'ingame')),
-            y = -100,
+            y = -260,
             k = .5,
             a = 0,
         })
@@ -885,6 +922,7 @@ function GAME.startRevive()
 end
 
 function GAME.incrementPrompt(prompt, value)
+    if not GAME.playing then return end
     local t = GAME.currentTask
     if t and prompt == t.prompt then
         local oldProg = t.progress
@@ -915,6 +953,7 @@ function GAME.incrementPrompt(prompt, value)
 end
 
 function GAME.nixPrompt(prompt)
+    if not GAME.playing then return end
     local t = GAME.currentTask
     if t and prompt == t.prompt then
         if t.progress >= 1 then
@@ -968,6 +1007,8 @@ function GAME.takeDamage(dmg, reason, toAlly)
             GAME.hardDmg = GAME.hardDmg + dmg / 2
         end
 
+    GAME.shakeTimer = min(dmg / 12, .62)
+
     GAME.achv_totalDmg = GAME.achv_totalDmg + dmg
     if not GAME.achv_perfectH then
         GAME.achv_perfectH = GAME.roundHeight
@@ -996,6 +1037,7 @@ function GAME.takeDamage(dmg, reason, toAlly)
             GAME.startRevive()
             GAME.dmgWrongExtra = 0 -- Being tolerant!
         else
+            GAME.shakeTimer = .62
             GAME.finish(reason)
         end
     else
@@ -1098,17 +1140,17 @@ function GAME.showFloorText(f, name, duration)
     if GAME.invisUI then return end
     TEXT:add {
         text = "Floor",
-        x = 160, y = 290, k = 1.6, fontSize = 30,
+        x = 160, y = 305, k = 1, fontSize = 50,
         color = 'LY', duration = duration,
     }
     TEXT:add {
         text = tostring(f),
-        x = 240, y = 280, k = 2.6, fontSize = 30,
+        x = 240, y = 295, k = 1.1, fontSize = 70,
         color = 'LY', duration = duration, align = 'left',
     }
     TEXT:add {
         text = name,
-        x = 200, y = 350, k = 1.2, fontSize = 30,
+        x = 200, y = 360, k = 1, fontSize = 30,
         color = 'LY', duration = duration,
     }
 end
@@ -1163,7 +1205,13 @@ function GAME.getRandomUID()
 end
 
 function GAME.awardKO(id1, id2, valid, toOppo)
-    if GAME.playing and valid then GAME.addHeight((M.EX == 2 and 8 or 15) * .26 * GAME.attackMul) end
+    if valid then
+        if GAME.playing then
+            GAME.addHeight((M.EX == 2 and 8 or 15) * .26 * GAME.attackMul)
+        end
+        if toOppo and not id2:match("^GHOST%-") then GAME.koCount = GAME.koCount + 1 end
+    end
+    if toOppo then SFX.play('elim', .5) end
     ins(GAME.koAnim, 1, {
         id1 = GC.newText(FONT.get(30), id1),
         id2 = GC.newText(FONT.get(30), id2),
@@ -1173,10 +1221,6 @@ function GAME.awardKO(id1, id2, valid, toOppo)
         showP1 = id1 ~= id2,
         toOppo = toOppo,
     })
-    if toOppo then
-        GAME.koCount = GAME.koCount + 1
-        SFX.play('elim', .5)
-    end
 end
 
 function GAME.upFloor()
@@ -1282,7 +1326,15 @@ function GAME.upFloor()
     if GAME.floor >= 10 then
         GAME.f10Time = love.timer.getTime()
         if GAME.gigaspeed then
-            if GAME.time < STAT.minTime then
+            if Daily.actived then
+                if roundTime < STAT.dailyFast then
+                    STAT.dailyFast = roundTime
+                    STAT.dailyDate = os.date("%y.%m.%d %H:%M%p")
+                    SaveStat()
+                    Daily.needSubmit = true
+                end
+            end
+            if roundTime < STAT.minTime then
                 STAT.minTime = roundTime
                 STAT.timeDate = os.date("%y.%m.%d %H:%M%p")
                 SaveStat()
@@ -1332,16 +1384,36 @@ function GAME.upFloor()
     GAME.refreshRPC()
 end
 
+function GAME.setFatigueColor(mode)
+    if mode == 'norm' then -- Normal
+        GAME.boardColorPatch.color = { COLOR.HEX "FF00C0" }
+        GAME.boardColorPatch.timer = 5
+    elseif mode == 'end' then -- Last original
+        GAME.boardColorPatch.color = { COLOR.HEX "FF0040" }
+        GAME.boardColorPatch.timer = 15
+    elseif mode == 'pos' then -- rDP Positive
+        GAME.boardColorPatch.color = { COLOR.HEX "FFB000" }
+        GAME.boardColorPatch.timer = 5
+    elseif mode == 'kill' then -- killscreen
+        GAME.boardColorPatch.color = { COLOR.HEX "B00000" }
+        GAME.boardColorPatch.timer = 1e99
+    end
+end
+
 function GAME.nextFatigue()
     local stage = GAME.fatigueSet[GAME.fatigue]
     local e = stage.event
-    for i = 1, #e, 2 do
-        GAME[e[i]] = GAME[e[i]] + e[i + 1]
+    if type(e) == 'function' then
+        e()
+    else
+        for i = 1, #e, 2 do
+            GAME[e[i]] = GAME[e[i]] + e[i + 1]
+        end
     end
     if stage.text then
         TEXT:add {
             text = stage.text,
-            x = 800, y = 265, fontSize = 30, k = 1.5,
+            x = 800, y = 285, fontSize = 30, k = 1.5,
             style = 'score', duration = stage.duration or 5,
             inPoint = .1, outPoint = .26,
             color = stage.color or 'lM',
@@ -1349,7 +1421,7 @@ function GAME.nextFatigue()
         if stage.desc then
             TEXT:add {
                 text = stage.desc,
-                x = 800, y = 300, fontSize = 30,
+                x = 800, y = 320, fontSize = 30,
                 style = 'score', duration = stage.duration or 5,
                 inPoint = .26, outPoint = .1,
                 color = stage.color or 'lM',
@@ -1450,7 +1522,7 @@ function GAME.refreshRPC()
 
     local stateStr
     if GAME.playing then
-        if DailyActived then
+        if Daily.actived then
             stateStr = GAME.teramusic and "Daily SPEEDRUN: " or GAME.gigaspeed and "Daily speedrun: " or "Daily game: "
         else
             stateStr = GAME.teramusic and "SPEEDRUN: " or GAME.gigaspeed and "Speedrun: " or "In game: "
@@ -1594,9 +1666,9 @@ function GAME.refreshCurrentCombo()
         GAME.comboZP = GAME.getComboZP(hand)
         TEXTS.mpPreview:set(GAME.comboMP .. " MP")
         TEXTS.zpPreview:set(("%.2fx ZP"):format(GAME.comboZP))
-        DailyActived =
-            #GAME.getHand(true) == #DAILY and
-            TABLE.equal(TABLE.sort(GAME.getHand(true)), TABLE.sort(TABLE.copy(DAILY)))
+        Daily.actived =
+            #GAME.getHand(true) == #Daily.combo and
+            TABLE.equal(TABLE.sort(GAME.getHand(true)), TABLE.sort(TABLE.copy(Daily.combo)))
 
         RefreshHelpText()
     end
@@ -1704,7 +1776,7 @@ function GAME.refreshRev()
         W = SCN.scenes.tower.widgetList.stat
         W.fillColor[1], W.fillColor[2] = W.fillColor[2], W.fillColor[1]
         W.textColor[1], W.textColor[2] = W.textColor[2], W.textColor[1]
-        W = SCN.scenes.tower.widgetList.achv
+        W = SCN.scenes.tower.widgetList.chnl
         W.fillColor[1], W.fillColor[2] = W.fillColor[2], W.fillColor[1]
         W.textColor[1], W.textColor[2] = W.textColor[2], W.textColor[1]
         W = SCN.scenes.tower.widgetList.conf
@@ -1756,26 +1828,26 @@ end
 function GAME.refreshDailyChallengeText()
     TEXTS.dcBest:set(
         STAT.dailyBest > 0 and
-        ("%.0fm  %.0fZP"):format(STAT.dailyBest / GAME.getComboZP(DAILY), STAT.dailyBest)
+        ("%.0fm  %.0fZP"):format(STAT.dailyBest / GAME.getComboZP(Daily.combo), STAT.dailyBest)
         or ""
     )
-    DailyAvailable = true
-    for _, v in next, DAILY do
+    Daily.available = true
+    for _, v in next, Daily.combo do
         if v:find('r') then
             if GAME.completion[v:sub(2)] == 0 then
-                DailyAvailable = false
+                Daily.available = false
                 break
             end
         else
             if Cards[v].lock then
-                DailyAvailable = false
+                Daily.available = false
                 break
             end
         end
     end
     local str
-    if DailyAvailable then
-        local sortedDaily = TABLE.copy(DAILY)
+    if Daily.available then
+        local sortedDaily = TABLE.copy(Daily.combo)
         table.sort(sortedDaily, modCardSorter)
         str = "Today's Combo: " .. table.concat(sortedDaily, " ")
         local rev = str:match("r(%S+)")
@@ -1788,7 +1860,7 @@ function GAME.refreshDailyChallengeText()
         else
             str = str .. ("   (r$1 = reversed $1)"):repD(rev)
         end
-        str = str .. "\nTry to get more ZP in one run using this mod combo.\n(Click to select them)"
+        str = str .. "\nTry to get more ZP in one run using this mod combo.\n(Click: apply, Right-click: leaderboard)"
     else
         str = "Oops! Today's mod combo is not available for you...\nComplete more mods to unlock some content."
     end
@@ -2313,6 +2385,58 @@ function GAME.commit(auto)
                     end
                 end
             end
+            if GAME.currentTask then
+                GAME.incrementPrompt('pass_imperfect')
+                GAME.incrementPrompt('pass_imperfect_row')
+                GAME.nixPrompt('pass_perfect_row')
+                GAME.nixPrompt('keep_no_imperfect')
+                GAME.nixPrompt('pass_windup_inb2b')
+            end
+            if M.AS == 2 then attack = 0 end
+            xp = xp + 2
+            if GAME.chain < 4 then
+                SFX.play('clearline', .62)
+            else
+                check_achv_romantic_homicide = M.DP == 2 and GAME.chain >= 62 and oldAllyHP == 0
+                if GAME.currentTask then
+                    if GAME.chain >= 4 and GAME.chain <= 10 and GAME.chain % 2 == 0 then
+                        GAME.incrementPrompt('b2b_break_' .. GAME.chain)
+                    end
+                    if #hand >= 4 then
+                        GAME.incrementPrompt('b2b_break_windup')
+                        if #hand >= 5 then
+                            GAME.incrementPrompt('b2b_break_windup3')
+                        end
+                    end
+                end
+                SFX.play('clearline')
+                SFX.play(
+                    GAME.chain < 8 and 'b2bcharge_blast_1' or
+                    GAME.chain < 12 and 'b2bcharge_blast_2' or
+                    GAME.chain < 24 and 'b2bcharge_blast_3' or
+                    'b2bcharge_blast_4'
+                )
+                if GAME.chain >= 8 then SFX.play('thunder' .. rnd(6), clampInterpolate(8, .7, 16, 1, GAME.chain)) end
+                local k = GAME.onAlly and 'life2' or 'life'
+                local oldLife = GAME[k]
+                while GAME.chain > 0 and GAME[k] < GAME.fullHealth do
+                    GAME.chain = max(GAME.chain - 2, 0)
+                    GAME[k] = min(GAME[k] + 1, GAME.fullHealth)
+                end
+                if GAME[k] > oldLife then GAME.incrementPrompt('heal', GAME[k] - oldLife) end
+                if GAME.chain > 0 then surge = GAME.chain end
+                local r, g, b = GAME.calculateSurgeColor(GAME.chain)
+                table.insert(ImpactGlow, {
+                    r = r,
+                    g = g,
+                    b = b,
+                    x = 326,
+                    y = 290,
+                    t = clampInterpolate(4, .12, 26, .62, GAME.chain),
+                    tk = GAME.slowmo and .06 or .26,
+                })
+            end
+            GAME.chain = 0
 
             if not GAME.achv_perfectH then
                 GAME.achv_perfectH = GAME.roundHeight
@@ -3189,7 +3313,11 @@ function GAME.start()
         TASK.removeTask_code(task_startSpin)
         TASK.new(task_startSpin)
 
-        TWEEN.new(GAME.anim_setMenuHide):setOnFinish(GAME.anim_setMenuHide_finish):setDuration(GAME.slowmo and 2.6 or .26):setUnique('uiHide'):run()
+    TWEEN.new(GAME.anim_setMenuHide):setOnFinish(GAME.anim_setMenuHide_finish):setDuration(GAME.slowmo and 2.6 or .26):setUnique('uiHide'):run()
+    TWEEN.new(GAME.anim_setBoardAnim):setEase('OutQuad'):setDuration(GAME.slowmo and 4.2 or .42):setUnique('boardAnim'):run()
+    BoardColor[1], BoardColor[2], BoardColor[3] = BoardColorData.r[1], BoardColorData.g[1], BoardColorData.b[1]
+    GAME.boardColorPatch.timer = 0
+    GAME.boardDim = { 1, 1, 1 }
 
         GAME.achv_plonkH = nil
         GAME.achv_perfectBTB = nil
@@ -3282,7 +3410,7 @@ function GAME.finish(reason)
     GAME.refreshSectionTime()
     GAME.life, GAME.life2 = 0, 0
     GAME.teramusic = false
-    GAME.currentTask = false
+    -- GAME.currentTask = false
 
     if GAME.totalQuest > 2.6 then
         LOG('info', ("[%s] (%s) F%d %.1fm in %.3fs"):format(reason, table.concat(GAME.getHand(true), ', '), GAME.floor, GAME.roundHeight, GAME.time))
@@ -3350,41 +3478,32 @@ function GAME.finish(reason)
 
         -- ZP of current run
         local zpGain = GAME.roundHeight * GAME.comboZP
-        TEXTS.zpChange:set(("%.0f ZP  (+%.0f%s)"):format(zpGain, 0, DailyActived and ", 260%" or ""))
+        TEXTS.zpChange:set(("%.0f ZP  (+%.0f%s)"):format(zpGain, 0, Daily.actived and ", 260%" or ""))
 
         -- Daily
-        if DailyActived then
+        if Daily.actived then
             STAT.dzp = max(STAT.dzp, zpGain)
             STAT.peakDZP = max(STAT.peakDZP, STAT.dzp)
-            STAT.dailyBest = max(STAT.dailyBest, zpGain)
-            if GAME.floor >= 10 and GAME.comboStr:find('r') then
-                if not STAT.dailyMastered then
-                    STAT.dailyMastered = true
-                    STAT.vipListCount = STAT.vipListCount + 1
-                    SubmitAchv('vip_list', STAT.vipListCount)
-                end
-                if GAME.comboStr:count('r') >= 2 then
-                    IssueAchv('its_kinda_rare')
+            if zpGain > STAT.dailyBest then
+                STAT.dailyBest = zpGain
+                Daily.needSubmit = true
+            end
+            if GAME.floor >= 10 then
+                if GAME.comboStr:find('r') then
+                    if not STAT.dailyMastered then
+                        STAT.dailyMastered = true
+                        STAT.vipListCount = STAT.vipListCount + 1
+                        SubmitAchv('vip_list', STAT.vipListCount)
+                    end
+                    if GAME.comboStr:count('r') >= 2 then
+                        IssueAchv('its_kinda_rare')
+                    end
                 end
             end
-            if GAME.totalQuest >= 20 and STAT.mod == 'vanilla' and not TestMode and SupportCurl then
-                local curl =
-                    SYSTEM == 'Windows' and [[curl -s -X POST https://vercel-leaderboard-one.vercel.app/api -H "Content-Type: application/json" -d "$1"]] or
-                    [[curl -s -X POST https://vercel-leaderboard-one.vercel.app/api -H 'Content-Type: application/json' -d '$1']]
-                if curl then
-                    local json = JSON.encode {
-                        hid = STAT.hid,
-                        uid = STAT.uid,
-                        combo = GAME.comboStr,
-                        alt = GAME.roundHeight,
-                        time = GAME.gigaTime and roundUnit(GAME.gigaTime, .001),
-                    }
-                    if SYSTEM == 'Windows' then json = json:gsub('"', [[\"]]) end
-                    DAILYCMD = curl:repD(json)
-                    ASYNC.runCmd('submitDaily', DAILYCMD)
-                    MSG('dark', "Submitting Daily Challenge score...")
-                end
-            end
+        end
+        if Daily.needSubmit then
+            CurlRequest('submit')
+            Daily.needSubmit = false
         end
 
         -- Update ZP
@@ -3396,13 +3515,13 @@ function GAME.finish(reason)
             oldZP < thres1 and oldZP + zpGain or
             thres1 + (oldZP - thres1) * (9 / 10) + (thres2 - thres1) * (1 / 10)
         )
-        if DailyActived then newZP = MATH.clamp(newZP + (newZP - oldZP) * 1.6, newZP, 50 * zpGain) end
+        if Daily.actived then newZP = MATH.clamp(newZP + (newZP - oldZP) * 1.6, newZP, 50 * zpGain) end
         local zpEarn = newZP - oldZP
         if zpEarn > 0 then
             TASK.new(function()
                 TASK.yieldT(0.626)
                 TWEEN.new(function(t)
-                    TEXTS.zpChange:set(("%.0f ZP  (+%.0f%s)"):format(zpGain, zpEarn * t, DailyActived and ", 260%" or ""))
+                    TEXTS.zpChange:set(("%.0f ZP  (+%.0f%s)"):format(zpGain, zpEarn * t, Daily.actived and ", 260%" or ""))
                 end):setEase('InOutCubic'):setDuration(2):run()
                 SFX.play('ratingraise', zpEarn ^ .5 / 60)
             end)
@@ -3552,6 +3671,16 @@ function GAME.finish(reason)
             for id in next, MD.name do if BEST.highScore['r' .. id] >= Floors[9].top then _t = _t + 1 end end
             if _t >= #MD.deck then IssueSecret('mastery_2') end
         end
+        if TABLE.countAll(GAME.completion, 0) == 0 then
+            IssueSpeedrunMilestone('star_9')
+        end
+        if TABLE.countAll(GAME.completion, 2) == #MD.deck then
+            IssueAchv('false_god', STAT.badge.mastery_2)
+            IssueSpeedrunMilestone('star_18')
+        end
+        if not STAT.srMilestone.mod_up and STAT.badge.speedrun_1 then IssueSpeedrunMilestone('mod_up') end
+        if not STAT.srMilestone.mod_rev and STAT.badge.speedrun_2 then IssueSpeedrunMilestone('mod_rev') end
+        if not STAT.srMilestone.rank_ss and CalculateCR() >= 19600 then IssueSpeedrunMilestone('rank_ss') end
         if not ACHV.false_god and MATH.sumAll(GAME.completion) >= 2 * #MD.deck then IssueAchv('false_god', STAT.badge.mastery_2) end
 
         if not ACHV.the_harbinger then
@@ -3605,7 +3734,7 @@ function GAME.finish(reason)
         local soat = SubmitAchv('the_spike_of_all_time', GAME.maxSpikeWeak)
         SubmitAchv('the_spike_of_all_time_plus', GAME.maxSpike, soat)
         SubmitAchv('slayer_of_the_tower', GAME.koCount)
-        SubmitAchv('moon_struck', MATH.roundUnit(abs(GAME.roundHeight - 2202.8), .1))
+        SubmitAchv('moon_struck', roundUnit(abs(GAME.roundHeight - 2202.8), .1))
         if GAME.roundHeight >= 6200 then IssueSecret('fomg') end
         SubmitAchv('plonk', GAME.achv_plonkH or GAME.roundHeight)
         SubmitAchv('psychokinesis', GAME.achv_allpassSpin or GAME.roundHeight)
@@ -3729,6 +3858,7 @@ function GAME.finish(reason)
     if #GAME.secTime >= 10 and GAME.height < 0 then IssueSecret('universal_gravitation') end
 
     TWEEN.new(GAME.anim_setMenuHide_rev):setDuration(GAME.slowmo and 2.6 or .26):setUnique('uiHide'):run()
+    TWEEN.new(GAME.anim_setBoardAnim_rev):setEase('InQuart'):setDuration(GAME.slowmo and 6.26 or 1.26):setUnique('boardAnim'):run()
     GAME.refreshRPC()
     if reason ~= 'forfeit' then
         TASK.lock('cannotStart', 1)
@@ -3740,19 +3870,20 @@ function GAME.finish(reason)
 end
 
 local questStyle = {
-    { k = 1.4, y = 175, a = 1 },
-    { k = 1.1, y = 95,  a = .8 },
-    { k = 0.9, y = 30,  a = .5 },
+    { k = 1.4, y = -48,  a = 1.0 },
+    { k = 1.1, y = -128, a = 0.8 },
+    { k = 0.9, y = -193, a = 0.5 },
 }
 local questStyleDP = {
-    { k = 1.4,  y = 175, a = 1 },
-    { k = 1.3,  y = 95,  a = 1 },
-    { k = 0.85, y = 30,  a = .7 },
+    { k = 1.4, y = -45,  a = 1.0 },
+    { k = 1.3, y = -128, a = 1.0 },
+    { k = .85, y = -193, a = 0.7 },
 }
 
 local KBisDown = love.keyboard.isDown
 function GAME.update(dt)
     GAME.spikeTimer = GAME.spikeTimer - dt
+    GAME.shakeTimer = GAME.shakeTimer - dt
     for i = #GAME.windupAnim, 1, -1 do
         local w = GAME.windupAnim[i]
         w.bumpTime = w.bumpTime - (GAME.slowmo and dt / 2 or dt)
@@ -4009,7 +4140,7 @@ function GAME.update(dt)
 
         -- KM line text
         if TASK.lock('kmTimer', 1) then
-            TEXTS.lineKM:set(tostring(MATH.roundUnit(GAME.bgH, 1000)))
+            TEXTS.lineKM:set(tostring(roundUnit(GAME.bgH, 1000)))
         end
     end
 

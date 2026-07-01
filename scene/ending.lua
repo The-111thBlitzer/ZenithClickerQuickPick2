@@ -1,9 +1,7 @@
 ---@type Zenitha.Scene
 local scene = {}
 local firstClear
-
-EndText = GC.newText(FONT.get(70))
-EndText2 = GC.newText(FONT.get(70), "ZENITH CLICKER!")
+local touchPressing
 
 ---@param align? 'left' | 'center' | 'right'
 local function addText(text, x, y, scale, align, wraplimit)
@@ -16,7 +14,7 @@ local function addText(text, x, y, scale, align, wraplimit)
     elseif align == 'right' then
         x = x - w * scale
     end
-    EndText:addf(text, w, align, x, y, 0, scale)
+    TEXTS.EndText:addf(text, w, align, x, y, 0, scale)
 end
 
 addText("ZENITH  CLICKER", 0, 260)
@@ -171,6 +169,7 @@ do
 end
 
 function scene.load()
+    touchPressing = false
     firstClear = SCN.args[1]
     t = 0
     e = 1
@@ -218,8 +217,12 @@ function scene.keyDown(key, isRep)
     return true
 end
 
+function scene.touchDown() touchPressing = true end
+
+function scene.touchUp() touchPressing = false end
+
 function scene.update(dt)
-    if love.keyboard.isDown('space') and t < 98.72 then
+    if (touchPressing or love.keyboard.isDown('space')) and t < 98.72 then
         dt = dt * 12.6
     end
     if t < 120 then
@@ -258,22 +261,22 @@ function scene.draw()
     end
     GC.replaceTransform(SCR.xOy_m)
     GC.setColor(0, 0, 0)
-    GC.draw(EndText, 0, -math.min(t, 110) * 62 + 4.2, 0, 2.01, 2)
+    GC.draw(TEXTS.EndText, 0, -math.min(t, 110) * 62 + 4.2, 0, 2.01, 2)
     GC.setColor(1, 1, 1)
-    GC.draw(EndText, 0, -math.min(t, 110) * 62, 0, 2)
+    GC.draw(TEXTS.EndText, 0, -math.min(t, 110) * 62, 0, 2)
 
     if t > 112.6 then
         FONT.set(70)
         GC.setColor(.9, .1, .2)
         for i = 0, 26 do
-            GC.mDraw(EndText2, 6 * math.cos(i * MATH.tau / 26), 6 * math.sin(i * MATH.tau / 26), 0, 1.626)
+            GC.mDraw(TEXTS.EndText2, 6 * math.cos(i * MATH.tau / 26), 6 * math.sin(i * MATH.tau / 26), 0, 1.626)
         end
         GC.setColor(.1, .1, .1)
         for i = 0, 11 do
-            GC.mDraw(EndText2, 2 * math.cos(i * MATH.tau / 11), 2 * math.sin(i * MATH.tau / 11), 0, 1.626)
+            GC.mDraw(TEXTS.EndText2, 2 * math.cos(i * MATH.tau / 11), 2 * math.sin(i * MATH.tau / 11), 0, 1.626)
         end
         GC.setColor(COLOR.L)
-        GC.mDraw(EndText2, 0, 0, 0, 1.626)
+        GC.mDraw(TEXTS.EndText2, 0, 0, 0, 1.626)
     end
 end
 

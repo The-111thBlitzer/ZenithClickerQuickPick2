@@ -3,16 +3,11 @@ local scene = {}
 
 
 -- 1. Video & Audio
--- 2. Utils
+-- 2. User
 -- 3. Album
--- 4. Speedrun
 local page = 1
-local maxPage = 4
+local maxPage = 3
 local uidList = {} ---@type ({uid: string, modTime?: string} | false)[]
-SRSplitText1 = {} ---@type love.Text[]
-SRSplitText2 = {} ---@type love.Text[]
-SRSplitText3 = {} ---@type love.Text[]
-local SRrank = {}
 
 local anonUser
 local resetall_cnt, resetall_anim, lastClear
@@ -89,7 +84,7 @@ local bgmColors = {
     f0r = { COLOR.HEX '8C2B15' },
     tera = { COLOR.HEX 'C0C0C0' },
     terar = { COLOR.HEX 'C0C0C0' },
-    fomg = { COLOR.HEX '00437A' },
+    fomg = { COLOR.HEX '004C89' },
 }
 local bgmHeight = {
     [0] = Floors[0].top,
@@ -139,12 +134,8 @@ local function refreshUID()
     TABLE.clear(uidList)
     uidList[0] = { uid = "Active Profile:   " .. STAT.uid, modTime = "just now" }
     for i = 1, 3 do
-        if FILE.exist('save' .. i) then
-            local dat = FILE.load('save' .. i .. "/stat.luaon")
-            uidList[i] = { uid = dat.uid, modTime = timePast(dat.modTime, os.time()) }
-        else
-            uidList[i] = false
-        end
+        local dat = FILE.safeLoad('save' .. i .. "/stat.luaon")
+        uidList[i] = dat and { uid = dat.uid, modTime = timePast(dat.modTime, os.time()) } or false
     end
 end
 
@@ -164,36 +155,7 @@ function scene.load()
     MSG.clear()
     bindBuffer = nil
     resetall_cnt, resetall_anim, lastClear = 0, 0, false
-    for i = 1, #SpeedrunData do
-        local id = SpeedrunData[i].id
-        if not SRSplitText1[i] then
-            SRSplitText1[i] = GC.newText(FONT.get(50), "")
-            SRSplitText2[i] = GC.newText(FONT.get(50), "")
-            SRSplitText3[i] = GC.newText(FONT.get(30), "")
-            SRrank[i] = 0
-        end
-        SRSplitText1[i]:set(SpeedrunData[i].name)
-        local t = STAT.srMilestone[id]
-        if not t then
-            SRSplitText2[i]:set("N/A")
-        elseif t < 0 then
-            SRSplitText2[i]:set("*" .. STRING.time(-t))
-        else
-            SRSplitText2[i]:set(STRING.time(t))
-        end
-        if SR[id] then
-            SRSplitText3[i]:set(STRING.time(SR[id]))
-            if SR[id] <= DevScore.srMilestone[id] then
-                SRrank[i] = 3
-            elseif SR[id] <= SpeedrunData[i].par1 then
-                SRrank[i] = 2
-            elseif SR[id] <= SpeedrunData[i].par2 then
-                SRrank[i] = 1
-            end
-        else
-            SRSplitText3[i]:set("N/A")
-        end
-    end
+
     SetMouseVisible(true)
     if GAME.anyRev ~= colorRev then
         colorRev = GAME.anyRev
@@ -269,7 +231,7 @@ function scene.keyDown(key, isRep)
                     CONF.keybind = bindBuffer
                     bindBuffer = nil
                     SaveConf()
-                    MSG('dark', "Keybinding updated.")
+                    MSG('dark', "Keybinding updated")
                     SFX.play('social_notify_major')
                 else
                     SFX.play('irs')
@@ -318,7 +280,6 @@ local baseX, baseY = 800 - w / 2, 500 - h / 2 + 10
 
 local gc = love.graphics
 local gc_replaceTransform = gc.replaceTransform
-local gc_line, gc_setLineWidth = gc.line, gc.setLineWidth
 local gc_draw, gc_setColor, gc_rectangle = gc.draw, gc.setColor, gc.rectangle
 local gc_print, gc_printf = gc.print, gc.printf
 local gc_ucs_move, gc_ucs_back = GC.ucs_move, GC.ucs_back
@@ -356,7 +317,10 @@ function scene.update(dt)
     GAME.bgH = MATH.expApproach(GAME.bgH, GAME.height, dt * 1.6)
     StarPS:moveTo(0, -GAME.bgH * 2 * BgScale)
     StarPS:update(dt)
-    if not TASK.getLock('reset_all') then resetall_cnt = 0 end
+    if not TASK.getLock('reset_all') then
+        if resetall_cnt == 16 then IssueAchv('knifes_edge') end
+        resetall_cnt = 0
+    end
     resetall_anim = MATH.expApproach(resetall_anim, resetall_cnt / 16, dt * 12)
 end
 
@@ -379,14 +343,16 @@ function scene.draw()
     if page == 1 then
         -- Sliders
         drawSliderComponents(120, "EFFECT VOLUME", "QUIET (F3)", "LOUD (F3)", CONF.sfx)
-        drawSliderComponents(200, "MUSIC VOLUME", "QUIET (F4)", "LOUD (F4)", CONF.bgm)
-        drawSliderComponents(430, "CARD  BRIGHTNESS", "DARK (F5)", "BRIGHT (F6)", CONF.cardBrightness)
-        drawSliderComponents(510, "BG  BRIGHTNESS", "DARK (F7)", "BRIGHT (F8)", CONF.bgBrightness)
+        drawSliderComponents(190, "MUSIC VOLUME", "QUIET (F4)", "LOUD (F4)", CONF.bgm)
+        drawSliderComponents(380, "CARD  BRIGHTNESS", "DARK (F5)", "BRIGHT (F6)", CONF.cardBrightness)
+        drawSliderComponents(450, "BG  BRIGHTNESS", "DARK (F7)", "BRIGHT (F8)", CONF.bgBrightness)
+        drawSliderComponents(520, "BOARD  OPACITY", "TRANSPARENT", "OPAQUE", CONF.boardOpacity)
+        drawSliderComponents(590, "DAMAGE  SHAKINESS", "STIFF", "SHAKY", CONF.damageShakiness)
 
         -- Keybind
         if bindBuffer then
             setFont(30)
-            gc_print("Press key for...", 600, 670, 0, .872)
+            gc_print("Press key for..", 600, 670, 0, .872)
             gc_print(bindHint[#bindBuffer + 1], 600, 700, 0, .872)
         end
     elseif page == 2 then
@@ -430,8 +396,6 @@ function scene.draw()
         local len = 800
 
         local playTime = BGM.tell()
-        local beatLen = 60 / BgmData[BgmPlaying].bpm
-        local beatBar = BgmData[BgmPlaying].bar
 
         gc_ucs_move(50, 120)
 
@@ -470,7 +434,7 @@ function scene.draw()
         if BgmPlaying == 'tera' or BgmPlaying == 'terar' then
             gc_setAlpha(.42)
         else
-            gc_setAlpha(.2 + .06 * math.sin(playTime / beatLen * 1.5708))
+            gc_setAlpha(.26 - .12 * MusicBeat)
         end
         gc_draw(TEXTURE.transition, 0, 0, 0, .42 / 128 * SCR.w, SCR.h)
         gc_draw(TEXTURE.transition, SCR.w, 0, 0, -.42 / 128 * SCR.w, SCR.h)
@@ -480,9 +444,9 @@ function scene.draw()
         gc_setAlpha(1)
         gc_mStr(playingBgmTitle, len / 2, 0)
         if not (BgmPlaying == 'tera' or BgmPlaying == 'terar') then
-            gc_setColor(1, 1, 1, .35 - .26 * math.sin(playTime / (beatBar * beatLen) * 3.1416))
+            gc_setColor(1, 1, 1, MATH.lerp(.62, .26, MusicBeat))
+            gc_mStr(playingBgmTitle, len / 2, -1.26)
         end
-        gc_mStr(playingBgmTitle, len / 2, 0)
         gc_setColor(clr.LT)
         gc_setAlpha(.26)
         gc_printf(data.meta, len / 2, 56, 2 * len, 'center', 0, .42, .42, len)
@@ -498,42 +462,6 @@ function scene.draw()
             gc_mRect('fill', len * BgmNeedSkip[2] / playingBgmLength, 48, 2, 9)
         end
         gc_ucs_back()
-    elseif page == 4 then
-        -- Glowing Background
-        gc_setColor(COLOR.rainbow_light(t, .26))
-        gc_draw(TEXTURE.transition, 0, 0, 0, .42 / 128 * w, h)
-        gc_draw(TEXTURE.transition, w, 0, 0, -.42 / 128 * w, h)
-
-        gc_setLineWidth(2)
-        setFont(30)
-        local textH = SRSplitText1[1]:getHeight()
-        local x1 = 130
-        local x2 = w - 130
-        local achv = TEXTURE.achievement
-        for i = 1, #SpeedrunData do
-            local y = i * 115
-            gc_setColor(clr.T)
-            gc_draw(SRSplitText1[i], x1, y, 0, 1, 1, 0, textH / 2)
-            gc_draw(SRSplitText2[i], x2, y, 0, 1, 1, SRSplitText2[i]:getWidth(), textH / 2)
-            gc_setAlpha(.62)
-            gc_line(x1 + SRSplitText1[i]:getWidth() + 20, y, x2 - SRSplitText2[i]:getWidth() - 20, y)
-            gc_setColor(clr.L)
-            gc_print(SpeedrunData[i].desc, x1, y + 26, 0, .626)
-            gc_setAlpha(.62)
-            local w3 = SRSplitText3[i]:getWidth()
-            gc_draw(SRSplitText3[i], x2, y + 26, 0, .626, .626, w3)
-            if SRrank[i] > 0 then
-                if SRrank[i] >= 3 then
-                    gc_setColor(1, 1, 1, .16)
-                    GC.mDraw(achv.overDev, x2 - 42, y + 12, 0, .36)
-                end
-                gc_setColor(clr.LT)
-                GC.mDraw(achv.frame[5], x2 - w3 * .626 - 18, y + 38, 0, .1)
-                if SRrank[i] >= 2 then
-                    GC.mDraw(achv.wreath[6], x2 - w3 * .626 - 18, y + 38, 0, .1)
-                end
-            end
-        end
     end
 
     -- Top bar & title
@@ -565,13 +493,11 @@ function scene.draw()
     gc_print("TWEAK YOUR SETTINGS FOR A BETTER CLICKING EXPERIENCE", 15, -45, 0, .85, 1)
 end
 
-local pageVisFunc = {}
-for p = 1, maxPage do pageVisFunc[p] = function() return page == p end end
+-- widget lists of each page, will be registered to scene.widgetList at the end
+local pages = {}
 
--- Page 1
-local videoY = baseY + 360
-local page1 = {
-    -- Audio
+local videoY = baseY + 310
+pages[1] = {
     WIDGET.new { -- title
         type = 'text', alignX = 'left',
         text = "AUDIO",
@@ -593,7 +519,7 @@ local page1 = {
     },
     WIDGET.new { -- bgm
         type = 'slider',
-        x = baseX + 240 + 85, y = baseY + 190, w = 400,
+        x = baseX + 240 + 85, y = baseY + 180, w = 400,
         axis = { 0, 100, 10 },
         frameColor = 'dD', fillColor = clr.D,
         disp = function() return CONF.bgm end,
@@ -608,7 +534,7 @@ local page1 = {
         fillColor = clr.cbFill,
         frameColor = clr.cbFrame,
         textColor = clr.T, text = "MUTE ON UNFOCUS",
-        x = baseX + 55, y = baseY + 280,
+        x = baseX + 55, y = baseY + 255,
         disp = function() return CONF.autoMute end,
         code = function() CONF.autoMute = not CONF.autoMute end,
     },
@@ -631,11 +557,29 @@ local page1 = {
     },
     WIDGET.new { -- bg brightness
         type = 'slider',
-        x = baseX + 240 + 85, y = videoY + 140, w = 400,
+        x = baseX + 240 + 85, y = videoY + 130, w = 400,
         axis = { 30, 80, 10 },
         frameColor = 'dD', fillColor = clr.D,
         disp = function() return CONF.bgBrightness end,
         code = function(value) CONF.bgBrightness = value end,
+        sound_drag = 'rotate',
+    },
+    WIDGET.new { -- board opacity
+        type = 'slider',
+        x = baseX + 240 + 85, y = videoY + 200, w = 400,
+        axis = { 0, 80, 10 },
+        frameColor = 'dD', fillColor = clr.D,
+        disp = function() return CONF.boardOpacity end,
+        code = function(value) CONF.boardOpacity = value end,
+        sound_drag = 'rotate',
+    },
+    WIDGET.new { -- damage shakiness
+        type = 'slider',
+        x = baseX + 240 + 85, y = videoY + 270, w = 400,
+        axis = { 0, 100, 10 },
+        frameColor = 'dD', fillColor = clr.D,
+        disp = function() return CONF.damageShakiness end,
+        code = function(value) CONF.damageShakiness = value end,
         sound_drag = 'rotate',
     },
     WIDGET.new { -- fancy
@@ -643,7 +587,7 @@ local page1 = {
         fillColor = clr.cbFill,
         frameColor = clr.cbFrame,
         textColor = clr.T, text = "FANCY BACKGROUND  (F9)",
-        x = baseX + 55, y = videoY + 230,
+        x = baseX + 55, y = videoY + 350,
         disp = function() return CONF.bg end,
         code = WIDGET.c_pressKey 'f9',
     },
@@ -652,7 +596,7 @@ local page1 = {
         fillColor = clr.cbFill,
         frameColor = clr.cbFrame,
         textColor = clr.T, text = "STAR FORCE  (F10)",
-        x = baseX + 55, y = videoY + 300,
+        x = baseX + 55, y = videoY + 410,
         disp = function() return not CONF.syscursor end,
         code = WIDGET.c_pressKey 'f10',
     },
@@ -661,7 +605,7 @@ local page1 = {
         fillColor = clr.cbFill,
         frameColor = clr.cbFrame,
         textColor = clr.T, text = "FULLSCREEN  (F11)",
-        x = baseX + 55, y = videoY + 370,
+        x = baseX + 55, y = videoY + 470,
         disp = function() return CONF.fullscreen end,
         code = WIDGET.c_pressKey 'f11',
     },
@@ -701,10 +645,8 @@ local page1 = {
     },
 }
 
--- Page 2
 local profY = baseY + 220
-local page2 = {
-    -- Account
+pages[2] = {
     WIDGET.new { -- title
         type = 'text', alignX = 'left',
         text = "ACCOUNT",
@@ -738,12 +680,12 @@ local page2 = {
                 return
             end
             if newName == STAT.uid then
-                MSG('dark', "New name is the same as the old one.")
+                MSG('dark', "New name is the same as the old one")
                 SFX.play('staffwarning')
                 return
             end
             if newName:match('^ANON[-_]') then
-                MSG('dark', "You can’t enter ANON as your new name.")
+                MSG('dark', "You can't enter ANON as your new name")
                 SFX.play('staffwarning')
                 return
             end
@@ -791,7 +733,7 @@ local page2 = {
                 STAT.aboutme = newText
                 SaveStat()
                 SFX.play('supporter')
-                MSG('dark', "Your About Me text has been updated.")
+                MSG('dark', "Your About Me text has been updated")
                 if SCN.cur == 'stat' then RefreshProfile() end
                 IssueAchv('identity')
                 return
@@ -799,7 +741,6 @@ local page2 = {
             SFX.play('staffwarning')
         end,
     },
-    -- Profile
     WIDGET.new { -- title
         type = 'text', alignX = 'left',
         text = "PROFILE",
@@ -841,61 +782,10 @@ local page2 = {
             if #data <= 26 then
                 if data == '' then
                     MSG('dark', "No data in clipboard")
-                elseif data == 'cmd' then
-                    SFX.play('cutin_superlobby', 1, 0, Tone(-2))
-                    SCN.go('_console')
-                elseif data == 'old_hitbox' then
-                    CONF.oldHitbox = not CONF.oldHitbox
-                    MSG('dark', "Force old hitbox: " .. (CONF.oldHitbox and "ON" or "OFF"))
-                    SFX.play(CONF.oldHitbox and 'social_online' or 'social_offline')
-                    TEXTS.version:set(SYSTEM .. (CONF.oldHitbox and " T" or " V") .. (require 'version'.verStr))
-                elseif data == 'true_ending' then
-                    SFX.play('warp')
-                    SCN.go('ending', 'warp')
-                elseif data == 'test' then
-                    if STAT.srActive then
-                        STAT.srActive = false
-                        SaveStat()
-                    end
-                    TestMode = true
-                    SFX.play('maintenance')
-                elseif data == 'dev' then
-                    MSG('dark', OverDevProgressText)
-                elseif data == 'repo' then
-                    SFX.play('menuconfirm')
-                    love.system.openURL("https://github.com/MrZ626/ZenithClicker")
-                elseif data == 'UseAltName' then
-                    UseAltName()
-                    SFX.play('social_dm')
-                elseif data == 'resubmit' then
-                    if DAILYCMD then
-                        ASYNC.runCmd('submitDaily', DAILYCMD)
-                        MSG('info', "Re-submitting Daily Challenge score...")
-                        SFX.play('social_invite')
-                    else
-                        MSG('warn', "No buffered Daily Challenge score")
-                        SFX.play('failure', 1, 0, Tone(0))
-                    end
                 else
-                    local msg = "Invalid code '" .. data .. "' in clipboard."
-                    if MATH.roll(.26) then
-                        msg = msg .. "\n" .. TABLE.getRandom {
-                            "Try 'cmd'",
-                            "Try 'cooldown'",
-                            "Try 'old_hitbox'",
-                            "Try 'test'",
-                            "Try 'dev'",
-                            "Try 'repo'",
-                            MATH.coin("Try 'mp'", "Try 'music'"),
-                            "Try 'f" .. STAT.maxFloor .. "'",
-                            STAT.clicker and "Try 'true_ending'" or nil,
-                        }
-                    end
-                    MSG('dark', msg)
+                    MSG('dark', "Invalid data '" .. data .. "' in clipboard")
                     SFX.play('staffwarning')
-                    return
                 end
-                LOG('info', "Secret: " .. data)
                 return
             end
             if TASK.lock('import', 4.2) then
@@ -949,7 +839,7 @@ local page2 = {
             end
             Initialize(true)
             if TestMode then
-                MSG('dark', "Progress imported, but won't be saved.")
+                MSG('dark', "Progress imported, but won't be saved")
             else
                 MSG('dark', "Progress imported! Feel the cards impulse at your hands. Mastery is everything!")
             end
@@ -973,9 +863,9 @@ local page2 = {
                 lastClear = false
                 SFX.play('hyperalert')
                 if instaReset then
-                    MSG('warn', "Reset all progress? Press again to confirm.", 2.6)
+                    MSG('warn', "Reset all progress? Press again to confirm", 2.6)
                 else
-                    MSG('info', "Reset all progress? Spam to confirm.", 2.6)
+                    MSG('info', "Reset all progress? Spam to confirm", 2.6)
                 end
                 return
             end
@@ -1020,7 +910,7 @@ local page2 = {
 local function saveSlot(i)
     if TestMode then
         SFX.play('staffwarning')
-        MSG('dark', "You are not a good person.")
+        MSG('dark', "You are not a good person")
         return
     end
     if uidList[i] and STAT.uid ~= uidList[i].uid and not uidList[i].uid:match("^ANON%-") then
@@ -1058,7 +948,7 @@ local function loadSlot(i)
 
     if TASK.lock('load_slot' .. i, 2.6) then
         SFX.play('hyperalert')
-        MSG('warn', "Load from slot " .. i .. "? Current save will be overwritten. Press again to confirm.", 4.2)
+        MSG('warn', "Load from slot " .. i .. "? Current save will be overwritten. Press again to confirm", 4.2)
         return
     end
     TASK.unlock('load_slot' .. i)
@@ -1077,7 +967,7 @@ local function clearSlot(i)
     end
     if TASK.lock('clear_slot' .. i, 2.6) then
         SFX.play('hyperalert')
-        MSG('warn', "Clear slot " .. i .. "? This action cannot be undone. Press again to confirm.", 4.2)
+        MSG('warn', "Clear slot " .. i .. "? This action cannot be undone. Press again to confirm", 4.2)
         return
     end
     TASK.unlock('clear_slot' .. i)
@@ -1093,7 +983,7 @@ end
 local slBtnTextColor = { 0, 0, 0, .62 }
 for i = 1, 3 do
     local y = profY + 330 + (i - 1) * 90
-    TABLE.append(page2, {
+    TABLE.append(pages[2], {
         WIDGET.new {
             name = 'save' .. i, type = 'button',
             x = baseX + 355, y = y, w = 160, h = 50,
@@ -1117,10 +1007,8 @@ for i = 1, 3 do
     })
 end
 
--- Page 3
 local albumY = baseY + 250
-local page3 = {
-    -- Album
+pages[3] = {
     WIDGET.new { -- title
         type = 'text', alignX = 'left',
         text = "ALBUM",
@@ -1165,7 +1053,7 @@ local page3 = {
         fontSize = 30, textColor = clr.LT, text = "+30s",
         onClick = function()
             TASK.removeTask_code(Task_MusicEnd)
-            BGM.set('all', 'seek', math.min(BGM.tell() + 30, BGM.getDuration()))
+            BGM.set('all', 'seek', math.min(BGM.tell() + 30, BGM.getDuration() - .26))
         end,
     },
     WIDGET.new { -- no loop
@@ -1179,7 +1067,7 @@ local page3 = {
     },
 }
 local function albumBtn(param)
-    table.insert(page3, WIDGET.new(TABLE.update({
+    table.insert(pages[3], WIDGET.new(TABLE.update({
         type = 'button',
         w = 65,
         fontSize = 30,
@@ -1240,13 +1128,21 @@ albumBtn {
     visibleFunc = function() return page == 3 and ACHV.blazing_speed and BEST.highScore.rEX >= Floors[9].top end,
 }
 
--- Apply visibility functions if not set
-for _, W in next, page1 do W.visibleFunc = W.visibleFunc or pageVisFunc[1] end
-for _, W in next, page2 do W.visibleFunc = W.visibleFunc or pageVisFunc[2] end
-for _, W in next, page3 do W.visibleFunc = W.visibleFunc or pageVisFunc[3] end
+local function newTabBtn(text, y, key)
+    return WIDGET.new {
+        type = 'button',
+        pos = { 1, 0 }, x = -60, y = y, w = 160, h = 60,
+        color = { COLOR.HEX '383838' },
+        fontSize = 30, text = text, textColor = 'DL',
+        onClick = function() love.keypressed(key) end,
+    }
+end
 
 -- Tabs
 local tab = {
+    newTabBtn("CONF   ", 140 + 90 * 0, '1'),
+    newTabBtn("USER   ", 140 + 90 * 1, '2'),
+    newTabBtn("ALB   ", 140 + 90 * 2, '3'),
     WIDGET.new {
         type = 'button',
         pos = { 0, 0 }, x = 60, y = 140, w = 160, h = 60,
@@ -1254,44 +1150,23 @@ local tab = {
         fontSize = 30, text = "    BACK", textColor = 'DL',
         onClick = function() love.keypressed('escape') end,
     },
-    WIDGET.new {
-        type = 'button',
-        pos = { 1, 0 }, x = -60, y = 140, w = 160, h = 60,
-        color = { COLOR.HEX '383838' },
-        fontSize = 30, text = "CONF   ", textColor = 'DL',
-        onClick = function() love.keypressed('1') end,
-    },
-    WIDGET.new {
-        type = 'button',
-        pos = { 1, 0 }, x = -60, y = 230, w = 160, h = 60,
-        color = { COLOR.HEX '383838' },
-        fontSize = 30, text = "UTILS  ", textColor = 'DL',
-        onClick = function() love.keypressed('2') end,
-    },
-    WIDGET.new {
-        type = 'button',
-        pos = { 1, 0 }, x = -60, y = 320, w = 160, h = 60,
-        color = { COLOR.HEX '383838' },
-        fontSize = 30, text = "ALBUM  ", textColor = 'DL',
-        onClick = function() love.keypressed('3') end,
-    },
-    WIDGET.new {
-        type = 'button',
-        pos = { 1, 0 }, x = -60, y = 410, w = 160, h = 60,
-        color = { COLOR.HEX '383838' },
-        fontSize = 30, text = "SPLITS ", textColor = 'DL',
-        onClick = function() love.keypressed('4') end,
-    },
 }
 
-for _, W in next, page1 do if W.type == 'button' or W.type == 'checkBox' then W.sound_hover, W.sound_release = 'menutap', 'menuclick' end end
-for _, W in next, page2 do if W.type == 'button' or W.type == 'checkBox' then W.sound_hover, W.sound_release = 'menutap', 'menuclick' end end
-for _, W in next, page3 do if W.type == 'button' or W.type == 'checkBox' then W.sound_hover = 'menutap' end end -- Album buttons should be quiet
+-- Apply dafault visibility functions
+local pageVisFunc = {}
+for p = 1, maxPage do pageVisFunc[p] = function() return page == p end end
+for i = 1, #pages do
+    for _, W in next, pages[i] do
+        W.visibleFunc = W.visibleFunc or pageVisFunc[i]
+        if W.type == 'button' or W.type == 'checkBox' then
+            W.sound_hover = 'menutap'
+            if i ~= 3 then W.sound_release = 'menuclick' end
+        end
+    end
+end
 
 scene.widgetList = {}
-TABLE.append(scene.widgetList, page1)
-TABLE.append(scene.widgetList, page2)
-TABLE.append(scene.widgetList, page3)
+for i = 1, #pages do TABLE.append(scene.widgetList, pages[i]) end
 TABLE.append(scene.widgetList, tab)
 
 return scene

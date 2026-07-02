@@ -40,7 +40,8 @@ d.menu = {
     { set = "rNH MS DP",          name = "Scarcity Mindset" },
     { set = "VL rGV",             name = "Fickle Fuel" },
 
-    { set = "rEX rNH rVL",        name = "Hardcore Beginning" },
+    { set = "rEX rNH rVL",        name = "Legacy Hardcore Beginning" },
+    { set = "rEX rMS rDH",        name = "Hardcore Beginning" },
     { set = "EX VL rIN rDP",      name = "Love Hotel" },
     { set = "EX MS AS",           name = "Financially Responsible" },
     { set = "EX rVL rDP",         name = "Unfair Battle" },

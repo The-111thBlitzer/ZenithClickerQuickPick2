@@ -70,7 +70,7 @@ return {
         DP = "EVEN AS WE BLEED, WE KEEP HOLDING ON...",
     },
     ultraName = {
-        EX = "- ??? -", -- PHYSCHOTIC SOVEREIGN
+        EX = "- PSYCHOTIC SOVEREIGN -", -- PHYSCHOTIC SOVEREIGN
         NH = "- ??? -", -- ASCENDED VIRTUE
         MS = "- ??? -", -- ENTROPY
         GV = "- ??? -", -- COLLAPSING GALAXY

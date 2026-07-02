@@ -184,10 +184,12 @@ function Card:setActive(auto, key)
                             if GAME.spinCount > 3 then GAME.spinCount = 0 end
                         else
                             GAME.spinCount = GAME.spinCount - 1
+                            if GAME.spinCount < 0 then GAME.spinCount = 3 end
                         end
                     end
                 else
                     GAME.spinAttack = false
+                    GAME.spinCount = -1
                 end
             end
             if not GAME.achv_noManualFlipH then
@@ -202,6 +204,10 @@ function Card:setActive(auto, key)
                 GAME.fault = true
                 if not GAME.faultWrong then GAME.faultCount = 1 end
                 if M.AS == 2 then GAME.lastSpinCount = -1 end
+                if not GAME.achv_perfectBTB then
+                    GAME.achv_perfectBTB = GAME.chain
+                    if GAME.totalQuest >= 5 then SFX.play('btb_break') end
+                end
             end
         end
         if M.DP > 0 and not auto and self.id == 'DP' and self.active and not (URM and M.DP == 2) then
@@ -637,6 +643,8 @@ function Card:draw()
                 end
             elseif M.IN == 2 then
                 gc_setColor((faceUp and ModData.INtextColor or ModData.INcolor)[self.id])
+            else
+                gc_setColor((faceUp and ModData.textColor or ModData.color)[self.id])
             end
         else
             gc_setColor((faceUp and ModData.textColor or ModData.color)[self.id])

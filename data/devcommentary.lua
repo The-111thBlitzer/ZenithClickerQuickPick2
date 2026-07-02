@@ -136,7 +136,7 @@ return {
         No more leniency. All phrases are scrambled letter by letter.
     ]],
     ['uIN'] = STRING.trimIndent [[
-        No more leniency. Quests will never show again. And neither will the card outlines
+        No more leniency. Quests will never show again. And neither will the card outlines.
     ]],
     ['uAS'] = STRING.trimIndent [[
         No more leniency. Doing the same clear by card or type instantly kills you.

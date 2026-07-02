@@ -701,14 +701,17 @@ function GAME.genQuest()
         if questCount == 1 then
             -- Prevent 1-mod quest being DP
             pool.DP = 0
+            if M.AS >= 1 then
+                -- Increase pool for AS on lower floors
+                if GAME.floor < 7 and M.AS == 1 then
+                    pool.AS = pool.AS * 2.25
+                    --Increase pool for AS within rAS
+                elseif M.AS == 2 then pool.AS = pool.AS * 4.5
+                end
+            end
         elseif M.DH == 2 then
             -- Reduce DP on rDH
             pool.DP = pool.DP * .5
-        end
-        if M.AS == 1 then
-            if GAME.floor < 7 then
-                pool.AS = pool.AS * 2
-            end
         end
         if M.MS < 2 or M.MS == 2 and GAME.totalQuest > 3 then
             for _ = 1, questCount do
@@ -1000,7 +1003,7 @@ function GAME.takeDamage(dmg, reason, toAlly)
                 'bombdetonate', .872
             )
         elseif reason == 'fatigue' then
-            SFX.play('garbagerise')
+            SFX.play('garbagesmash')
         end
 
         if M.DH >= 1 then
@@ -1227,8 +1230,7 @@ function GAME.upFloor()
     local roundFloorTime = roundUnit(GAME.floorTime, .001)
     local roundTime = roundUnit(GAME.time, .001)
     if GAME.floor == 1 then
-        if GAME.comboStr == 'rEXrNHrVL' then SubmitAchv('hardcore_beginning_legacy', roundFloorTime) end
-        if GAME.comboStr == 'rEXrMSrDH' then SubmitAchv('hardcore_beginning_qp2', roundFloorTime) end
+        if GAME.comboStr == 'rEXrNHrVL' then SubmitAchv('hardcore_beginning', roundFloorTime) end
     elseif GAME.floor == 2 then
         if GAME.comboStr == 'EXVLrDPrIN' then SubmitAchv('love_hotel', roundFloorTime) end
     elseif GAME.floor == 3 then
@@ -1433,17 +1435,27 @@ function GAME.nextFatigue()
         end
     end
     local t = stage.time
-    if Fatigue.normal and (M.EX < 2 and M.DP < 2) then
-        if t == 480 or t== 480.5 or t == 600 or t == 600.5 or t == 601 or t == 720 or t == 720.5 or t == 721 or t == 721.5 or t == 722 then
-            GAME.takeDamage(1, 'fatigue')
+    if Fatigue.normal then
+        if t == 480 then
+            GAME.takeDamage(2, 'fatigue')
+        elseif t == 600 then
+            GAME.takeDamage(3, 'fatigue')
+        elseif t == 720 then
+            GAME.takeDamage(5, 'fatigue')
         end
-    elseif Fatigue.rEX and M.EX == 2 then
-        if t == 480 or t == 480.5 or t == 481 or t == 600 or t == 600.5 or t == 601 or t == 601.5 or t == 602  or t == 720 or t == 720.5 or t == 721 or t == 721.5 or t == 722 or t == 722.5 or t == 723 or t == 723.5 or t == 724 or t == 724.5 or t == 725 or t == 725.5 then
-            GAME.takeDamage(1, 'fatigue')
+    elseif Fatigue.rEX then
+        if t == 480 then
+            GAME.takeDamage(3, 'fatigue')
+        elseif t == 600 then
+            GAME.takeDamage (5, 'fatigue')
+        elseif t == 720 then
+            GAME.takeDamage(12, 'fatigue')
         end
-    elseif Fatigue.rDP and (M.DP == 2 and M.EX < 2) then
-        if t == 330 or t == 330.5 or t == 331 or t == 331.5 or t == 600 or t == 600.5 or t == 601 or t == 601.5 or t == 602 or t == 602.5 or t == 603.25 or t == 604 or t == 604.75 or t == 605.5 or t == 606.5 or t == 608 then
-            GAME.takeDamage(1, 'fatigue')
+    elseif Fatigue.rDP then
+        if t == 330 then
+            GAME.takeDamage(4, 'fatigue')
+        elseif t == 600 then
+            GAME.takeDamage(12, 'fatigue')
         end
     end
     if stage.final then
@@ -2077,6 +2089,16 @@ function GAME.commit(auto)
             GAME.achv_clutchQuest = GAME.achv_clutchQuest + 1
             SFX.play('clutch')
         end
+
+        if not GAME.spinAttack and GAME.psychoSpin then
+            GAME.psychoSpin = false
+            if M.AS < 0 then
+                GAME.achv_allpassSpin = GAME.roundHeight
+                if GAME.totalQuest >= 5 then SFX.play('btb_break') end
+            else
+                GAME.achvallpassSpin = 0
+            end
+        end
         
         if M.DH == 1 then
             local a = TABLE.find(hand, GAME.dhMod)
@@ -2110,18 +2132,14 @@ function GAME.commit(auto)
         local check_achv_romantic_homicide
         if GAME.fault then
             -- Non-perfect
-                if M.DH < 2 or (M.DH == 2 and M.AS == 2) then
-                    if not GAME.achv_perfectBTB then
-                    GAME.achv_perfectBTB = GAME.chain
-                    if GAME.totalQuest >= 5 then SFX.play('btb_break') end
-                    end
-                    if GAME.currentTask then
-                        GAME.incrementPrompt('pass_imperfect')
-                        GAME.incrementPrompt('pass_imperfect_row')
-                        GAME.nixPrompt('pass_perfect_row')
-                        GAME.nixPrompt('keep_no_imperfect')
-                        GAME.nixPrompt('pass_windup_inb2b')
-                    end  
+            if M.DH < 2 or (M.DH == 2 and M.AS == 2) then
+                if GAME.currentTask then
+                    GAME.incrementPrompt('pass_imperfect')
+                    GAME.incrementPrompt('pass_imperfect_row')
+                    GAME.nixPrompt('pass_perfect_row')
+                    GAME.nixPrompt('keep_no_imperfect')
+                    GAME.nixPrompt('pass_windup_inb2b')
+                end  
     
                 if not GAME.spinAttack then
                     if not GAME.hardMode then 
@@ -2289,15 +2307,15 @@ function GAME.commit(auto)
                     if not GAME.spinAttack then
                         if GAME.faultCount == 1 then
                             attack = MATH.round(2 * 1.75)
-                            GAME.Clear = 'TRIPLE'
+                            GAME.clear = 'TRIPLE'
                             xp = xp + 2
                         elseif GAME.faultCount == 2 then
                             attack = MATH.round(1.75)
-                            GAME.Clear = 'DOUBLE'
+                            GAME.clear = 'DOUBLE'
                             xp = xp + 1
                         else
                             attack = 1
-                            GAME.Clear = 'SINGLE'
+                            GAME.clear = 'SINGLE'
                             xp = xp + 1
                         end
                         SFX.play('clearline')
@@ -2316,9 +2334,9 @@ function GAME.commit(auto)
                             SFX.play('clearspin')
                         elseif GAME.faultCount >= 2 then
                             GAME.spinCount = 0
-                            GAME.Clear = GAME.SelectedCard .. ' SPIN'
+                            GAME.clear = GAME.SelectedCard .. ' SPIN'
                             if M.NH == 2 then
-                                GAME.Clear = 'MINI-' .. GAME.SelectedCard .. ' SPIN'
+                                GAME.clear = 'MINI-' .. GAME.SelectedCard .. ' SPIN'
                             end
                             SFX.play('spinend')
                             GAME.incrementPrompt('spin_no_attack')
@@ -2329,49 +2347,16 @@ function GAME.commit(auto)
                     GAME.rDH_blighted = true
                     if GAME.faultCount == 1 then
                         attack = 2
-                        GAME.Clear = 'TRIPLE'
+                        GAME.clear = 'TRIPLE'
                         xp = xp + 2
                     elseif GAME.faultCount == 2 then
                         attack = 1
-                        GAME.Clear = 'DOUBLE'
+                        GAME.clear = 'DOUBLE'
                         xp = xp + 1
                     else
-                        GAME.Clear = 'SINGLE'
+                        GAME.clear = 'SINGLE'
                     end
                     SFX.play('clearline')
-                else
-                    attack = 0
-                    if not GAME.spinAttack then
-                        if GAME.faultCount == 1 then
-                            GAME.Clear = 'TRIPLE'
-                            xp = xp + 2
-                        elseif GAME.faultCount == 2 then
-                            GAME.Clear = 'DOUBLE'
-                            xp = xp + 1
-                        else
-                            GAME.Clear = 'SINGLE'
-                        end
-                    else
-                        if GAME.spinCount > 0 and GAME.faultCount == 1 and M.AS < 1 then
-                            if GAME.spinCount == 1 then GAME.Clear = 'MINI-' .. GAME.SelectedCard .. ' SPIN SINGLE' xp = 1 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
-                            elseif GAME.spinCount == 2 then GAME.Clear = 'MINI-' .. GAME.SelectedCard .. ' SPIN DOUBLE' xp = 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2') GAME.incrementPrompt('clear_double')
-                            else GAME.Clear = 'MINI-' .. GAME.SelectedCard .. ' SPIN TRIPLE' xp = 3 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
-                        elseif GAME.spinCount > 0 and GAME.faultCount == 1 and M.AS == 1 then
-                            if GAME.spinCount > 0 then
-                                if GAME.spinCount == 1 then GAME.Clear = GAME.SelectedCard .. ' SPIN SINGLE' xp = 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
-                                elseif GAME.spinCount == 2 then GAME.Clear = GAME.SelectedCard .. ' SPIN DOUBLE' xp = 4 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_2') GAME.incrementPrompt('clear_double')
-                                else GAME.Clear = GAME.SelectedCard .. ' SPIN TRIPLE' xp = 6 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_3') end
-                            end
-                        else
-                            GAME.Clear = 'MINI-' .. GAME.SelectedCard .. ' SPIN'
-                            if M.AS == 1 then
-                                GAME.Clear = GAME.SelectedCard .. ' SPIN'
-                            end
-                        end
-                        SFX.play('spinend')
-                            
-                    SFX.play('clearline')
-                    end
                 end
             end
 
@@ -2584,12 +2569,12 @@ function GAME.commit(auto)
                 if GAME.rDH_blighted and not GAME.blightTrigger then
                     if GAME.spinCount > 3 then GAME.spinCount = 3 end
                     if not GAME.spinAttack then
-                        GAME.Clear = 'QUAD'
                         attack = MATH.round(4 * 1.75)
                         xp = xp + 4
                         SFX.play('clearquad', .5)
                         GAME.incrementPrompt('clear')
                         GAME.incrementPrompt('clear_quadchain')
+                        GAME.Clear = 'QUAD'
                     else
                         GAME.nixPrompt('clear_quadchain')
                         SFX.play('clearspin', .5)
@@ -2649,7 +2634,7 @@ function GAME.commit(auto)
                     attack = 0
                     SFX.play('clearline', .5)
                     if not GAME.spinAttack then
-                        GAME.Clear = 'QUAD'
+                        GAME.clear = 'QUAD'
                     else
                         if M.AS < 1 and M.NH < 2 then
                                 if GAME.spinCount == 1 then xp = xp + 2 GAME.incrementPrompt('spin_'.. GAME.SelectedCard .. '_1')
@@ -2801,7 +2786,7 @@ function GAME.commit(auto)
 
     --    SFX.play(dp and 'zenith_start_duo' or 'zenith_start', .626, 0, Tone(12))
 
-        if GAME.achv_escapeBurnt or GAME.Clear == GAME.previousClear then
+        if GAME.achv_escapeBurnt then
             GAME.achv_escapeBurnt = false
             GAME.achv_escapeQuest = GAME.achv_escapeQuest + 1
         else
@@ -2856,15 +2841,6 @@ function GAME.commit(auto)
                 if check_achv_romantic_homicide then IssueAchv('romantic_homicide') end
             end
         end
-      --[[  if not GAME.spinAttack and not GAME.achv_allpassSpin then
-            if M.AS < 0 and GAME.psychoSpin then
-                GAME.achv_allpassSpin = GAME.roundHeight
-                if GAME.totalQuest >= 5 then SFX.play('btb_break') end
-                GAME.psychoSpin = false
-            else
-                GAME.achvallpassSpin = 0
-            end
-        end]]
 --[[
             -- Combo attacks
             GAME.combotime = GAME.questTime - GAME.timeCommitted
@@ -3023,18 +2999,12 @@ function GAME.commit(auto)
                 end
             end
             GAME.previousClear = GAME.Clear
-            if not GAME.fault or GAME.spinCount >= 0 then
-                GAME.lastSpinCount = GAME.spinCount
-            else
-                GAME.lastSpinCount = -1 
-            end
+            GAME.lastSpinCount = GAME.spinCount
         end
 
         GAME.faultCount = 0
-        if M.AS < 2 then
-            GAME.spinAttack = false
-            GAME.spinCount = 0
-        end
+        GAME.spinAttack = false
+        GAME.spinCount = 0
         if M.AS == 2 then
             GAME.spinAttack = true
             if GAME.spinCount < 0 then
@@ -3065,11 +3035,6 @@ function GAME.commit(auto)
         GAME.faultWrong = true
         GAME.faultCount = GAME.faultCount + 1
         GAME.timeCommitted = GAME.questTime
-
-        if not GAME.achv_perfectBTB then
-            GAME.achv_perfectBTB = GAME.chain
-            if GAME.totalQuest >= 5 then SFX.play('btb_break') end
-        end
 
         --if M.VL == 1 then
         --    GAME.dmgWrong = GAME.dmgWrong + (MATH.abs(#hand - #list))
@@ -3234,7 +3199,7 @@ function GAME.start()
         GAME.atkBufferCap = 8 + (M.DH == 1 and M.NH < 2 and 2 or 0)
         --GAME.shuffleMessiness = false
         GAME.comboClear = 0
-        GAME.previousClear = ''
+        GAME.previousClear = nil
         GAME.Clear = ''
         GAME.SelectedCard = nil
         GAME.woundTrigger = false
@@ -3320,7 +3285,6 @@ function GAME.start()
     GAME.boardDim = { 1, 1, 1 }
 
         GAME.achv_plonkH = nil
-        GAME.achv_perfectBTB = nil
         GAME.achv_perfectH = nil
         GAME.achv_demoteH = nil
         GAME.achv_carriedH = nil
@@ -3767,7 +3731,7 @@ function GAME.finish(reason)
         elseif GAME.comboStr == 'DHVLrIN' then
             SubmitAchv('empurple', GAME.achv_noChargeH or GAME.roundHeight)
         elseif GAME.comboStr == 'rGVrINrMS' then
-            SubmitAchv('the_masterful_juggler', GAME.achv_perfectBTB)
+            SubmitAchv('the_masterful_juggler', GAME.achv_maxChain)
         elseif GAME.comboStr == 'ASMSrGVrNH' then
             SubmitAchv('autoplay_is_awesome', GAME.achv_noManualFlipH or GAME.roundHeight)
         elseif GAME.comboStr == 'EXMSNHVLrAS' then

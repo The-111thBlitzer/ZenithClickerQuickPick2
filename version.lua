@@ -10,7 +10,6 @@ return {
     ["apkCode"] = 010001,
     ["verCode"] = 010001,
 
-    ["appVer"] = "V1.0.1 qp2",
-    ["verStr"] = "1.0.1 qp2",
->>>>>>> parent of ea19a11 (Zenith Clicker Quick Pick 2 v1.0.2)
+    ["appVer"] = "V1.0.2 qp2",
+    ["verStr"] = "1.0.2 qp2",
 }

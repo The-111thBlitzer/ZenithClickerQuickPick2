@@ -5,9 +5,10 @@ local max, min = math.max, math.min
 local clamp = MATH.clamp
 
 local clr = {
-    D = { COLOR.HEX '19311EFF' },
+    D = { COLOR.HEX '1B3B22FF' },
     L = { COLOR.HEX '4DA667FF' },
     T = { COLOR.HEX '9ED499FF' },
+    T2 = { COLOR.HEX '31583AFF' },
     cbFill = { COLOR.HEX '0B170EFF' },
     cbFrame = { COLOR.HEX '6AA782FF' },
     btn1 = { COLOR.HEX '1F4E2CFF' },
@@ -268,6 +269,7 @@ local function query()
 end
 
 function scene.load()
+    SetMouseVisible(true)
     if GAME.anyRev ~= colorRev then
         colorRev = GAME.anyRev
         for _, C in next, clr do
@@ -565,9 +567,9 @@ function scene.overDraw()
     gc_setColor(clr.L)
     setFont(50)
     if colorRev then
-        gc_print("CLICKER CHANNEL / PERSONAL RECORDS", 15, 68, 0, 1, -1)
+        gc_print("PERSONAL RECORDS", 15, 68, 0, 1, -1)
     else
-        gc_print("CLICKER CHANNEL / PERSONAL RECORDS", 15, 0)
+        gc_print("PERSONAL RECORDS", 15, 0)
     end
     gc_replaceTransform(SCR.xOy_ur)
     gc_printf(cd > 0 and "Searching..." or #recList .. " Result" .. (#recList == 1 and "" or "s"), -620, 0, 600, 'right')

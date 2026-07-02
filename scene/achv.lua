@@ -11,6 +11,7 @@ local clr = {
 }
 local colorRev = false
 
+AchvText = GC.newText(FONT.get(30))
 local Achievements = Achievements
 local M = GAME.mod
 
@@ -96,9 +97,9 @@ function RefreshAchvList(canShuffle)
                 overDev = selfScore == devScore or A.comp(selfScore, devScore)
                 odCap = odCap + 1
             end
-            TEXTS.temp30:set(A.desc)
+            AchvText:set(A.desc)
             local hidden = A.hide() and not ACHV[A.id]
-            local descWidth = hidden and 26 or TEXTS.temp30:getWidth()
+            local descWidth = hidden and 26 or AchvText:getWidth()
             table.insert(achvList, {
                 id = A.id,
                 name = hidden and "???" or A.name:upper(),
@@ -311,6 +312,7 @@ function scene.load()
             TEXTURE.achievement.icons:release()
         end)
     end
+    SetMouseVisible(true)
     if GAME.anyRev ~= colorRev then
         colorRev = GAME.anyRev
         for _, C in next, clr do
@@ -392,7 +394,7 @@ local gc_replaceTransform, gc_translate = gc.replaceTransform, gc.translate
 local gc_setColor, gc_rectangle, gc_polygon, gc_print, gc_printf = gc.setColor, gc.rectangle, gc.polygon, gc.print, gc.printf
 local gc_ucs_move, gc_ucs_back = GC.ucs_move, GC.ucs_back
 local gc_setAlpha, gc_mRect, gc_mDraw, gc_mDrawQ = GC.setAlpha, GC.mRect, GC.mDraw, GC.mDrawQ
-local gc_stc_reset, gc_stc_arc, gc_stc_stop = GC.stc_reset, GC.stc_arc, GC.stc_stop
+local gc_stc_setComp, gc_stc_arc, gc_stc_stop = GC.stc_setComp, GC.stc_arc, GC.stc_stop
 local gc_setBlendMode = GC.setBlendMode
 function scene.draw()
     DrawBG(26)
@@ -488,8 +490,9 @@ function scene.draw()
 
                 -- Progress ring
                 if a.progress > 0 then
+                    if colorRev then gc_setColor(COLOR.lR) end
                     if a.progress < 1 then
-                        gc_stc_reset()
+                        gc_stc_setComp()
                         gc_stc_arc('pie', 65, 65,
                             ea + -2.0944,
                             ea + -2.0944 + ka * a.progress,
@@ -499,7 +502,6 @@ function scene.draw()
                             ea + 1.0472 + ka * a.progress,
                             63, 26)
                     end
-                    if colorRev then gc_setColor(COLOR.lR) end
                     gc_mDraw(texture.ring, 65, 65, 0, .42)
                     gc_mDraw(texture.ring, 65, 65, 3.1416, .42)
                     gc_stc_stop()
@@ -567,7 +569,7 @@ function scene.draw()
                 end
 
                 -- Texts
-                gc_setColor(AchvMsgStyle[a.rank].fg2)
+                gc_setColor(AchvData[a.rank].fg2)
                 gc_print(a.score, 130, 35, 0)
                 gc_setColor(colorRev and COLOR.LR or COLOR.L)
                 gc_print(a.name, 130, 7, 0, .7)
@@ -602,10 +604,11 @@ function scene.draw()
     gc_setColor(clr.L)
     FONT.set(50)
     if colorRev then
-        gc_print("CHNL / ACHV", 15, 68, 0, 1, -1)
+        gc_print("ACHIEVEMENTS", 15, 68, 0, 1, -1)
     else
-        gc_print("CHNL / ACHV", 15, 0)
+        gc_print("ACHIEVEMENTS", 15, 0)
     end
+
     -- Badge (wreath) count
     if STAT.maxFloor >= 10 and not whenItsReady and not TestMode then
         gc_replaceTransform(SCR.xOy_ur)

@@ -44,19 +44,14 @@ function scene.update(dt)
                 STAT.srActive = SCN.args[1] == 'reset'
                 Initialize(true)
                 GAME.clearResultStat()
-                collectgarbage()
             end
             if not initialized then
                 BGM.setMaxSources(42)
-                BGM.load(FILE.isSafe('data/bgm.lua') and FILE.safeLoad('data/bgm.lua', '-luaon') or {})
-                SFX.load('assets/sfx.ogg', FILE.isSafe('data/sfx.lua') and FILE.safeLoad('data/sfx.lua', '-luaon') or {})
+                BGM.load(FILE.load('data/bgm.lua', '-luaon'))
+                SFX.load('assets/sfx.ogg', FILE.load('data/sfx.lua', '-luaon'))
                 SFX.load('garbagewindup_5', 'assets/windup_5.ogg')
                 TASK.new(Daemon_Slow)
                 TASK.new(Daemon_Fast)
-                TASK.new(function()
-                    TASK.yieldT(2.6)
-                    CurlRequest('checkUpdate')
-                end)
                 TEXTS.load:set("GETTING READY TO SPECTATE...")
 
                 ---@diagnostic disable-next-line

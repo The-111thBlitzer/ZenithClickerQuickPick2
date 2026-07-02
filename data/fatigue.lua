@@ -1,6 +1,7 @@
 local d = {}
 
 d.normal = {
+<<<<<<< HEAD
     { time = 150,  event = { 'extraQuestBase', .2, 'animDuration', .5 } },
     { time = 300, event = { 'extraQuestBase', .2, 'animDuration', .5 } },
     { time = 420, event = { 'extraQuestBase', .2, 'animDuration', 1 } },
@@ -30,6 +31,43 @@ d.normal = {
     { time = 1200, event = { 'animDuration', 32 }, --[[146]]},
 
     { time = 1e99 }, -- Total: DmgMul: -30%, Mul +50%
+}
+
+d.rEX = {
+    { time = 150,  event = { 'extraQuestBase', .2, 'animDuration', .5 } },
+    { time = 300, event = { 'extraQuestBase', .2, 'animDuration', .5 } },
+    { time = 360, event = { 'extraQuestBase', .2, 'animDuration', 1 } },
+    { time = 360, event = { 'dmgTimerMul', -.1, 'extraQuestVar', .75, 'questMessiness', 7.27 },                                   text = "YOUR POWER SLIPS_",               desc = "QUESTS GENERATED BECOMES MESSIER" },
+    { time = 420, event = { 'dmgMul', .25 },                                        text = "WHISPERS OF DISCONTENT SPREAD_",  desc = "RECEIVE 25% MORE DAMAGE" },
+    { time = 480, event = { 'dmgCycle', -1, 'animDuration', 1, 'fullHealth', -1 },                    text = "PROTESTERS LINE THE STREETS_",    desc = "-3 MAX HP" },
+    { time = 480.5, event = { 'fullHealth', -1}},
+    { time = 481, event = { 'fullHealth', -1}},
+    { time = 540, event = { 'dmgTimerMul', -.1, 'dmgMul', .25 },                    text = "YOUR CLOSEST ALLIES DEFECT_",     desc = "RECEIVE 25% MORE DAMAGE" },
+    { time = 600, event = { 'dmgTimerMul', -.05, 'dmgHeal', -1, 'animDuration', 1, 'fullHealth', -1 }, text = "PARANOIA CLOUDS YOUR JUDGEMENT_", desc = "-5 MAX HP" },
+    { time = 600.5, event = { 'fullHealth', -1}},
+    { time = 601, event = { 'fullHealth', -1}},
+    { time = 601.5, event = { 'fullHealth', -1}},
+    { time = 602, event = { 'fullHealth', -1}},
+    { time = 605, event = { 'dmgTimerMul', -.025 } },
+    { time = 610, event = { 'dmgTimerMul', -.025 } },
+    { time = 660, event = { 'dmgCycle', -.25, 'extraQuestVar', 1.25, 'questFavor', 5, 'questMessiness', 16.2 },                       text = "THE REVOLUTION HAS BEGUN_",       desc = "QUESTS GENERATED BECOMES MUCH MESSIER" },
+    { time = 720, event = { 'dmgTimerMul', -.1, 'animDuration', 1, 'fullHealth', -1 },                text = "THE END OF AN ERA.",              desc = "-12 MAX HP",         duration = 10, color='R', final = true },
+    { time = 720.5, event = { 'fullHealth', -1}},
+    { time = 721, event = { 'fullHealth', -1}},
+    { time = 721.5, event = { 'fullHealth', -1}},
+    { time = 722, event = { 'fullHealth', -1}},
+    { time = 722.5, event = { 'fullHealth', -1}},
+    { time = 723, event = { 'fullHealth', -1}},
+    { time = 723.5, event = { 'fullHealth', -1}},
+    { time = 724, event = { 'fullHealth', -1}},
+    { time = 724.5, event = { 'fullHealth', -1}},
+    { time = 725, event = { 'dmgTimerMul', -.05, 'fullHealth', -1 } },
+    { time = 725.5, event = { 'fullHealth', -1}},
+    { time = 727, event = { 'dmgTimerMul', -.05 } },
+    { time = 730, event = { 'dmgTimerMul', -.05 } },
+    { time = 732, event = { 'dmgTimerMul', -.03 } },
+    { time = 750, event = { 'dmgTimerMul', -.02 } },
+=======
     { time = 90,    event = { 'extraQuestBase', .2, 'animDuration', .5 } },
     { time = 180,   event = { 'extraQuestBase', .2, 'animDuration', .5 } },
     { time = 240,   event = { 'extraQuestBase', .2, 'animDuration', 1 } },
@@ -106,39 +144,6 @@ d.normal = {
 }
 
 d.rEX = {
-    { time = 150,  event = { 'extraQuestBase', .2, 'animDuration', .5 } },
-    { time = 300, event = { 'extraQuestBase', .2, 'animDuration', .5 } },
-    { time = 360, event = { 'extraQuestBase', .2, 'animDuration', 1 } },
-    { time = 360, event = { 'dmgTimerMul', -.1, 'extraQuestVar', .75, 'questMessiness', 7.27 },                                   text = "YOUR POWER SLIPS_",               desc = "QUESTS GENERATED BECOMES MESSIER" },
-    { time = 420, event = { 'dmgMul', .25 },                                        text = "WHISPERS OF DISCONTENT SPREAD_",  desc = "RECEIVE 25% MORE DAMAGE" },
-    { time = 480, event = { 'dmgCycle', -1, 'animDuration', 1, 'fullHealth', -1 },                    text = "PROTESTERS LINE THE STREETS_",    desc = "-3 MAX HP" },
-    { time = 480.5, event = { 'fullHealth', -1}},
-    { time = 481, event = { 'fullHealth', -1}},
-    { time = 540, event = { 'dmgTimerMul', -.1, 'dmgMul', .25 },                    text = "YOUR CLOSEST ALLIES DEFECT_",     desc = "RECEIVE 25% MORE DAMAGE" },
-    { time = 600, event = { 'dmgTimerMul', -.05, 'dmgHeal', -1, 'animDuration', 1, 'fullHealth', -1 }, text = "PARANOIA CLOUDS YOUR JUDGEMENT_", desc = "-5 MAX HP" },
-    { time = 600.5, event = { 'fullHealth', -1}},
-    { time = 601, event = { 'fullHealth', -1}},
-    { time = 601.5, event = { 'fullHealth', -1}},
-    { time = 602, event = { 'fullHealth', -1}},
-    { time = 605, event = { 'dmgTimerMul', -.025 } },
-    { time = 610, event = { 'dmgTimerMul', -.025 } },
-    { time = 660, event = { 'dmgCycle', -.25, 'extraQuestVar', 1.25, 'questFavor', 5, 'questMessiness', 16.2 },                       text = "THE REVOLUTION HAS BEGUN_",       desc = "QUESTS GENERATED BECOMES MUCH MESSIER" },
-    { time = 720, event = { 'dmgTimerMul', -.1, 'animDuration', 1, 'fullHealth', -1 },                text = "THE END OF AN ERA.",              desc = "-12 MAX HP",         duration = 10, color='R', final = true },
-    { time = 720.5, event = { 'fullHealth', -1}},
-    { time = 721, event = { 'fullHealth', -1}},
-    { time = 721.5, event = { 'fullHealth', -1}},
-    { time = 722, event = { 'fullHealth', -1}},
-    { time = 722.5, event = { 'fullHealth', -1}},
-    { time = 723, event = { 'fullHealth', -1}},
-    { time = 723.5, event = { 'fullHealth', -1}},
-    { time = 724, event = { 'fullHealth', -1}},
-    { time = 724.5, event = { 'fullHealth', -1}},
-    { time = 725, event = { 'dmgTimerMul', -.05, 'fullHealth', -1 } },
-    { time = 725.5, event = { 'fullHealth', -1}},
-    { time = 727, event = { 'dmgTimerMul', -.05 } },
-    { time = 730, event = { 'dmgTimerMul', -.05 } },
-    { time = 732, event = { 'dmgTimerMul', -.03 } },
-    { time = 750, event = { 'dmgTimerMul', -.02 } },
     { time = 90,    event = { 'extraQuestBase', .2, 'animDuration', .5 } },
     { time = 160,   event = { 'extraQuestBase', .2, 'animDuration', .5 } },
     { time = 230,   event = { 'extraQuestBase', .2, 'animDuration', 1 } },
@@ -231,10 +236,12 @@ d.rEX = {
     { time = 439.4, event = function() GAME.boardDim = { .1, 0, 0 } end },
     { time = 440,   event = { 'dmgTimerMul', -.02, 'lifeLeak', .5 },                  text = "BLACK OUT.",                      desc = "HP leak",                color = 'DR' },
     { time = 0,     event = function() GAME.setFatigueColor('kill') end },
+>>>>>>> upstream/main
     { time = 1e99 }, -- Total: dmgTimerMul-90%, Cycle-1.5, Wrong+5, killscreen at 440+40(60)s
 }
 
 d.rDP = {
+<<<<<<< HEAD
     { time = 60,  event = { 'dmgHeal', -.5, 'questMessiness', 2.75 }, --[[ 2.5 ]]                       text = "THE RELATIONSHIP STAGNATES_",                        desc = "QUESTS BECOMES A BIT MESSIER",          duration = 10 },
     { time = 90,  event = { 'dmgHeal', -.5, 'questMessiness', 5.5 }, --[[ 2 ]]                    text = "INSECURITIES GROW STRONGER_",         desc = "QUESTS BECOMES MESSIER",         duration = 10 },
     { time = 120,  event = { 'dmgHeal', -.5, 'animDuration', .5, 'questMessiness', 12.5 }, --[[ 1.5 ]]  text = "YOU FEEL NEGLECTED_",                        desc = "QUESTS BECOMES MUCH MESSIER",        duration = 10 },
@@ -275,6 +282,7 @@ d.rDP = {
     { time = 610, event = { 'dmgTimerMul', -.03 } },
     { time = 615, event = { 'dmgTimerMul', -.02 } },
     { time = 1e99 },
+=======
     { time = 14,    event = function() GAME.boardDim = { .7, .6, .6 } end },
     { time = 15,    event = function() GAME.boardDim = { .9, .9, .9 } end },
     { time = 16,    event = function() GAME.boardDim = { .5, .4, .4 } end },
@@ -487,6 +495,7 @@ d.rDP = {
     { time = 476,   event = { 'lifeLeak', .2 },                                text = "CARDIAC RUPTURE.",                           desc = "HP leak",        color = 'DR' },
     { time = 0,     event = function() GAME.setFatigueColor('kill') end },
     { time = 1e99 }, -- Total: dmgTimerMul-50%, killscreen at 476+150s
+>>>>>>> upstream/main
 }
 
 for _, f in next, d do

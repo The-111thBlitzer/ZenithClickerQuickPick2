@@ -698,14 +698,7 @@ function DrawPBline(h, pb, spd, textObj)
     gc_rectangle('fill', -1.26 * (obj:getWidth() + 12), y - 2, -2600, 4)
 end
 
-local boardRX, boardRY = 790, 232
-local function switchBoardCoord()
-    local k = 42 * GAME.shakeTimer * CONF.damageShakiness / 100
-    if GAME.shakeTimer > 0 then gc_translate(MATH.rand(-1, 1) * k, MATH.rand(-1, 1) * k) end
-    gc_translate(800, boardRY + 5 + (GAME.playing and (GAME.boardAnim - 1) * 62 or (1 - GAME.boardAnim) * 1260))
-    if not GAME.playing then gc_rotate((1 - GAME.boardAnim) * .162) end
-end
-
+<<<<<<< HEAD
 function rMSCommit(LoadedDice)
     local alpha = GAME.questTime / 3
     local W = scene.widgetList.start
@@ -719,6 +712,14 @@ function rMSCommit(LoadedDice)
             W.color[3] = .05
         end
     end
+=======
+local boardRX, boardRY = 790, 232
+local function switchBoardCoord()
+    local k = 42 * GAME.shakeTimer * CONF.damageShakiness / 100
+    if GAME.shakeTimer > 0 then gc_translate(MATH.rand(-1, 1) * k, MATH.rand(-1, 1) * k) end
+    gc_translate(800, boardRY + 5 + (GAME.playing and (GAME.boardAnim - 1) * 62 or (1 - GAME.boardAnim) * 1260))
+    if not GAME.playing then gc_rotate((1 - GAME.boardAnim) * .162) end
+>>>>>>> upstream/main
 end
 
 function scene.draw()
@@ -1108,33 +1109,8 @@ function scene.overDraw()
             gc_pop()
         end
     end
-            gc_pop()
-        end
 
-        -- Health Bar
-        local safeHP = GAME.playing and max(GAME.dmgWrong + GAME.dmgWrongExtra, GAME.dmgTime) or 0
-        if M.DP == 0 then
-            gc_setColor(GAME.playing and GAME.life > safeHP and COLOR.L or COLOR.R)
-            gc_mRect('fill', 800, 440, 1540 * GAME.lifeShow / GAME.startingHealth, 10)
-            if GAME.playing then
-                gc_setColor(COLOR.LD)
-                gc_mRect('fill', 800, 440 - 2, 1540 * GAME.dmgTime / GAME.startingHealth, 3)
-                gc_setColor(.872, 0, 0)
-                gc_mRect('fill', 800, 440 + 2, 1540 * GAME.dmgWrong / GAME.startingHealth, 3)
-                gc_setColor(1, 0, 0, .626)
-                gc_mRect('fill', 800, 440 + 2, 1540 * (GAME.dmgWrong + GAME.dmgWrongExtra) / GAME.startingHealth, 2)
-            end
-        else
-            local onAlly = GAME.onAlly
-            gc_setColor(GAME.playing and GAME.life > safeHP and COLOR.L or COLOR.R)
-            if onAlly then gc_setAlpha(.42) end
-            gc_rectangle('fill', 800, 440 - 5, -1540 / 2 * GAME.lifeShow / GAME.startingHealth, onAlly and 8 * M.DP or 12)
-            gc_setColor(GAME.playing and GAME.life2 > safeHP and COLOR.L or COLOR.R)
-            if not onAlly then gc_setAlpha(.42) end
-            gc_rectangle('fill', 800, 440 - 5, 1540 / 2 * GAME.lifeShow2 / GAME.startingHealth, onAlly and 12 or 8 * M.DP)
-        end
-    end
-
+<<<<<<< HEAD
     if GAME.playing then
         if not GAME.invisUI then
             -- Achievement state mark
@@ -1411,6 +1387,8 @@ function scene.overDraw()
     end
 
 
+=======
+>>>>>>> upstream/main
     -- Debug
     -- setFont(30) gc_setColor(1, 1, 1)
     -- for i = 1, #Cards do

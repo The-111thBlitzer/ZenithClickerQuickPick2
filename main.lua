@@ -446,7 +446,7 @@ MusicBeat = 0 ---@type number 0-1, envelope: /|/|/|
 -- Vars: Daily Challenge extras
 
 VALENTINE = false
-VALENTINE_TEXT = "FLOOD THE TOWER SIDE BY SIDE WITH WHAT COULD BE"
+VALENTINE_TEXT = "SCALE THE TOWER TOGETHER WITH SOMEONE YOU HOLD CLOSE"
 XMAS = false
 ZDAY = false
 

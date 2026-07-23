@@ -166,7 +166,7 @@ local d = {
         comp = '<',
         scoreSimp = function(time) return string.format("%.2fs", time) end,
         scoreFull = function(time) return string.format("%.2f quests/s", 40 / time) end,
-        rank = numberRankRev(90, 74, 62, 53, 46, 42, 36),
+        rank = numberRankRev(120, 100, 90, 80, 75, 70, 62),
         hide = function() return GAME.completion.MS == 0 end,
     },
     { -- supercharged
@@ -360,7 +360,7 @@ local d = {
         name = "The Hermit",
         desc = [[HFD with the "Invisible" mod]],
         quote = [[When the outside world fails you, trust the voice within to light a path.]],
-        rank = floorRank(1, 3, 5, 7, 9, 10, 5251.5),
+        rank = floorRank(1, 3, 5, 7, 9, 10, 5331.1),
     },
     { -- AS
         id = 'AS',
@@ -478,7 +478,7 @@ local d = {
         name = "Freefall",
         desc = [[HFD with the reversed "Gravity" mod]],
         quote = [[In retrospect, the ground you stood on never existed in the first place.]],
-        rank = floorRank(1, 3, 5, 7, 9, 10, 2610.9),
+        rank = floorRank(1, 3, 5, 7, 9, 10, 2618),
         hide = function() return GAME.completion.GV == 0 end,
     },
     { -- rVL
@@ -975,16 +975,16 @@ local d = {
     },
     { -- hardcore_beginning
         ex = true,
-        id = 'hardcore_beginning_qp2',
+        id = 'hardcore_beginning',
         name = "Hardcore Beginning",
         desc = [[Shortest time spent in F1 with rEX rMS rDH]],
-        quote = [[Hellish forces drag you down with them. Yet, the skies above distract you upon a threat.]],
+        quote = [[Hellish forces drag you down with them, and your struggle of ascension.]],
         credit = "@F1e308",
         comp = '<',
         scoreSimp = function(time) return string.format("%.2fs", time) end,
         scoreFull = function(time) return string.format("%.1f m/s", (Floors[1].top - Floors[0].top) / time) end,
         rank = numberRankRev(126, 90, 75, 62, 50, 45, 40),
-        hide = function() return GAME.completion.EX == 0 or GAME.completion.NH == 0 or GAME.completion.VL == 0 end,
+        hide = function() return GAME.completion.EX == 0 or GAME.completion.MS == 0 or GAME.completion.DH == 0 end,
     },
     { -- love_hotel
         ex = true,

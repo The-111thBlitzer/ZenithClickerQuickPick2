@@ -705,11 +705,21 @@ end
 function rMSCommit(LoadedDice)
     local alpha = GAME.questTime / 3
     local W = scene.widgetList.start
-    if GAME.questTime >= 1.15 and LoadedDice then
+    if GAME.questTime >= 1.15 and LoadedDice and not URM then
         W.color[1] = .35 + (.5 - alpha)
         W.color[2] = .12 + (.5 - alpha)
         W.color[3] = .05 + (.5 - alpha)
         if W.color[1] <= .35 or W.color[2] <= .12 or W.color[3] <= .05 then
+            W.color[1] = .35
+            W.color[2] = .12
+            W.color[3] = .05
+        end
+    elseif LoadedDice and URM and GAME.CommitCooldown >= 1.15 then
+        local alpha1 = GAME.CommitCooldown / 4
+        W.color[1] = .35 + (.5 - alpha1)
+        W.color[2] = .12 - (.5 + alpha1)
+        W.color[3] = .05 - (.5 + alpha1)
+        if W.color[1] <= .35 or W.color[2] >= .12 or W.color[3] >= .05 then
             W.color[1] = .35
             W.color[2] = .12
             W.color[3] = .05
@@ -1044,7 +1054,7 @@ function scene.overDraw()
                     end
                 end
 
-                if URM and M.NH == 2 then
+                if URM and M.NH == 2 and GAME.chain >= 4 then
                     r, g, b = .626 + r * .26, .626 + g * .26, .626 + b * .26
                 end
                 if GAME.chain >= 4 then
@@ -1303,7 +1313,7 @@ function scene.overDraw()
         TEXTS.time:set(STRING.time_simp(GAME.time))
         gc_setColor(COLOR.D)
         local wid, hgt = TEXTS.height:getDimensions()
-        gc_strokeDraw('full', 1, TEXTS.height, 800, 978, 0, 1, 1, wid / 2, hgt / 2)
+        gc_strokeDraw('full', 2, TEXTS.height, 800, 983, 0, 1, 1, wid / 2, hgt / 2)
         wid, hgt = TEXTS.time:getDimensions()
         gc_strokeDraw('full', 2, TEXTS.time, 375, 978, 0, 1, 1, wid / 2, hgt / 2)
         wid, hgt = TEXTS.rank:getDimensions()
@@ -1316,7 +1326,8 @@ function scene.overDraw()
         if GAME.DPlock then
             gc_setColor(GAME.time % .9 > .45 and COLOR.R or COLOR.D)
         end
-        gc_mDraw(TEXTS.height, 800, 978)
+        gc_setColor(rankColor[rank - 1] or COLOR.L)
+        gc_mDraw(TEXTS.height, 800, 983)
 
         if GAME.attackMul < 1 then
             setFont(30)
@@ -1327,6 +1338,57 @@ function scene.overDraw()
         gc_ucs_back()
     end
 
+    if GAME.uiHide > 0 and not GAME.invisUI then
+        local h = 300 - GAME.uiHide * 300
+        gc_ucs_move(0, h)
+
+        -- In-Game Stats
+        -- Total flips
+        local titleFlips = TEXTS['fliptitle'] 
+        gc_setColor(COLOR.LD)
+        gc_mDraw(titleFlips, 60, 802)
+        gc_setColor(COLOR.O)
+        gc_mDraw(titleFlips, 60, 800)
+        -- Stats
+        TEXTS.flipstat:set(GAME.totalFlip)
+        local titleStats = TEXTS['flipstat'] 
+        gc_setColor(COLOR.LD)
+        gc_mDraw(titleStats, 85, 827)
+        gc_setColor(COLOR.L)
+        gc_mDraw(titleStats, 85, 825)
+        -- Flips per second
+        local fps = ("%.2f/S\n"):format(GAME.totalFlip / GAME.time)
+        TEXTS.flipsecond:set(fps)
+        local titleSeconds = TEXTS['flipsecond'] 
+        gc_setColor(COLOR.LD)
+        gc_mDraw(titleSeconds, 85, 852)
+        gc_setColor(COLOR.L)
+        gc_mDraw(titleSeconds, 85, 850)
+
+        -- Total Attack
+        local titleAttack = TEXTS['attacktitle'] 
+        gc_setColor(COLOR.LD)
+        gc_mDraw(titleAttack, 70, 902)
+        gc_setColor(COLOR.O)
+        gc_mDraw(titleAttack, 70, 900)
+        -- Stats
+        TEXTS.attackstat:set(GAME.totalAttack)
+        local titleAStats = TEXTS['attackstat'] 
+        gc_setColor(COLOR.LD)
+        gc_mDraw(titleAStats, 95, 927)
+        gc_setColor(COLOR.L)
+        gc_mDraw(titleAStats, 95, 925)
+        -- Attack Per Minute
+        local apm = ("%.2f/M\n"):format((GAME.totalAttack / GAME.time) * 60)
+        TEXTS.attackmin:set(apm)
+        local titleMinute = TEXTS['attackmin'] 
+        gc_setColor(COLOR.LD)
+        gc_mDraw(titleMinute, 90, 952)
+        gc_setColor(COLOR.L)
+        gc_mDraw(titleMinute, 90, 950)
+        gc_ucs_back()
+    end
+    
     -- Rev trigger for touchscreen
     if usingTouch and not GAME.playing and RevUnlocked then
         gc_replaceTransform(SCR.xOy_dl)
@@ -1441,29 +1503,59 @@ function scene.overDraw()
             gc_setAlpha(.7)
             gc_rectangle('fill', -888 / 2, -145, 888, 120, 10)
             if GAME.anyRev and M[infoID] == 2 then
-                local text = URM and MD.ultraName[infoID] or MD.revName[infoID]
-                setFont(70)
-                gc_push('transform')
-                gc_translate(0, -118)
-                gc_scale(1 + sin(t / 2.6) * .026)
-                gc_shear(sin(t) * .26, cos(t * 1.2) * .026)
-                gc_strokePrint('full', 6, COLOR.DW, nil, text, 130, -35 + 4, 2600, 'center', 0, .9, 1)
-                gc_strokePrint('full', 4, COLOR.dW, nil, text, 130, -35 + 2, 2600, 'center', 0, .9, 1)
-                gc_strokePrint(
-                    'full', 2, COLOR.W, URM and COLOR.D or COLOR.L,
-                    text, 130, -35, 2600, 'center', 0, .9, 1
-                )
-                gc_pop()
-                setFont(30)
-                gc_strokePrint(
-                    'full', 2, COLOR.dW, URM and COLOR.D or COLOR.W,
-                    (URM and MD.ultraDesc or MD.revDesc)[infoID], 260, -68, 2600, 'center', 0, .8, 1
-                )
+                if GAME.anyUltra then
+                    local text = (URM and not STAT.ultraPlayed[infoID]) and MD.ultraNameunplayed[infoID] or MD.ultraName[infoID]
+                    local desc = (URM and not STAT.ultraPlayed[infoID]) and MD.ultraDescunplayed[infoID] or MD.ultraDesc[infoID]
+                    setFont(70)
+                    gc_push('transform')
+                    gc_translate(0, -118)
+                    gc_scale(1 + sin(t / 2.6) * .026)
+                    gc_shear(sin(t) * .26, cos(t * 1.2) * .026)
+                    gc_strokePrint('full', 6, COLOR.DW, nil, text, 130, -35 + 4, 2600, 'center', 0, .9, 1)
+                    gc_strokePrint('full', 4, COLOR.dW, nil, text, 130, -35 + 2, 2600, 'center', 0, .9, 1)
+                    gc_strokePrint(
+                        'full', 2, COLOR.W, URM and COLOR.D or COLOR.L,
+                        text, 130, -35, 2600, 'center', 0, .9, 1
+                    )
+                    gc_pop()
+                    setFont(30)
+                    gc_strokePrint(
+                        'full', 2, COLOR.dW, URM and COLOR.D or COLOR.W,
+                        desc, 260, -68, 2600, 'center', 0, .8, 1
+                    )
+                else
+                    local text = MD.revName[infoID]
+                    setFont(70)
+                    gc_push('transform')
+                    gc_translate(0, -118)
+                    gc_scale(1 + sin(t / 2.6) * .026)
+                    gc_shear(sin(t) * .26, cos(t * 1.2) * .026)
+                    gc_strokePrint('full', 6, COLOR.DW, nil, text, 130, -35 + 4, 2600, 'center', 0, .9, 1)
+                    gc_strokePrint('full', 4, COLOR.dW, nil, text, 130, -35 + 2, 2600, 'center', 0, .9, 1)
+                    gc_strokePrint(
+                        'full', 2, COLOR.W, URM and COLOR.D or COLOR.L,
+                        text, 130, -35, 2600, 'center', 0, .9, 1
+                    )
+                    gc_pop()
+                    setFont(30)
+                    gc_strokePrint(
+                        'full', 2, COLOR.dW, URM and COLOR.D or COLOR.W,
+                        (MD.revDesc)[infoID], 260, -68, 2600, 'center', 0, .8, 1
+                        )
+                end
             else
                 setFont(70)
                 gc_strokePrint('full', 3, ShadeColor, TextColor, MD.fullName[infoID], 130, -150, 2600, 'center', 0, .9, 1)
-                setFont(30)
-                gc_strokePrint('full', 2, ShadeColor, TextColor, MD.desc[infoID], 260, -73, 2600, 'center', 0, .8, 1)
+                if GAME.completion[infoID] == 1 and not STAT.revPlayed[infoID] then
+                    setFont(30)
+                    gc_strokePrint('full', 2, COLOR.dW, COLOR.W, UsingTouch and MD.desc['revUnplayedTapper'] or MD.desc['revUnplayedClicker'], 260, -73, 2600, 'center', 0, .8, 1)
+                elseif GAME.completion[infoID] and GAME.completion[infoID] >= 1 and not STAT.ultraPlayed[infoID] and URM then
+                    setFont(30)
+                    gc_strokePrint('full', 2, COLOR.R, COLOR.D, UsingTouch and MD.desc['ultraUnplayedTapper'] or MD.desc['ultraUnplayedClicker'], 260, -73, 2600, 'center', 0, .8, 1)
+                else
+                    setFont(30)
+                    gc_strokePrint('full', 2, ShadeColor, TextColor, MD.desc[infoID], 260, -73, 2600, 'center', 0, .8, 1)
+                end
             end
             gc_ucs_back()
         end

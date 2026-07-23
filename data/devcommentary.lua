@@ -117,14 +117,14 @@ return {
     ]],
 
     ['uEX'] = STRING.trimIndent [[
-        No more leniency. Cards spacing tightened. And increased damage overtime until the next floor.
+        No more leniency. Cards spacing tightened. And always an increased damage overtime.
         I doubt is it possible to drop from F10 to...
     ]],
     ['uNH'] = STRING.trimIndent [[
-        No more leniency. No XP protection, no Surge attack. Only one quest visible
+        No more leniency. No XP protection, no Surge attack. Only one quest visible.
     ]],
     ['uMS'] = STRING.trimIndent [[
-        No more leniency. Let's shuffle the whole quest on each pass. And no controls on every commit for a short while
+        No more leniency. Let's shuffle the whole quest on each commit. And no controls on every commit for a short while.
     ]],
     ['uGV'] = STRING.trimIndent [[
         No more leniency. Timers are set at the absolute maximum.
@@ -579,8 +579,13 @@ return {
     ]],
 
     ['rEX rNH rVL'] = STRING.trimIndent [[
-        Hardcore Beginning, F1 speedrunning combo.
+        Hardcore Beginning Legacy, F1 speedrunning combo in vanilla Zenith Clicker.
         The last combo getting added in this category! Now all 9 floors have their own speedrunning combo.
+        You F10'd this? Well done, now try it on the newer version of Hardcore Beginning (if only you had the mods...)
+    ]],
+    ['rEX rMS rDH'] = STRING.trimIndent [[
+        Hardcore Beginning, A Quick Pick 2 specific achievement of a F1 speedrunning combo.
+        This may be more challenging with how the mods would be generated on each quest, so good luck on getting F10 and beyond.
     ]],
     ['EX VL rIN rDP'] = STRING.trimIndent [[
         Love Hotel, F2 speedrunning combo.

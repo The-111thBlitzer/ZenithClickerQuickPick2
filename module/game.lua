@@ -673,6 +673,17 @@ function GAME.genQuest()
                 pool.AS = pool.AS * 2
             end
         end
+        if M.MS == 2 and URM then
+            pool.EX = MATH.rand(0, 4)
+            pool.NH = MATH.rand(0, 4)
+            pool.MS = MATH.rand(0, 4)
+            pool.GV = MATH.rand(0, 4)
+            pool.VL = MATH.rand(0, 4)
+            pool.DH = MATH.rand(0, 4)
+            pool.IN = MATH.rand(0, 4)
+            pool.AS = MATH.rand(0, 4)
+            pool.DP = MATH.rand(0, 4)
+        end
         if M.MS < 2 or M.MS == 2 and GAME.totalQuest > 3 then
             for _ = 1, questCount do
                 local mod = MATH.randFreqAll(pool)
@@ -933,7 +944,11 @@ end
 
 function GAME.heal(hp)
     local k = GAME.getLifeKey()
-    hp = MATH.clamp(hp, 0, GAME.fullHealth - GAME[k] - GAME.hardDmg)
+    if GAME.fullHealth - GAME[k] - GAME.hardDmg > 1 then
+        hp = MATH.clamp(hp, 0, GAME.fullHealth - GAME[k] - GAME.hardDmg)
+    else
+        hp = MATH.clamp(hp, 0, GAME.fullHealth - GAME[k] + 1)
+    end
     GAME[k] = GAME[k] + hp
     GAME.incrementPrompt('heal', hp)
 
@@ -1183,8 +1198,8 @@ function GAME.upFloor()
     local roundFloorTime = roundUnit(GAME.floorTime, .001)
     local roundTime = roundUnit(GAME.time, .001)
     if GAME.floor == 1 then
-        if GAME.comboStr == 'rEXrNHrVL' then SubmitAchv('hardcore_beginning_legacy', roundFloorTime) end
-        if GAME.comboStr == 'rEXrMSrDH' then SubmitAchv('hardcore_beginning_qp2', roundFloorTime) end
+        if GAME.comboStr == 'rEXrNHrVL' then SubmitAchv('hardcore_beginning_legacy', roundFloorTime)
+        elseif GAME.comboStr == 'rDHrEXrMS' then SubmitAchv('hardcore_beginning', roundFloorTime) end
     elseif GAME.floor == 2 then
         if GAME.comboStr == 'EXVLrDPrIN' then SubmitAchv('love_hotel', roundFloorTime) end
     elseif GAME.floor == 3 then
@@ -1221,11 +1236,19 @@ function GAME.upFloor()
             - GAME.floor * 3
         )
     if M.GV > 0 then 
-        GAME.gravDelay = GravityTimer[M.GV][GAME.floor] 
-        GAME.lockDelay = GravityLockDelay[M.GV][GAME.floor]
+        if M.GV == 2 and URM then
+            GAME.gravDelay = 1
+            GAME.lockDelay = 0.2
+        else
+            GAME.gravDelay = GravityTimer[M.GV][GAME.floor] 
+            GAME.lockDelay = GravityLockDelay[M.GV][GAME.floor]
+        end
     end
 
     if not GAME.hardMode then
+        if M.EX == 2 and URM then
+            GAME.dmgWrong = 2
+        end
         local F = Floors[GAME.floor]
         local e = F.event
         for i = 1, #e, 2 do
@@ -1621,12 +1644,12 @@ function GAME.refreshLayout()
             else
                 C.tx = selX
             end
-            C.ty = baseY - ((C.active and 45 or 0) + (i == FloatOnCard and 55 or 0))
+            C.ty = baseY - ((M.IN == 2 and URM) and 0 or (C.active and 45 or 0) + (i == FloatOnCard and 55 or 0))
         end
     else
         for i, C in ipairs(CD) do
             C.tx = 800 + (i - 5) * baseDist
-            C.ty = baseY - ((C.active and 45 or 0) + (i == FloatOnCard and 55 or 0))
+            C.ty = baseY - ((M.IN == 2 and URM) and 0 or (C.active and 45 or 0) + (i == FloatOnCard and 55 or 0))
         end
     end
 end
@@ -1739,6 +1762,8 @@ function GAME.refreshLifeState()
     local oldState = GAME.lifeState
     local hp = GAME[GAME.getLifeKey()]
     local newState
+    local cleardanger = false
+    local dangerstate = false
     if hp == GAME.fullHealth then
         newState = 'safe'
     else
@@ -1749,7 +1774,20 @@ function GAME.refreshLifeState()
         GAME.lifeState = newState
         if newState == 'danger' then
             SFX.play('hyperalert')
+            dangerstate = true
         end
+        if newState == 'safe' then
+            cleardanger = true
+        end
+    end
+    if GAME.life <= 5 and dangerstate then
+        GAME.extraQuestVar = GAME.extraQuestVar - .5
+        GAME.extraQuestBase = GAME.extraQuestBase - .3
+        dangerstate = false
+    elseif newState == 'safe' and cleardanger then
+        GAME.extraQuestVar = GAME.extraQuestVar + .5
+        GAME.extraQuestBase = GAME.extraQuestBase + .3
+        cleardanger = false
     end
 end
 
@@ -1873,7 +1911,8 @@ function GAME.commit(auto)
     local oldAllyHP = GAME[GAME.getLifeKey(true)]
 
     if #hand == 0 and GAME.questTime < .1 then return SFX.play('no') end
-    if M.MS == 2 and GAME.questTime < 1.15 then return SFX.play('no') end
+    if M.MS == 2 and GAME.questTime < 1.15 and not URM then return SFX.play('no') end
+    if M.MS == 2 and URM and GAME.CommitCooldown < 1.15 then return SFX.play('no') end
 
     if M.DP > 0 and not (GAME.achv_shareModH and GAME.achv_noShareModH) and GAME.totalQuest >= 1 then
         local noRep = #TABLE.subtract(TABLE.copy(hand), GAME.lastCommit) == #hand
@@ -1892,7 +1931,7 @@ function GAME.commit(auto)
 
     if M.DH == 2 and M.AS < 2 then
         local UniqueCheck = #TABLE.subtract(TABLE.copy(hand), GAME.lastCommit)
-        if GAME.totalBlights < 12 and GAME.uniqueCardsRemaining <= 0 then
+        if GAME.totalBlights < 12 and GAME.uniqueCardsRemaining <= 0 or (M.DH == 2 and URM) then
             GAME.uniqueCardsRemaining = GAME.initialUnique
         elseif GAME.uniqueCardsRemaining <= 0 then
             if GAME.minReq == 0 then
@@ -2036,6 +2075,7 @@ function GAME.commit(auto)
         local surge = 0
         local xp = 0
         local check_achv_romantic_homicide
+        local b2b_bonus = 0
         if GAME.fault then
             -- Non-perfect
                 if M.DH < 2 or (M.DH == 2 and M.AS == 2) then
@@ -2060,6 +2100,12 @@ function GAME.commit(auto)
                     if M.AS == 2 then 
                         attack = 0 
                         GAME.Clear = 'VOID'  
+                        if URM then
+                            if GAME.chain >= 3 then
+                                SFX.play('btb_break', .8)
+                                b2b_bonus = 0
+                            end
+                        end
                     
                     else
                         if GAME.faultCount == 1 then 
@@ -2120,6 +2166,11 @@ function GAME.commit(auto)
                         else
                             surge = GAME.chain - 3 
                         end     -- Initial surge starts at 1, in rAS, it's 4
+                    end
+
+                    if URM and M.NH == 2 then
+                    xp = xp + surge
+                    surge = 0
                     end
 
                 GAME.chain = 0
@@ -2397,42 +2448,6 @@ function GAME.commit(auto)
                     end
                 end
 
-                if M.AS == 2 then
-                    if GAME.spinAttack then 
-                        if GAME.chain >= 4 then
-                            attack = attack + 1 
-                        end
-                    else
-                        xp = 1
-                        attack = 0 + GAME.chain
-                        SFX.play('clearline', .5)
-                        GAME.Clear = 'VOID'
-                        if GAME.chain >= 4 then
-                            SFX.play(
-                                GAME.chain < 8 and 'b2bcharge_blast_1' or
-                                GAME.chain < 12 and 'b2bcharge_blast_2' or
-                                GAME.chain < 24 and 'b2bcharge_blast_3' or
-                                'b2bcharge_blast_4'
-                            )
-                            if GAME.chain >= 8 then
-                                SFX.play('thunder' .. rnd(6), clampInterpolate(8, .7, 16, 1, GAME.chain))
-                            end
-                        end
-                        local k = GAME.onAlly and 'life2' or 'life'
-                        local oldLife = GAME[k]
-                        while GAME.chain > 0 and GAME[k] < GAME.fullHealth do
-                            GAME.chain = max(GAME.chain - 2, 0)
-                            GAME[k] = min(GAME[k] + 1, GAME.fullHealth)
-                        end
-                        if GAME[k] > oldLife then GAME.incrementPrompt('heal', GAME[k] - oldLife) end
-
-                        GAME.totalSurge = GAME.totalSurge + GAME.chain
-                        GAME.chain = 0
-                        
-                        
-                    end
-                end
-
                 if correct == 1 and M.DH < 2 then
                     if GAME.spinAttack and GAME.spinCount > 0 then -- Spin clears
                         GAME.chain = GAME.chain + 1
@@ -2442,6 +2457,19 @@ function GAME.commit(auto)
                         GAME.chain = GAME.chain + 1
                     end
                     if (correct == 1 and not GAME.spinAttack and M.AS < 2) or (correct == 1 and (GAME.spinAttack and GAME.spinCount > 0) or (M.AS == 2 and GAME.spinCount == 0 and GAME.chain >= 4)) then
+                        if URM and M.AS == 2 then
+                            if GAME.chain == 3 then
+                                SFX.play('btb_1', .8)
+                                b2b_bonus = 1
+                            elseif GAME.chain == 8 then
+                                SFX.play('btb_2', .8)
+                                b2b_bonus = 2
+                            elseif GAME.chain == 24 or GAME.chain == 67 or GAME.chain == 185 or GAME.chain == 504 then
+                                SFX.play('btb_3', .8)
+                                b2b_bonus = b2b_bonus + 1
+                            end
+                            attack = attack + b2b_bonus
+                        end
                         if GAME.chain < 4 then
                         elseif GAME.chain < 8 then
                             if GAME.chain == 4 then SFX.play('b2bcharge_start', .8)end
@@ -2455,7 +2483,6 @@ function GAME.commit(auto)
                         end
                     end
                 end
-                if M.DH == 2 and M.AS == 2 then attack = MATH.round(attack * 1.75) end
             else
                 if GAME.rDH_blighted and not GAME.blightTrigger then
                     if GAME.spinCount > 3 then GAME.spinCount = 3 end
@@ -2882,6 +2909,9 @@ function GAME.commit(auto)
                 GAME.takeDamage(1, 'wrong')
                 SFX.play('garbagerise')
                 SFX.play('wound')
+            elseif M.AS == 2 and URM and ((GAME.spinAttack and not GAME.fault and (GAME.spinCount == GAME.lastSpinCount or GAME.SelectedCard == GAME.lastCard)) or GAME.Clear == GAME.previousClear) then
+                GAME.takeDamage(1e99, 'wrong')
+                SFX.play('wound')
             elseif M.AS == 2 and (GAME.spinAttack and not GAME.fault and GAME.spinCount == GAME.lastSpinCount) or GAME.Clear == GAME.previousClear then
                 GAME.woundTrigger = true
                 wounded = wounded + 20
@@ -2917,7 +2947,10 @@ function GAME.commit(auto)
                 GAME.spinCount = 0
             end
         end
+
+        GAME.CommitCooldown = 0
         GAME.LastQuestTime = GAME.combotime
+        GAME.lastCard = GAME.fault and '' or GAME.SelectedCard
         GAME.questTime = 0
         GAME.timeCommitted = 0
         GAME.extraMod = false
@@ -2964,6 +2997,15 @@ function GAME.commit(auto)
             GAME.cancelBurn()
         end
     end
+    if M.MS == 2 and URM then 
+        GAME.quests[1].combo = TABLE.shuffle(GAME.quests[1].combo)
+        GAME.quests[1].name = GC.newText(FONT.get(70), GAME.getComboName(TABLE.shuffle(GAME.quests[1].combo), 'ingame'))
+        GAME.quests[2].combo = TABLE.shuffle(GAME.quests[2].combo)
+        GAME.quests[2].name = GC.newText(FONT.get(70), GAME.getComboName(TABLE.shuffle(GAME.quests[2].combo), 'ingame'))
+        GAME.quests[2].combo = TABLE.shuffle(GAME.quests[3].combo)
+        GAME.quests[3].name = GC.newText(FONT.get(70), GAME.getComboName(TABLE.shuffle(GAME.quests[3].combo), 'ingame'))
+        GAME.CommitCooldown = 0 
+    end
 end
 
 local function task_startSpin()
@@ -3006,225 +3048,243 @@ function GAME.start()
     GAME.leakSpeed = ((M.EX > 0 or M.DP == 2) and 5 or 3) + (GAME.fastLeak and 8 or 0)
     GAME.invincible = false
 
-    if not GAME.isUltraRun then
-        TASK.unlock('sure_quit')
-        TASK.unlock('sure_forfeit')
-        SCN.scenes.tower.widgetList.help:setVisible(false)
-        SCN.scenes.tower.widgetList.help2:setVisible(false)
-        SCN.scenes.tower.widgetList.daily:setVisible(false)
-        MSG.clear()
+    TASK.unlock('sure_quit')
+    TASK.unlock('sure_forfeit')
+    SCN.scenes.tower.widgetList.help:setVisible(false)
+    SCN.scenes.tower.widgetList.help2:setVisible(false)
+    SCN.scenes.tower.widgetList.daily:setVisible(false)
+    MSG.clear()
 
-        SFX.play('menuconfirm', .8)
-        SFX.play((M.DP > 0 or VALENTINE and not GAME.anyRev) and 'zenith_start_duo' or 'zenith_start', 1, 0, Tone(0))
+    SFX.play('menuconfirm', .8)
+    SFX.play((M.DP > 0 or VALENTINE and not GAME.anyRev) and 'zenith_start_duo' or 'zenith_start', 1, 0, Tone(0))
 
-        GAME.playing = true
+    GAME.playing = true
 
-        -- Statistics
-        GAME.refreshPieceFstr()
-        GAME.comboStr = table.concat(TABLE.sort(GAME.getHand(true)))
-        GAME.prevPB = BEST.highScore[(GAME.isUltraRun and 'u' or '') .. GAME.comboStr]
-        if GAME.prevPB == 0 then GAME.prevPB = -2600 end
-        GAME.totalFlip = 0
-        GAME.totalQuest = 0
-        GAME.totalPerfect = 0
-        GAME.totalAttack = 0
-        GAME.totalSurge = 0
-        GAME.heightBonus = 0
-        GAME.peakRank = 1
-        GAME.rankTimer = TABLE.new(0, 62)
+    -- Statistics
+    GAME.refreshPieceFstr()
+    GAME.comboStr = table.concat(TABLE.sort(GAME.getHand(true)))
+    GAME.prevPB = BEST.highScore[(GAME.isUltraRun and 'u' or '') .. GAME.comboStr]
+    if GAME.prevPB == 0 then GAME.prevPB = -2600 end
+    GAME.totalFlip = 0
+    GAME.totalQuest = 0
+    GAME.totalPerfect = 0
+    GAME.totalAttack = 0
+    GAME.totalSurge = 0
+    GAME.heightBonus = 0
+    GAME.peakRank = 1
+    GAME.rankTimer = TABLE.new(0, 62)
 
-        -- Time
-        GAME.time = 0
-        GAME.gigaTime = false
-        GAME.questTime = 0
-        GAME.floorTime = 0
-        GAME.reviveTime = false
-        GAME.secTime = {}
+    -- Time
+    GAME.time = 0
+    GAME.gigaTime = false
+    GAME.questTime = 0
+    GAME.floorTime = 0
+    GAME.reviveTime = false
+    GAME.secTime = {}
 
-        -- Rank
-        GAME.rank = 1
-        TEXTS.rank:set("R-1")
-        GAME.xp = 0
-        GAME.rankupLast = false
-        GAME.xpLockLevel = GAME.xpLockLevelMax
-        GAME.xpLockTimer = 0
+    -- Rank
+    GAME.rank = 1
+    TEXTS.rank:set("R-1")
+    GAME.xp = 0
+    GAME.rankupLast = false
+    GAME.xpLockLevel = GAME.xpLockLevelMax
+    GAME.xpLockTimer = 0
 
-        -- Floor
-        GAME.floor = 0
-        GAME.height = 0
-        GAME.heightBuffer = 0
-        GAME.fatigueSet = Fatigue[M.EX == 2 and 'rEX' or M.DP == 2 and 'rDP' or 'normal']
-        GAME.fatigue = 1
-        GAME.animDuration = GAME.slowmo and 26 or 1
-        GAME.lastCommit = {}
+    -- Floor
+    GAME.floor = 0
+    GAME.height = 0
+    GAME.heightBuffer = 0
+    GAME.fatigueSet = Fatigue[M.EX == 2 and 'rEX' or M.DP == 2 and 'rDP' or 'normal']
+    GAME.fatigue = 1
+    GAME.animDuration = GAME.slowmo and 26 or 1
+    GAME.lastCommit = {}
 
-        -- Params
-        GAME.maxQuestCount = M.NH == 2 and 2 or 3
-        GAME.maxQuestSize = (M.NH < 2 and M.DH == 2) and 3 or 4
-        GAME.extraQuestBase = 0 + (M.NH == 2 and (M.DH > 0 and 2.42 - M.DH or 1.26) or 0) + (M.DH == 1 and 0.26 or 0.062) + (M.MS == 2 and 3.26 or 0) + (M.AS == 2 and 1.62 or 0)
-        GAME.extraQuestVar = 1 + (M.DH == 1 and .626 or 1) + (M.MS == 2 and 6.262 or .5) + (M.DH == 2 and 6.66 or 0) + (M.AS == 2 and 0.62 or 0)
-        GAME.questMessiness = M.DH == 2 and 666 or 0 + (GAME.floor * 1.62) + (M.MS == 1 and 12.6 or M.MS == 2 and 262 or M.VL == 1 and -15 or M.VL == 2 and -30 or 0) + (M.AS == 2 and 3.25 or 0)
-        GAME.messierQuest = MATH.random(0,0.62 * MATH.abs(GAME.floor))
-        GAME.cleanerQuest = MATH.random(-0.26 * MATH.abs(GAME.floor), 0)
-        GAME.questFavor = 0 -- Initialized in GAME.upFloor()
-        GAME.dmgHealMul = M.VL == 1 and 2 or 1
-        GAME.dmgHeal = 2 * GAME.dmgHealMul - (M.DH == 2 and 1 or 0)
-        GAME.dmgWrong = 1 + (M.EX > 0 and 1 or 0) - (M.DH == 2 and .5 or 0)
-        GAME.dmgMul = 1 * (M.VL == 1 and 2 or M.VL == 2 and 3 or 1) * (M.DH == 2 and 0.75 or 1) 
-        GAME.dmgTime = 2 + (M.EX > 0 and 1 or 0) - (M.DH == 2 and 1 or 0)
-        GAME.dmgTimerMul = 1
-        GAME.dmgDelay = M.VL == 2 and 10.5 or 15
-        GAME.dmgCycle = M.EX > 0 and 2.4 or 5.5
-        GAME.lifeLeak = 0
-        GAME.spinAttack = false
-        GAME.spinCount = 0
-        GAME.lastSpinCount = -1
-        GAME.woundTally = 0
-        GAME.woundRequirement = 5 + GAME.floor
-        GAME.faultCount = 0
-        GAME.dmgTimeRecoveryCap = M.GV >= 1 and 15 or 0
-        GAME.extraMod = false
-        GAME.dhMod = nil
-        GAME.hardDmg = 0
-        GAME.dmgWrongExtra = 0
-        GAME.combo = 0
-        GAME.combotime = 0
-        GAME.LastQuestTime = 0
-        GAME.timeCommitted = 0
+    -- Params
+    GAME.maxQuestCount = (M.NH == 2 and URM and 1) or (M.NH == 2 and M.DP > 0 and URM and 2) or M.NH == 2 and 2 or  3
+    GAME.maxQuestSize = (M.NH < 2 and M.DH == 2) and 3 or 4
+    GAME.extraQuestBase = 0 + (M.NH == 2 and (M.DH > 0 and 2.42 - M.DH or 1.26) or 0) + (M.DH == 1 and 0.26 or 0.062) + (M.MS == 2 and 3.26 or 0) + (M.AS == 2 and 1.62 or 0)
+    GAME.extraQuestVar = 1 + (M.DH == 1 and .626 or 1) + (M.MS == 2 and 6.262 or .5) + (M.DH == 2 and 6.66 or 0) + (M.AS == 2 and 0.62 or 0) - ((M.IN == 2 and URM) and 2 or 0)
+    GAME.questMessiness = M.DH == 2 and 666 or 0 + (GAME.floor * 1.62) + (M.MS == 1 and 12.6 or M.MS == 2 and 262 or M.VL == 1 and -15 or M.VL == 2 and -30 or 0) + (M.AS == 2 and 3.25 or 0)
+    GAME.messierQuest = MATH.random(0,0.62 * MATH.abs(GAME.floor))
+    GAME.cleanerQuest = MATH.random(-0.26 * MATH.abs(GAME.floor), 0)
+    GAME.questFavor = 0 -- Initialized in GAME.upFloor()
+    GAME.dmgHealMul = M.VL == 1 and 2 or 1
+    GAME.dmgHeal = 2 * GAME.dmgHealMul - (M.DH == 2 and 1 or 0)
+    GAME.dmgWrong = 1 + (M.EX > 0 and 1 or 0) - (M.DH == 2 and .5 or 0)
+    GAME.dmgMul = 1 * (M.VL == 1 and 2 or (M.VL == 2 and URM) and 4 or M.VL == 2 and 3 or 1) * ((M.DH == 2 and URM) and .5 or M.DH == 2 and .75 or 1) 
+    GAME.dmgTime = 2 + (M.EX > 0 and 1 or 0) - (M.DH == 2 and 1 or 0)
+    GAME.dmgTimerMul = 1
+    GAME.dmgDelay = M.VL == 2 and 10.5 or 15
+    GAME.dmgCycle = M.EX > 0 and 2.4 or 5.5
+    GAME.lifeLeak = 0
+    GAME.spinAttack = false
+    GAME.spinCount = 0
+    GAME.lastSpinCount = -1
+    GAME.woundTally = 0
+    GAME.woundRequirement = 5 + GAME.floor
+    GAME.faultCount = 0
+    GAME.dmgTimeRecoveryCap = M.GV >= 1 and 15 or 0
+    GAME.extraMod = false
+    GAME.dhMod = nil
+    GAME.hardDmg = 0
+    GAME.dmgWrongExtra = 0
+    GAME.combo = 0
+    GAME.combotime = 0
+    GAME.LastQuestTime = 0
+    GAME.timeCommitted = 0
 
-        -- Player
-        GAME.fullHealth = M.VL == 2 and 16 or (M.DH == 2 and M.VL < 2 and 18) or 22
-        GAME.startingHealth = 22
-        GAME.life = (M.DH == 2 and 10) or((M.AS == 2 and M.DH < 2) and GAME.fullHealth - 10) or ((M.IN == 2 and not (M.AS == 2 or M.DH == 2)) and GAME.fullHealth - 3) or GAME.fullHealth
-        GAME.dmgTimer = GAME.dmgDelay
-        GAME.chain = 0
-        GAME.gigaspeed = false
-        GAME.gigaspeedEntered = false
-        TABLE.clear(GAME.gigaspeedFloor)
-        TABLE.clear(GAME.teraspeedFloor)
-        GAME.gigaCount = 0
-        GAME.teraCount = 0
-        GAME.teramusic = false
-        GAME.finishTera = false
-        GAME.atkBuffer = 0
-        GAME.atkBufferCap = 8 + (M.DH == 1 and M.NH < 2 and 2 or 0)
-        --GAME.shuffleMessiness = false
-        GAME.comboClear = 0
-        GAME.previousClear = ''
-        GAME.Clear = ''
-        GAME.SelectedCard = nil
-        GAME.woundTrigger = false
-        GAME.blightTrigger = false
-        GAME.rDH_blighted = false
-        GAME.totalBlights = 0
-        if M.DH == 2 then
-            GAME.initialUnique = 5
-            GAME.minReq, GAME.maxReq = 6, 7
-            GAME.uniqueCardsRemaining = 0
-            GAME.repeatedCards = 0
-        end
 
-        -- Spike
-        GAME.spikeTimer = 0
-        GAME.spikeCounter = 0
-        GAME.spikeCounterWeak = 0
-        GAME.maxSpike = 0
-        GAME.maxSpikeWeak = 0
-
-        -- KO
-        GAME.koCount = 0
-        GAME.koCharge = 0
-
-        -- rDP
-        GAME.onAlly = false
-        GAME.life2 = GAME.life
-        GAME.rankLimit = 26000
-        GAME.reviveCount = 0
-        GAME.reviveDifficulty = 0
-        GAME.koAlly = 0
-        GAME.currentTask = false
-        GAME.DPlock = false
-        GAME.lastFlip = false
-        GAME.switch_sickness = 0
-        GAME.hasseenDPnerf = false
-        if M.DP == 2 then
-            GAME.rankLimit = 8 + 4 * M.EX
-            GAME.dmgHeal = 3 * GAME.dmgHealMul
-        end
-
-        -- Functions
-        if M.MS == 2 then
-            rMSCommit(true)
-        end
-
-        -- Achievements
-        if M.AS > 0 then
-            GAME.achv_allpassSpin = 0
-        else
-            GAME.psychoSpin = true
-        end
-
-        GAME.refreshLifeState()
-
-        GAME.refreshModIcon()
-        TABLE.clear(ComboColor)
-        for k, v in next, M do
-            if v > 0 then
-                local c = TABLE.copy(MD.color[k])
-                c[4] = nil
-                ins(ComboColor, c)
-            end
-        end
-        if #ComboColor > 0 then
-            TABLE.shuffle(ComboColor)
-            ins(ComboColor, TABLE.copy(ComboColor[1]))
-            TABLE.transpose(ComboColor)
-        end
-
-        GAME.upFloor()
-
-        TABLE.clear(GAME.quests)
-        GAME.genQuest()
-
-        TASK.removeTask_code(task_startSpin)
-        TASK.new(task_startSpin)
-
-        TWEEN.new(GAME.anim_setMenuHide):setOnFinish(GAME.anim_setMenuHide_finish):setDuration(GAME.slowmo and 2.6 or .26):setUnique('uiHide'):run()
-
-        GAME.achv_plonkH = nil
-        GAME.achv_perfectBTB = nil
-        GAME.achv_perfectH = nil
-        GAME.achv_demoteH = nil
-        GAME.achv_carriedH = nil
-        GAME.achv_noPerfectH = nil
-        GAME.achv_noChargeH = nil
-        GAME.achv_noManualCommitH = nil
-        GAME.achv_noDamageH = nil
-        GAME.achv_noKeyboardH = nil
-        GAME.achv_shareModH = nil
-        GAME.achv_noShareModH = nil
-        GAME.achv_protectH = nil
-        GAME.achv_noManualFlipH = nil
-        GAME.achv_maxChain = 0
-        GAME.achv_maxReviveH = nil
-        GAME.achv_totalDmg = 0
-        GAME.achv_clutchQuest = 0
-        GAME.achv_escapeBurnt = false
-        GAME.achv_escapeQuest = 0
-        GAME.achv_felMagicBurnt = false
-        GAME.achv_felMagicQuest = 0
-        GAME.achv_artistTrinityH = nil
-        GAME.achv_artistTrinityBurnt = false
-        GAME.achv_obliviousQuest = 0
-        GAME.achv_doublePass = 0
-        GAME.achv_level19capH = nil
-        GAME.achv_totalResetCount = 0
-        GAME.achv_altFromSurge = 0
-        if M.DP > 0 then IssueAchv('intended_glitch') end
-    else
-        SFX.play('no')
-        MSG('dark','ULTRA REVERSED MODS coming soon', 2.6)
+    -- Player
+    GAME.fullHealth = ((M.VL == 2 and URM) and 14) or M.VL == 2 and 16 or (M.DH == 2 and M.VL < 2 and 18) or 22
+    GAME.startingHealth = 22
+    GAME.life = (M.DH == 2 and 10) or ((M.AS == 2 and M.DH < 2) and GAME.fullHealth - 10) or ((M.IN == 2 and not (M.AS == 2 or M.DH == 2)) and GAME.fullHealth - 3) or GAME.fullHealth
+    GAME.dmgTimer = GAME.dmgDelay
+    GAME.chain = 0
+    GAME.gigaspeed = false
+    GAME.gigaspeedEntered = false
+    TABLE.clear(GAME.gigaspeedFloor)
+    TABLE.clear(GAME.teraspeedFloor)
+    GAME.gigaCount = 0
+    GAME.teraCount = 0
+    GAME.teramusic = false
+    GAME.finishTera = false
+    GAME.atkBuffer = 0
+    GAME.atkBufferCap = 8 + (M.DH == 1 and M.NH < 2 and 2 or 0)
+    --GAME.shuffleMessiness = false
+    GAME.comboClear = 0
+    GAME.previousClear = ''
+    GAME.Clear = ''
+    GAME.SelectedCard = nil
+    GAME.lastCard = ''
+    GAME.woundTrigger = false
+    GAME.blightTrigger = false
+    GAME.rDH_blighted = false
+    GAME.totalBlights = 0
+    if M.DH == 2 then
+        GAME.initialUnique = 5
+        GAME.minReq, GAME.maxReq = 6, 7
+        GAME.uniqueCardsRemaining = 0
+        GAME.repeatedCards = 0
     end
+    GAME.CommitCooldown = 0 
+
+    -- Spike
+    GAME.spikeTimer = 0
+    GAME.spikeCounter = 0
+    GAME.spikeCounterWeak = 0
+    GAME.maxSpike = 0
+    GAME.maxSpikeWeak = 0
+
+    -- KO
+    GAME.koCount = 0
+    GAME.koCharge = 0
+
+    -- rDP
+    GAME.onAlly = false
+    GAME.life2 = GAME.life
+    GAME.rankLimit = 26000
+    GAME.reviveCount = 0
+    GAME.reviveDifficulty = M.DP == 2 and URM and 17 or 0
+    GAME.koAlly = 0
+    GAME.currentTask = false
+    GAME.DPlock = false
+    GAME.lastFlip = false
+    GAME.switch_sickness = 0
+    GAME.hasseenDPnerf = false
+    if M.DP == 2 then
+        GAME.rankLimit = 8 + 4 * M.EX
+        GAME.dmgHeal = 3 * GAME.dmgHealMul
+    end
+
+    -- Functions
+    if M.MS == 2 then
+        rMSCommit(true)
+    end
+
+    -- Achievements
+    if M.AS > 0 then
+        GAME.achv_allpassSpin = 0
+    else
+        GAME.psychoSpin = true
+    end
+
+    GAME.refreshLifeState()
+
+    GAME.refreshModIcon()
+    TABLE.clear(ComboColor)
+    for k, v in next, M do
+        if v > 0 then
+            local c = TABLE.copy(MD.color[k])
+            c[4] = nil
+            ins(ComboColor, c)
+        end
+    end
+    if #ComboColor > 0 then
+        TABLE.shuffle(ComboColor)
+        ins(ComboColor, TABLE.copy(ComboColor[1]))
+        TABLE.transpose(ComboColor)
+    end
+
+    GAME.upFloor()
+
+    TABLE.clear(GAME.quests)
+    GAME.genQuest()
+
+    TASK.removeTask_code(task_startSpin)
+    TASK.new(task_startSpin)
+
+    TWEEN.new(GAME.anim_setMenuHide):setOnFinish(GAME.anim_setMenuHide_finish):setDuration(GAME.slowmo and 2.6 or .26):setUnique('uiHide'):run()
+
+    GAME.achv_plonkH = nil
+    GAME.achv_perfectBTB = nil
+    GAME.achv_perfectH = nil
+    GAME.achv_demoteH = nil
+    GAME.achv_carriedH = nil
+    GAME.achv_noPerfectH = nil
+    GAME.achv_noChargeH = nil
+    GAME.achv_noManualCommitH = nil
+    GAME.achv_noDamageH = nil
+    GAME.achv_noKeyboardH = nil
+    GAME.achv_shareModH = nil
+    GAME.achv_noShareModH = nil
+    GAME.achv_protectH = nil
+    GAME.achv_noManualFlipH = nil
+    GAME.achv_maxChain = 0
+    GAME.achv_maxReviveH = nil
+    GAME.achv_totalDmg = 0
+    GAME.achv_clutchQuest = 0
+    GAME.achv_escapeBurnt = false
+    GAME.achv_escapeQuest = 0
+    GAME.achv_felMagicBurnt = false
+    GAME.achv_felMagicQuest = 0
+    GAME.achv_artistTrinityH = nil
+    GAME.achv_artistTrinityBurnt = false
+    GAME.achv_obliviousQuest = 0
+    GAME.achv_doublePass = 0
+    GAME.achv_level19capH = nil
+    GAME.achv_totalResetCount = 0
+    GAME.achv_altFromSurge = 0
+    if M.DP > 0 then IssueAchv('intended_glitch') end
+
+    if M.NH == 2 and URM then STAT.ultraPlayed['NH'] = true end
+    if M.MS == 2 and URM then STAT.ultraPlayed['MS'] = true end
+    if M.GV == 2 and URM then STAT.ultraPlayed['GV'] = true end
+    if M.VL == 2 and URM then STAT.ultraPlayed['VL'] = true end
+    if M.DH == 2 and URM then STAT.ultraPlayed['DH'] = true end
+    if M.IN == 2 and URM then STAT.ultraPlayed['IN'] = true end
+    if M.AS == 2 and URM then STAT.ultraPlayed['AS'] = true end
+    if M.EX == 2 and URM then STAT.ultraPlayed['EX'] = true end
+    if M.DP == 2 and URM then STAT.ultraPlayed['DP'] = true end
+    if M.NH == 2 then STAT.revPlayed['NH'] = true end
+    if M.MS == 2 then STAT.revPlayed['MS'] = true end
+    if M.GV == 2 then STAT.revPlayed['GV'] = true end
+    if M.VL == 2 then STAT.revPlayed['VL'] = true end
+    if M.DH == 2 then STAT.revPlayed['DH'] = true end
+    if M.IN == 2 then STAT.revPlayed['IN'] = true end
+    if M.AS == 2 then STAT.revPlayed['AS'] = true end
+    if M.EX == 2 then STAT.revPlayed['EX'] = true end
+    if M.DP == 2 then STAT.revPlayed['DP'] = true end
+
 end
 
 function GAME.clearResultStat()
@@ -3857,11 +3917,16 @@ function GAME.update(dt)
     if M.GV > 0 and not GAME.gravTimer then
         GAME.gravTimer = GAME.gravDelay
     end
-    if M.EX == 2 and GAME.floorTime > 60 then
+    if M.MS == 2 and URM then
+        GAME.CommitCooldown = GAME.CommitCooldown + dt
+    end
+    if M.EX == 2 and GAME.floorTime > 60 and not URM then
         GAME.dmgWrong = GAME.dmgWrong + 0.05 * dt
         GAME.dmgMul = GAME.dmgMul + 0.05 * dt
         GAME.extraQuestBase = GAME.extraQuestBase + 0.1 * dt
         GAME.extraQuestVar = GAME.extraQuestVar + 0.1 * dt
+    elseif M.EX == 2 and URM then
+        GAME.dmgWrong = GAME.dmgWrong + 0.026 * dt
     end
     if GAME.reviveTime then
         GAME.reviveTime = GAME.reviveTime + dt
@@ -4014,7 +4079,7 @@ function GAME.update(dt)
     end
 
     -- Damage
-    local dmgTimerMulGV = M.GV == 1 and 0.75 - 0.03 * (GAME.floor - 1) or M.GV == 2 and 0.525 - 0.01 * (GAME.floor - 1) or 1
+    local dmgTimerMulGV = M.GV == 1 and 0.75 - 0.03 * (GAME.floor - 1) or (M.GV == 2 and URM) and 0.435 or  M.GV == 2 and 0.525 - 0.01 * (GAME.floor - 1) or 1
     if dmgTimerMulGV < 0.15 then dmgTimerMulGV = 0.15 end
     GAME.dmgTimer = GAME.dmgTimer - dt / (GAME.dmgTimerMul * dmgTimerMulGV)
     if GAME.dmgTimer <= 0 then

@@ -69,6 +69,12 @@ function Card:setActive(auto, key)
         self:flick()
         SFX.play('no')
         return
+
+    end
+    if TASK.getLock('cannotFlip') or GAME.playing and M.MS == 2 and URM and GAME.CommitCooldown < 1.15 and GAME.time > 0 then
+        self:shake()
+        SFX.play('no')
+        return
     end
 --    if M.VL == 1 then
 --        if not self.active and not auto then
@@ -204,13 +210,13 @@ function Card:setActive(auto, key)
                 GAME.fault = true
                 if not GAME.faultWrong then GAME.faultCount = 1 end
                 if M.AS == 2 then GAME.lastSpinCount = -1 end
-                if not GAME.achv_perfectBTB then
+                if not GAME.achv_perfectBTB and GAME.comboStr == 'rGVrINrMS' then
                     GAME.achv_perfectBTB = GAME.chain
                     if GAME.totalQuest >= 5 then SFX.play('btb_break') end
                 end
             end
         end
-        if M.DP > 0 and not auto and self.id == 'DP' and self.active and not (URM and M.DP == 2) then
+        if M.DP > 0 and not auto and self.id == 'DP' and self.active and (not (URM and M.DP == 2) or URM and M.DP == 2 and M.NH == 2) then
             if GAME.swapControl() then
                 SFX.play('party_ready', .8)
             end
@@ -232,7 +238,11 @@ function Card:setActive(auto, key)
                         CD[(p + table.remove(l, rnd(3, 4)) - 1) % #CD + 1]:setActive(true)
                         CD[(p + table.remove(l, rnd(1, 2)) - 1) % #CD + 1]:setActive(true)
                         if GAME.floor < 10 and GAME.gigaspeed then GAME.achv_felMagicBurnt = true end
-                        if URM then return GAME.takeDamage(1e99, 'wrong') end
+                        if URM then
+                            if MATH.roll() then
+                                CD[(p + table.remove(l, rnd(1, 2)) - 1) % #CD + 1]:setActive(true)
+                            end
+                        end
                     end
                     SFX.play('wound')
                 else
@@ -612,11 +622,18 @@ function Card:draw()
             if self.active then
                 r1, g1, b1 = 1, .26, 0
                 a1 = .6 + .4 * self.float
+                if URM then
+                    a1 = 1
+                    local qt = GAME.questTime
+                    a1 = a1 - (qt / 2 - (.15 * (GAME.floor - 1)))
+                end
             end
         end
     else
         if self.active then
-            if not self.upright then
+            if not self.upright and URM then -- Ultra Reversed
+                r1, g1, b1 = .5, .05, .026
+            elseif not self.upright then
                 r1, g1, b1 = 0, .5, .7        -- Reversed
             elseif self.id ~= 'DP' then
                 r1, g1, b1 = 1, .26, 0        -- Orange

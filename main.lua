@@ -571,6 +571,12 @@ TEXTS = { -- Font size can only be 30 and 50 here !!!
         COLOR.C, "E", COLOR.S, "E", COLOR.B, "D",
     }),
     gigatime   = GC.newText(FONT.get(50)),
+    fliptitle   = GC.newText(FONT.get(30), "FLIP"),
+    flipstat   = GC.newText(FONT.get(30)),
+    flipsecond = GC.newText(FONT.get(30)),
+    attacktitle= GC.newText(FONT.get(30), "ATTACK"),
+    attackstat = GC.newText(FONT.get(30)),
+    attackmin  = GC.newText(FONT.get(30)),
     floorTime  = GC.newText(FONT.get(30)),
     rankTime   = GC.newText(FONT.get(30)),
     slogan     = GC.newText(FONT.get(30), "SCALE THE TOWER!"),
@@ -688,6 +694,30 @@ STAT = {
         totalKO = 0,
         totalRevive = 0,
         badge = {},
+
+        revPlayed = {
+            EX = false,
+            NH = false,
+            MS = false,
+            GV = false,
+            VL = false,
+            DH = false,
+            IN = false,
+            AS = false,
+            DP = false
+        },
+
+        ultraPlayed = {
+            EX = false,
+            NH = false,
+            MS = false,
+            GV = false,
+            VL = false,
+            DH = false,
+            IN = false,
+            AS = false,
+            DP = false
+        }
     }
 
     ACHV = {}
@@ -1848,6 +1878,11 @@ function Daemon_Fast()
     local deckSize = #ModData.deck
 
     local startBtnTexts = { "START", "STAR", "STA", "ST", "S", "", "C", "CO", "COM", "COMM", "COMME", "COMMEN", "COMMENC", "COMMENCE" }
+    local ultraBtnTexts = { "START?", "STAR?", "STA?", "ST?", "S?", "?", "", "?", "C?", "CO?", "COM?", "COMM?", "COMME?", "COMMEN?", "COMMENC?", "COMMENCE?"}
+    local ingameBtnTexts = {"START", "STAR", "STA", "ST", "S", "", "A", "AG", "AGA", "AGAI", "AGAIN"}
+    local altingameBtnTexts = {"COMMENCE", "COMMENC", "COMMEN", "COMME", "COMM", "COM", "CO", "C", "", "R", "RE", "RET", "RETR", "RETRY"}
+    local ingameBtnTextsU = {"START?", "STAR?", "STA?", "ST?", "S?", "?", "A?", "AG?", "AGA?", "AGAI?", "AGAIN?"}
+    local altingameBtnTextsU = {"COMMENCE?", "COMMENC?", "COMMEN?", "COMME?", "COMM?", "COM?", "CO?", "C?", "?", "R?", "RE?", "RET?", "RETR?", "RETRY?"}
     local resetBtnTexts = { "RESET", "RESE", "RES", "RE", "R", "", "S", "SP", "SPI", "SPIN" }
     local startBtnPtr = 1
     local resetBtnPtr = 1
@@ -1906,7 +1941,7 @@ function Daemon_Fast()
         local dt = yield()
 
         -- Speedrun timer
-        STAT.srTimer_life = STAT.srTimer_life + dt
+       -- STAT.srTimer_life = STAT.srTimer_life + dt
 
         -- Mouse holding animation
         if not CONF.syscursor then
@@ -1940,20 +1975,45 @@ function Daemon_Fast()
         -- Button text animation
         if TASK.lock("buttonTextCD", GAME.nightcore and .014 or GAME.slowmo and .22 or .035) then
             local changed
+            local changedingame
+            local W = SCN.scenes.tower.widgetList.start
+            if not ((W.text == startBtnTexts[startBtnPtr] or (URM and W.text == ultraBtnTexts[startBtnPtr]))) then
+                changed = true
+            end
             if M.DH == 0 then
                 if startBtnPtr > 1 then
                     startBtnPtr = startBtnPtr - 1
                     changed = true
-                end
+                end       
             else
                 if startBtnPtr < 14 then -- #startBtnTexts
                     startBtnPtr = startBtnPtr + 1
                     changed = true
                 end
             end
+            if URM then
+                if not (URM and W.text == ultraBtnTexts[startBtnPtr]) then
+                    changed = true
+                end
+                if M.DH == 0 then
+                    if startBtnPtr > 1 then
+                        startBtnPtr = startBtnPtr - 1
+                        changed = true
+                    end
+                else
+                    if startBtnPtr < 16 then
+                        startBtnPtr = startBtnPtr + 1
+                        changed = true
+                    end
+                end
+            else
+                if M.DH > 0 and startBtnPtr > 14 then
+                    startBtnPtr = 14
+                    changed = true
+                end
+            end
             if changed then
-                local W = SCN.scenes.tower.widgetList.start
-                W.text = startBtnTexts[startBtnPtr]
+                W.text = URM and ultraBtnTexts[startBtnPtr] or startBtnTexts[startBtnPtr]
                 W:reset()
                 changed = false
             end

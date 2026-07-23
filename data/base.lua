@@ -547,7 +547,7 @@ NegEvents = {
         size = 2.6,
         duration = 16,
         event = function()
-            GAME.time = math.max(GAME.time, 419)
+            GAME.time = math.max(GAME.time, 719)
         end
     },
 

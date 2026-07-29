@@ -703,27 +703,34 @@ local function drawPBline(h, pb, spd, textObj)
 end
 
 function rMSCommit(LoadedDice)
-    local alpha = GAME.questTime / 3
     local W = scene.widgetList.start
-    if GAME.questTime >= 1.15 and LoadedDice and not URM then
-        W.color[1] = .35 + (.5 - alpha)
-        W.color[2] = .12 + (.5 - alpha)
-        W.color[3] = .05 + (.5 - alpha)
-        if W.color[1] <= .35 or W.color[2] <= .12 or W.color[3] <= .05 then
-            W.color[1] = .35
-            W.color[2] = .12
-            W.color[3] = .05
+    if GAME.playing then
+        local alpha = GAME.questTime / 3
+        if GAME.questTime >= 1.15 and LoadedDice and not URM then
+            W.color[1] = .35 + (.5 - alpha)
+            W.color[2] = .12 + (.5 - alpha)
+            W.color[3] = .05 + (.5 - alpha)
+            if W.color[1] <= .35 or W.color[2] <= .12 or W.color[3] <= .05 then
+                W.color[1] = .35
+                W.color[2] = .12
+                W.color[3] = .05
+            end
+        elseif LoadedDice and URM and GAME.CommitCooldown >= 1.15 then
+            local alpha1 = GAME.CommitCooldown / 4
+            W.color[1] = .35 + (.5 - alpha1)
+            W.color[2] = .12 - (.5 + alpha1)
+            W.color[3] = .05 - (.5 + alpha1)
+            if W.color[1] <= .35 or W.color[2] >= .12 or W.color[3] >= .05 then
+                W.color[1] = .35
+                W.color[2] = .12
+                W.color[3] = .05
+            end
         end
-    elseif LoadedDice and URM and GAME.CommitCooldown >= 1.15 then
-        local alpha1 = GAME.CommitCooldown / 4
-        W.color[1] = .35 + (.5 - alpha1)
-        W.color[2] = .12 - (.5 + alpha1)
-        W.color[3] = .05 - (.5 + alpha1)
-        if W.color[1] <= .35 or W.color[2] >= .12 or W.color[3] >= .05 then
-            W.color[1] = .35
-            W.color[2] = .12
-            W.color[3] = .05
-        end
+    else
+        W.color[1] = .35
+        W.color[2] = .12
+        W.color[3] = .05
+        W:reset()
     end
 end
 

@@ -702,44 +702,46 @@ function GAME.genQuest()
                 ins(combo, mod)
             end
             if M.DH == 1 then
-            if MATH.roll() then
-                    GAME.dhMod = nil
-                    local mod = MATH.randFreqAll(pool)
-                    pool[mod] = 0
-                    local p = TABLE.find(CD, CD[mod])
-                    if p then
-                        if p > 1 then
-                            local left = CD[p - 1].id
-                            pool[left] = max(pool[left] * (1 - GAME.questFavor * .01), 0)
+                if MATH.roll() then
+                        GAME.dhMod = nil
+                        local mod = MATH.randFreqAll(pool)
+                        pool[mod] = 0
+                        local p = TABLE.find(CD, CD[mod])
+                        if p then
+                            if p > 1 then
+                                local left = CD[p - 1].id
+                                pool[left] = max(pool[left] * (1 - GAME.questFavor * .01), 0)
+                            end
+                            if p < 9 then
+                                local right = CD[p + 1].id
+                                pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
+                            end
                         end
-                        if p < 9 then
-                            local right = CD[p + 1].id
-                            pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
-                        end
+                        GAME.dhMod = mod
+                        ins(combo, mod)
                     end
-                    GAME.dhMod = mod
-                    ins(combo, mod)
-                end
             elseif M.DH == 2 then
                 for _ = 1, MATH.rand(1, 3) do
-                    local mod = MATH.randFreqAll(pool)
-                    pool[mod] = 0
-                    local p = TABLE.find(CD, CD[mod])
-                    if p then
-                        if p > 1 then
-                            local left = CD[p - 1].id
-                            pool[left] = max(pool[left] * (1 - GAME.questFavor * .01), 0)
+                    if (#combo < 4 and GAME.totalBlights <= 12) or (#combo < 6 and GAME.time >= 840) or #combo < 5 then
+                        local mod = MATH.randFreqAll(pool)
+                        pool[mod] = 0
+                        local p = TABLE.find(CD, CD[mod])
+                        if p then
+                            if p > 1 then
+                                local left = CD[p - 1].id
+                                pool[left] = max(pool[left] * (1 - GAME.questFavor * .01), 0)
+                            end
+                            if p < 9 then
+                                local right = CD[p + 1].id
+                                pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
+                            end
                         end
-                        if p < 9 then
-                            local right = CD[p + 1].id
-                            pool[right] = max(pool[right] * (1 - GAME.questFavor * .01), 0)
-                        end
+                        ins(combo, mod)
                     end
-                    ins(combo, mod)
                 end
             end
         else
-            local maxquestgen = M.VL == 2 and 4 or 6
+            local maxquestgen = M.VL == 2 and 4 or (M.DH == 2 and M.IN == 2) and 5 or 6
             for _ = 1, maxquestgen do
                 local mod = MATH.randFreqAll(pool)
                 pool[mod] = 0
@@ -1246,10 +1248,7 @@ function GAME.upFloor()
     end
 
     if not GAME.hardMode then
-        if M.EX == 2 and URM then
-            GAME.dmgWrong = 2
-        end
-        local F = Floors[GAME.floor]
+        local F = URM and GAME.anyUltra and RevModFloors[GAME.floor] or Floors[GAME.floor]
         local e = F.event
         for i = 1, #e, 2 do
             if type(e[i + 1]) == 'number' then
@@ -1269,7 +1268,7 @@ function GAME.upFloor()
                     GAME[e[i]] = e[i + 1]
                 end
             end
-        elseif GAME.anyRev and not (M.MS == 2 or M.DH == 2 or M.AS == 2 or M.EX == 2) then
+        elseif (URM and GAME.anyUltra and not M.EX == 2) or (GAME.anyRev and not (M.MS == 2 or M.DH == 2 or M.AS == 2 or M.EX == 2)) then
             local F = RevModFloors[GAME.floor]
             local e = F.event
             for i = 1, #e, 2 do
@@ -1898,8 +1897,6 @@ function GAME.task_cancelAll(instant)
     end
 end
 
-GAME.uniqueCardsRemaining = GAME.initialUnique
-
 function GAME.commit(auto)
     if #GAME.quests == 0 then return end
 
@@ -1931,7 +1928,9 @@ function GAME.commit(auto)
 
     if M.DH == 2 and M.AS < 2 then
         local UniqueCheck = #TABLE.subtract(TABLE.copy(hand), GAME.lastCommit)
-        if GAME.totalBlights < 12 and GAME.uniqueCardsRemaining <= 0 or (M.DH == 2 and URM) then
+        if GAME.totalBlights < 12 and GAME.uniqueCardsRemaining <= 0 then
+            GAME.uniqueCardsRemaining = GAME.initialUnique
+        elseif GAME.uniqueCardsRemaining <= 0 and M.DH == 2 and URM then
             GAME.uniqueCardsRemaining = GAME.initialUnique
         elseif GAME.uniqueCardsRemaining <= 0 then
             if GAME.minReq == 0 then
@@ -2011,7 +2010,7 @@ function GAME.commit(auto)
 
     if correct then
 
-        if M.DH == 2 and M.AS < 2 then
+        if M.DH == 2 and M.AS < 2 or (M.DH == 2 and M.AS < 2 and URM) then
             if GAME.totalBlights >= 12 then
                 GAME.minReq = GAME.minReq - GAME.repeatedCards
                 GAME.maxReq = GAME.maxReq - GAME.repeatedCards
@@ -2061,7 +2060,7 @@ function GAME.commit(auto)
 
         if not GAME.woundTrigger and M.DH < 2 or (not GAME.woundTrigger and (M.DH == 2 and M.AS == 2)) then
             GAME.heal((dblCorrect and 3 or 1) * GAME.dmgHeal / (GAME.extraMod == 1 and 2 or 1))
-        elseif not GAME.woundTrigger and (M.DH == 2 and (GAME.blightTrigger)) then
+        elseif not GAME.woundTrigger and (M.DH == 2 and (GAME.blightTrigger)) or M.DH == 2 and GAME.rDH_blighted then
             GAME.heal(1)
         end
         if MATH.between(Floors[GAME.floor].top - (GAME.height + GAME.heightBuffer), 0, 2) then GAME.addHeight(3, true) end
@@ -2169,12 +2168,14 @@ function GAME.commit(auto)
                     end
 
                     if URM and M.NH == 2 then
-                    xp = xp + surge
-                    surge = 0
+                        xp = xp + surge
+                        surge = 0
                     end
-
-                GAME.chain = 0
-                surge = 0
+                    if GAME.chain > GAME.B2B_best then
+                        GAME.B2B_best = GAME.chain
+                    end
+                    GAME.chain = 0
+                    surge = 0
                 else
                     if M.DP > 0 then
                         GAME.incrementPrompt('spin')
@@ -2598,7 +2599,9 @@ function GAME.commit(auto)
         if dblCorrect then
             attack = attack * 3
             xp = xp * 3
-            GAME.chain = GAME.chain + 1
+            if M.DH < 2 then
+                GAME.chain = GAME.chain + 1
+            end
             GAME.achv_doublePass = GAME.achv_doublePass + 1
             if not ACHV.lucky_coincidence then IssueAchv('lucky_coincidence') end
             GAME.incrementPrompt('simultaneousquest')
@@ -2807,6 +2810,14 @@ function GAME.commit(auto)
             end
         end
 
+        if not GAME.DPlock then
+            local kc = attack == 0 and 0 or dp and 6 or 1
+            if dblCorrect then kc = kc * 2 end
+            kc = kc + max(surge - 260 / surge, 0)
+            if oldAllyHP == 0 then kc = kc / 2 end
+            GAME.koCharge = GAME.koCharge + kc
+        end
+
         GAME.incrementPrompt('send', attack)
         GAME.totalAttack = GAME.totalAttack + attack
         GAME.totalSurge = GAME.totalSurge + surge
@@ -2909,7 +2920,7 @@ function GAME.commit(auto)
                 GAME.takeDamage(1, 'wrong')
                 SFX.play('garbagerise')
                 SFX.play('wound')
-            elseif M.AS == 2 and URM and ((GAME.spinAttack and not GAME.fault and (GAME.spinCount == GAME.lastSpinCount or GAME.SelectedCard == GAME.lastCard)) or GAME.Clear == GAME.previousClear) then
+            elseif M.AS == 2 and URM and ((GAME.spinAttack and not GAME.fault and (GAME.spinCount == GAME.lastSpinCount or (GAME.SelectedCard == GAME.lastCard and GAME.lastCard ~= ''))) or GAME.Clear == GAME.previousClear) then
                 GAME.takeDamage(1e99, 'wrong')
                 SFX.play('wound')
             elseif M.AS == 2 and (GAME.spinAttack and not GAME.fault and GAME.spinCount == GAME.lastSpinCount) or GAME.Clear == GAME.previousClear then
@@ -2933,6 +2944,7 @@ function GAME.commit(auto)
                 GAME.lastSpinCount = GAME.spinCount
             else
                 GAME.lastSpinCount = -1 
+                GAME.lastCard = ''
             end
         end
 
@@ -2950,7 +2962,6 @@ function GAME.commit(auto)
 
         GAME.CommitCooldown = 0
         GAME.LastQuestTime = GAME.combotime
-        GAME.lastCard = GAME.fault and '' or GAME.SelectedCard
         GAME.questTime = 0
         GAME.timeCommitted = 0
         GAME.extraMod = false
@@ -2974,6 +2985,7 @@ function GAME.commit(auto)
         GAME.faultWrong = true
         GAME.faultCount = GAME.faultCount + 1
         GAME.timeCommitted = GAME.questTime
+        GAME.lastCard = ''
 
         if not GAME.achv_perfectBTB then
             GAME.achv_perfectBTB = GAME.chain
@@ -2998,12 +3010,14 @@ function GAME.commit(auto)
         end
     end
     if M.MS == 2 and URM then 
-        GAME.quests[1].combo = TABLE.shuffle(GAME.quests[1].combo)
-        GAME.quests[1].name = GC.newText(FONT.get(70), GAME.getComboName(TABLE.shuffle(GAME.quests[1].combo), 'ingame'))
-        GAME.quests[2].combo = TABLE.shuffle(GAME.quests[2].combo)
-        GAME.quests[2].name = GC.newText(FONT.get(70), GAME.getComboName(TABLE.shuffle(GAME.quests[2].combo), 'ingame'))
-        GAME.quests[2].combo = TABLE.shuffle(GAME.quests[3].combo)
-        GAME.quests[3].name = GC.newText(FONT.get(70), GAME.getComboName(TABLE.shuffle(GAME.quests[3].combo), 'ingame'))
+        if GAME.quests[1] ~= '' or GAME.quests[1] ~= nil then
+            GAME.quests[1].combo = TABLE.shuffle(GAME.quests[1].combo)
+            GAME.quests[1].name = GC.newText(FONT.get(70), GAME.getComboName(TABLE.shuffle(GAME.quests[1].combo), 'ingame'))
+        end
+        if GAME.quests[2] ~= '' or GAME.quests[2] ~= nil then
+            GAME.quests[2].combo = TABLE.shuffle(GAME.quests[2].combo)
+            GAME.quests[2].name = GC.newText(FONT.get(70), GAME.getComboName(TABLE.shuffle(GAME.quests[2].combo), 'ingame'))
+        end
         GAME.CommitCooldown = 0 
     end
 end
@@ -3132,6 +3146,7 @@ function GAME.start()
     GAME.combotime = 0
     GAME.LastQuestTime = 0
     GAME.timeCommitted = 0
+    GAME.B2B_best = 0
 
 
     -- Player
@@ -3163,7 +3178,7 @@ function GAME.start()
     if M.DH == 2 then
         GAME.initialUnique = 5
         GAME.minReq, GAME.maxReq = 6, 7
-        GAME.uniqueCardsRemaining = 0
+        GAME.uniqueCardsRemaining = GAME.initialUnique
         GAME.repeatedCards = 0
     end
     GAME.CommitCooldown = 0 
@@ -3343,6 +3358,7 @@ function GAME.finish(reason)
     GAME.life, GAME.life2 = 0, 0
     GAME.teramusic = false
     GAME.currentTask = false
+    if M.MS == 2 then rMSCommit(true) end
 
     if GAME.totalQuest > 2.6 then
         LOG('info', ("[%s] (%s) F%d %.1fm in %.3fs"):format(reason, table.concat(GAME.getHand(true), ', '), GAME.floor, GAME.roundHeight, GAME.time))
@@ -3565,7 +3581,7 @@ function GAME.finish(reason)
             COLOR.L, ("Speed  %.1fm/s"):format(roundUnit(g.height / g.time, .1)),
             COLOR.LD, ("  (max rank %d)\n"):format(g.peakRank),
             COLOR.L, ("Attack  %d"):format(g.totalAttack),
-            COLOR.LD, ("  (%.1fapm %dsurge %dKOs)\n"):format(g.totalAttack / g.time * 60, g.totalSurge, g.koCount),
+            COLOR.LD, ("  (%.1fapm %dbest B2B %dKOs)\n"):format(g.totalAttack / g.time * 60, g.B2B_best, g.koCount),
             COLOR.L, ("Bonus  " .. (g.heightBonus >= 2600 and "%.0fm" or "%.1fm")):format(g.heightBonus),
             COLOR.LD, abs(g.height) <= 2.6 and "" or ("  (%.1f%%  %.1fm/quest)"):format(g.heightBonus / g.height * 100, g.heightBonus / g.totalQuest),
         })
@@ -3908,7 +3924,7 @@ function GAME.update(dt)
     end
 
     -- Timers
-    STAT.srTimer_game = STAT.srTimer_game + dt
+    -- STAT.srTimer_game = STAT.srTimer_game + dt
     GAME.time = GAME.time + dt * GAME.timerMul
     local r = min(GAME.rank, 62)
     GAME.rankTimer[r] = GAME.rankTimer[r] + dt

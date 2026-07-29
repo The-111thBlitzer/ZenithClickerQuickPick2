@@ -71,7 +71,7 @@ function Card:setActive(auto, key)
         return
 
     end
-    if TASK.getLock('cannotFlip') or GAME.playing and M.MS == 2 and URM and GAME.CommitCooldown < 1.15 and GAME.time > 0 then
+    if TASK.getLock('cannotFlip') or GAME.playing and M.MS == 2 and URM and GAME.CommitCooldown < 1.15 and GAME.time > 0 and not auto then
         self:shake()
         SFX.play('no')
         return

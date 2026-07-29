@@ -482,6 +482,9 @@ NegEvents = {
             GAME.dmgHeal = GAME.dmgHeal + GAME.mod.NH * 3
             GAME.attackMul = GAME.attackMul - .1
             GAME.dmgTimerMul = GAME.dmgTimerMul + .01
+            if GAME.mod.NH == 2 then
+                SCN.scenes.tower.widgetList.reset:setVisible(not (GAME.zenithTraveler or GAME.mod.NH == 2))
+            end
             GAME.mod.NH = 0
             GAME.maxQuestCount = 3
             GAME.xpLockLevelMax = 5

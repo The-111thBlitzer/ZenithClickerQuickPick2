@@ -328,6 +328,10 @@ function Card:setActive(auto, key)
         SFX.play('card_slide_' .. rnd(4))
         SFX.play('floor')
         SFX.play('hold')
+        if GAME.time <= 120 then
+            GAME.cancel_2min = true
+            SubmitAchv('empty_box', 0)
+        end
     end
 end
 

@@ -169,6 +169,27 @@ local d = {
         rank = numberRankRev(120, 100, 90, 80, 75, 70, 62),
         hide = function() return GAME.completion.MS == 0 end,
     },
+    { -- blitzer
+        id = 'blitzer', 
+        name = "Blitzer",
+        desc = [[HFD in 2 minutes]],
+        quote = [[2 minutes of perfection.]],
+        rank = floorRank(1, 3, 4, 5, 7, 9, 10, 1800),
+    },
+    { -- wabi-sabi
+        id = 'wabi_sabi',
+        name = "Wabi-Sabi",
+        desc = [[Highest Altitude Reached without any perfect quest clears in 2 minutes]],
+        quote = [[2 minutes of imperfection.]],
+        rank = floorRank(1, 26.2, 2, 126, 3, 4, 5),
+    },
+    { -- empty_box
+        id = 'empty_box',
+        name = "Empty Box",
+        desc = [[Highest Altitude Reached without manually cancelling in 2 minutes]],
+        quote = [[True minimalism is the art of letting go.]],
+        rank = floorRank(1, 3, 4, 5, 6, 7, 9),
+    },
     { -- supercharged
         id = 'supercharged',
         name = "Supercharged",

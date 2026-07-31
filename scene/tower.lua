@@ -1136,6 +1136,24 @@ function scene.overDraw()
                 GC.mStr(floor(GAME.achv_altFromSurge) .. "m", 326, 240)
             end
 
+            -- Combo Attack
+            local c = GAME.combo
+            local _t = GAME.questTime
+            local bk = _t < .12 and 1 + 62 * _t * (.12 - _t) or 1
+            local k = clampInterpolate(6, .7, 26, 2, c)
+            local y = 342 - 50 * k * bk
+            local y2 = 340 - 50 * k * bk
+            if GAME.combo >= 1 then
+                gc_setColor(.5, .5, .5, 1 - (_t / 2.6))
+                FONT.set(60)
+                GC.mStr(GAME.combo .. " COMBO", 205, y)
+
+                gc_setColor(1, 1, 1, 1 - (_t / 2.6))
+                FONT.set(60)
+                GC.mStr(GAME.combo .. " COMBO", 205, y2)
+            end
+
+
             --Blight
             if M.DH == 2 and GAME.rDH_blighted then
                 local dt = GAME.time

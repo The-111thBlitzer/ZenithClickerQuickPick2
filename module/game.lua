@@ -229,6 +229,7 @@ local GAME = {
     achv_felMagicQuest = nil,
     achv_artistTrinityH = nil,
     achv_noResetH = nil,
+    achv_nocancelH = nil,
     achv_obliviousQuest = nil,
     achv_doublePass = nil,
     achv_level19capH = nil,
@@ -257,6 +258,7 @@ GAME.height = 0
 GAME.chain = 0
 GAME.surge = 0
 GAME.shareMod = false
+GAME.cancel_2min = false
 
 local M = GAME.mod
 local MD = ModData
@@ -1386,14 +1388,21 @@ function GAME.nextFatigue()
     if Fatigue.normal and (M.EX < 2 and M.DP < 2) then
         if t == 480 or t== 480.5 or t == 600 or t == 600.5 or t == 601 or t == 720 or t == 720.5 or t == 721 or t == 721.5 or t == 722 then
             GAME.takeDamage(1, 'fatigue')
+            if M.DP >= 1 then
+                GAME.takeDamage(1, 'fatigue', true)
+            end
         end
     elseif Fatigue.rEX and M.EX == 2 then
         if t == 480 or t == 480.5 or t == 481 or t == 600 or t == 600.5 or t == 601 or t == 601.5 or t == 602  or t == 720 or t == 720.5 or t == 721 or t == 721.5 or t == 722 or t == 722.5 or t == 723 or t == 723.5 or t == 724 or t == 724.5 or t == 725 or t == 725.5 then
             GAME.takeDamage(1, 'fatigue')
+            if M.DP >= 1 then
+                GAME.takeDamage(1, 'fatigue', true)
+            end
         end
     elseif Fatigue.rDP and (M.DP == 2 and M.EX < 2) then
         if t == 330 or t == 330.5 or t == 331 or t == 331.5 or t == 600 or t == 600.5 or t == 601 or t == 601.5 or t == 602 or t == 602.5 or t == 603.25 or t == 604 or t == 604.75 or t == 605.5 or t == 606.5 or t == 608 then
             GAME.takeDamage(1, 'fatigue')
+            GAME.takeDamage(1, 'fatigue', true)
         end
     end
     if stage.final then
@@ -2588,6 +2597,7 @@ function GAME.commit(auto)
             GAME.totalPerfect = GAME.totalPerfect + (dblCorrect and 2 or 1)
             if not GAME.achv_noPerfectH then
                 GAME.achv_noPerfectH = GAME.roundHeight
+                SubmitAchv('wabi_sabi', 0)
                 if GAME.totalQuest >= 26 then SFX.play('btb_break') end
             end
             if not GAME.achv_noChargeH and GAME.chain >= 4 then
@@ -2705,6 +2715,31 @@ function GAME.commit(auto)
             end
         end
 
+
+            -- Combo attacks
+            
+            if GAME.combotime <= GAME.LastQuestTime and GAME.LastQuestTime > 0 and GAME.combotime < 5 and (GAME.Clear ~= GAME.SelectedCard .. " SPIN" or GAME.Clear ~= "MINI-" .. GAME.SelectedCard .. " SPIN" ) then
+                GAME.combo = GAME.combo + 1
+                attack = MATH.floor(attack * (1+0.25*GAME.combo))
+                if MATH.roll() then
+                    SFX.play('combo_'..GAME.combo..'_power')
+                    if GAME.combo > 16 then
+                        SFX.play('combo_16_power')
+                    end
+                else
+                    SFX.play('combo_'..GAME.combo)
+                    if GAME.combo > 16 then
+                        SFX.play('combo_16')
+                    end
+                end
+            else
+                if GAME.combo > 2 then
+                    SFX.play('combobreak')
+                end
+                GAME.combo = 0
+                GAME.LastQuestTime = 0
+            end
+
     --    SFX.play(dp and 'zenith_start_duo' or 'zenith_start', .626, 0, Tone(12))
 
         if GAME.achv_escapeBurnt or GAME.Clear == GAME.previousClear then
@@ -2771,30 +2806,7 @@ function GAME.commit(auto)
                 GAME.achvallpassSpin = 0
             end
         end]]
---[[
-            -- Combo attacks
-            GAME.combotime = GAME.questTime - GAME.timeCommitted
-            if GAME.combotime < GAME.LastQuestTime then
-                GAME.combo = GAME.combo + 1
-                attack = attack * (1+0.25*GAME.combo)
-                if MATH.roll() then
-                    SFX.play('combo_'..GAME.combo..'_power')
-                    if GAME.combo > 16 then
-                        SFX.play('combo_16_power')
-                    end
-                else
-                    SFX.play('combo_'..GAME.combo)
-                    if GAME.combo > 16 then
-                        SFX.play('combo_16')
-                    end
-                end
-            else
-                if GAME.combo > 2 then
-                    SFX.play('combobreak')
-                end
-                GAME.combo = 0
-                GAME.combotime = 0
-            end]]
+
 
         attack = MATH.roundRnd(attack)
 
@@ -2961,7 +2973,8 @@ function GAME.commit(auto)
         end
 
         GAME.CommitCooldown = 0
-        GAME.LastQuestTime = GAME.combotime
+        GAME.LastQuestTime = GAME.combotime - GAME.timeCommitted
+        GAME.combotime = 0
         GAME.questTime = 0
         GAME.timeCommitted = 0
         GAME.extraMod = false
@@ -3044,6 +3057,17 @@ local function task_startSpin()
     --    GAME.shuffleCards(2.6)
    -- end
 end
+
+local function blitzAchv()
+    GAME.achv_blitzer = GAME.roundHeight
+    if GAME.totalPerfect == 0 then
+        GAME.achv_wabisabi = GAME.height
+    end
+    if not GAME.cancel_2min then
+        GAME.achv_nocancelH = GAME.height
+    end
+end
+
 function GAME.start()
     if TASK.getLock('cannotStart') then
         SFX.play('garbagerise')
@@ -3255,6 +3279,8 @@ function GAME.start()
     GAME.achv_perfectH = nil
     GAME.achv_demoteH = nil
     GAME.achv_carriedH = nil
+    GAME.achv_blitzer = nil
+    GAME.achv_wabisabi = nil
     GAME.achv_noPerfectH = nil
     GAME.achv_noChargeH = nil
     GAME.achv_noManualCommitH = nil
@@ -3674,7 +3700,6 @@ function GAME.finish(reason)
                 break
             end
         end
-        SubmitAchv('empty_box', GAME.achv_noResetH or GAME.roundHeight)
         SubmitAchv('the_perfectionist', GAME.achv_perfectH or GAME.roundHeight)
         SubmitAchv('sunk_cost', GAME.achv_demoteH or GAME.roundHeight)
         SubmitAchv(GAME.comboStr, GAME.roundHeight)
@@ -3752,6 +3777,23 @@ function GAME.finish(reason)
             SubmitAchv('zenith_explorer', GAME.roundHeight)
             SubmitAchv('supercharged', GAME.achv_maxChain)
             SubmitAchv('the_spike_of_all_time_minus', GAME.maxSpikeWeak)
+            if GAME.time < 120 then
+                SubmitAchv('blitzer', 0)
+                SubmitAchv('wabi_sabi', 0)
+                SubmitAchv('empty_box', 0)
+            else
+                SubmitAchv('blitzer', GAME.achv_blitzer)
+                if GAME.totalPerfect == 0 then
+                    SubmitAchv('wabi_sabi', GAME.achv_wabisabi)
+                else
+                    SubmitAchv('wabi_sabi', 0)
+                end
+                if not GAME.cancel_2min then
+                    SubmitAchv('empty_box', GAME.achv_nocancelH)
+                else
+                    SubmitAchv('empty_box', 0)
+                end
+            end
         else
             local revCount = GAME.comboStr:count('r')
             local len_noDP = #hand - (M.DP == 1 and 1 or 0)
@@ -3926,9 +3968,13 @@ function GAME.update(dt)
     -- Timers
     -- STAT.srTimer_game = STAT.srTimer_game + dt
     GAME.time = GAME.time + dt * GAME.timerMul
+    if GAME.time <= 120 then
+        blitzAchv()
+    end
     local r = min(GAME.rank, 62)
     GAME.rankTimer[r] = GAME.rankTimer[r] + dt
     GAME.questTime = GAME.questTime + dt
+    GAME.combotime = GAME.combotime + dt
     GAME.floorTime = GAME.floorTime + dt
     if M.GV > 0 and not GAME.gravTimer then
         GAME.gravTimer = GAME.gravDelay

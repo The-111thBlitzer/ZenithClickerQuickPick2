@@ -360,7 +360,7 @@ local d = {
         name = "The Tower",
         desc = [[HFD with the "Gravity" mod]],
         quote = [[What will you do when it all comes crumbling down?]],
-        rank = floorRank(1, 3, 5, 7, 9, 10, 3877.5),
+        rank = floorRank(1, 3, 5, 7, 9, 10, 4023.6),
     },
     { -- VL
         id = 'VL',
@@ -381,7 +381,7 @@ local d = {
         name = "The Hermit",
         desc = [[HFD with the "Invisible" mod]],
         quote = [[When the outside world fails you, trust the voice within to light a path.]],
-        rank = floorRank(1, 3, 5, 7, 9, 10, 5331.1),
+        rank = floorRank(1, 3, 5, 7, 9, 10, 5381.6),
     },
     { -- AS
         id = 'AS',

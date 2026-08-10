@@ -627,9 +627,7 @@ function Card:draw()
                 r1, g1, b1 = 1, .26, 0
                 a1 = .6 + .4 * self.float
                 if URM then
-                    a1 = 1
-                    local qt = GAME.questTime
-                    a1 = a1 - (qt / 2 - (.15 * (GAME.floor - 1)))
+                    a1 = 0
                 end
             end
         end

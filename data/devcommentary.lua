@@ -419,6 +419,138 @@ return {
         Memories of a life well lived.
             - Nostalgia
     ]],
+    ['NH VL DH'] = STRING.trimIndent [[
+        Standing as the arbiter of fate, judging both angels and demons.
+            - Judgement
+    ]],
+    ['NH VL IN'] = STRING.trimIndent [[
+        True justice is blind.
+            - Justice
+    ]],
+    ['NH VL AS'] = STRING.trimIndent [[
+        Mistakes are just happy little accidents.
+            - Bob Ross
+    ]],
+    ['NH VL DP'] = STRING.trimIndent [[
+        Unsure, doubting themselves, but still clinging on to each other...
+            - Insecure Neediness
+    ]],
+    ['NH DH IN'] = STRING.trimIndent [[
+        "Evil is a matter of perspective" - Casino Manipulator
+            - Blindside
+    ]],
+    ['NH DH AS'] = STRING.trimIndent [[
+        Angel? Demon? Doesn't matter.
+            - Shapeshifter
+    ]],
+    ['NH DH DP'] = STRING.trimIndent [[
+        On your right, an angel. On your left, a devil.
+            - Good and Evil
+    ]],
+    ['NH IN AS'] = STRING.trimIndent [[
+        We see the world through ourselves. In that way, blind people see more than we ever could.
+            - The Blind Artist
+    ]],
+    ['NH IN DP'] = STRING.trimIndent [[
+        5han left you on read. Last message: 8 months ago
+         - No-Contact Relationship
+    ]],
+    ['NH AS DP'] = STRING.trimIndent [[
+        Free yourselves from the shackles of choreography and let the music's rhythm guide your movements.
+            - Ecstatic Dance
+    ]],
+    ['MS GV VL'] = STRING.trimIndent [[
+        That's too much cheese, make it stop.
+            - Survival
+    ]],
+    ['MS GV IN'] = STRING.trimIndent [[
+        Cheese tastes best in the desperation.
+            - Burrata
+    ]],
+    ['MS GV DP'] = STRING.trimIndent [[
+        Two lovers torn between forces outside their control, every piece of them stretched to breaking — until nothing feels whole anymore.
+            - Torn Apart
+    ]],
+    ['MS VL DH'] = STRING.trimIndent [[
+        From under your breath, curse the garbage that wreak havoc on you
+            - Utter Trash
+    ]],
+    ['MS VL IN'] = STRING.trimIndent [[
+        When all you do is look up, you don't see what you leave behind.
+            - Starstruck
+    ]],
+    ['MS VL DP'] = STRING.trimIndent [[
+        It's not going to be easy, but you can get through this together.
+            - Couples Therapy
+    ]],
+    ['MS DH IN'] = STRING.trimIndent [[
+        Hey, turn off the lights! Oh wait, now I can't see my way out.
+            - The Stealth Ninja
+    ]],
+    ['MS DH DP'] = STRING.trimIndent [[
+        Drill together for some treasures.
+            - Drillers' Squad
+    ]],
+    ['MS IN AS'] = STRING.trimIndent [[
+        Meaning obscured by colorful imagery.
+            - Abstraction
+    ]],
+    ['MS IN DP'] = STRING.trimIndent [[
+        Words left unsaid, messages misunderstood — their silence grows heavy, now unbearably misconstrued.
+            - Miscommunications
+    ]],
+    ['GV VL DH'] = STRING.trimIndent [[
+        The start of something horrifying.
+            - Temptation
+    ]],
+    ['GV VL IN'] = STRING.trimIndent [[
+        It could be anything, anywhere, at any time.
+            - Paranoia
+    ]],
+    ['GV VL AS'] = STRING.trimIndent [[
+        In the Zenith Arena, every battle is a spectacle, curated by the Emperor himself.
+            - The Gladiator
+    ]],
+    ['GV DH IN'] = STRING.trimIndent [[
+        What could possibly go wrong?
+            - The Drunk Driver
+    ]],
+    ['GV DH AS'] = STRING.trimIndent [[
+        One text could wreck it all.
+            - The Texting Driver
+    ]],
+    ['GV DH DP'] = STRING.trimIndent [[
+        Last one there is a rotten egg.
+            - Race You There
+    ]],
+    ['GV IN AS'] = STRING.trimIndent [[
+        When the world descends deeper into chaos, spins keep hope alive.
+            - The Spinmaster
+    ]],
+    ['GV IN DP'] = STRING.trimIndent [[
+        Through trials and tarnish, we endure.
+            - Bronze Anniversary
+    ]],
+    ['VL DH IN'] = STRING.trimIndent [[
+        She trigger the fear in your mind more than anything else.
+            - The Flickering Spirit
+    ]],
+    ['VL DH AS'] = STRING.trimIndent [[
+        "Did you read the Terms of Service?" - osk, probably
+            - Forbidden Sorcery
+    ]],
+    ['VL IN DP'] = STRING.trimIndent [[
+        Digital duels where vulnerability meets chance.
+            - Online Dating
+    ]],
+    ['DH IN AS'] = STRING.trimIndent [[
+        All art is quite useless.
+            - The Libertine
+    ]],
+    ['DH IN DP'] = STRING.trimIndent [[
+        Every moment away from you feels like an eternity.
+            - Separation Anxiety
+    ]],
     ['NH MS GV VL DH IN AS'] = STRING.trimIndent [[
         Swamp Water Lite, a combo ported from QP2, one of the 8 possible Swamp Water Lite combos.
         This is only a lighter challenge before trying out Swamp Water.

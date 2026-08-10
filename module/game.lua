@@ -724,7 +724,7 @@ function GAME.genQuest()
                     end
             elseif M.DH == 2 then
                 for _ = 1, MATH.rand(1, 3) do
-                    if (#combo < 4 and GAME.totalBlights <= 12) or (#combo < 6 and GAME.time >= 840) or #combo < 5 then
+                    if (#combo < 4 and GAME.totalBlights <= 12) or (#combo < 6 and GAME.time >= 840) or (#combo < 5 and GAME.totalBlights > 12) then
                         local mod = MATH.randFreqAll(pool)
                         pool[mod] = 0
                         local p = TABLE.find(CD, CD[mod])
@@ -1201,6 +1201,7 @@ end
 function GAME.upFloor()
     local roundFloorTime = roundUnit(GAME.floorTime, .001)
     local roundTime = roundUnit(GAME.time, .001)
+    if M.EX == 2 and URM then GAME.dmgMul = 1 end
     if GAME.floor == 1 then
         if GAME.comboStr == 'rEXrNHrVL' then SubmitAchv('hardcore_beginning_legacy', roundFloorTime)
         elseif GAME.comboStr == 'rDHrEXrMS' then SubmitAchv('hardcore_beginning', roundFloorTime) end
@@ -1241,8 +1242,8 @@ function GAME.upFloor()
         )
     if M.GV > 0 then 
         if M.GV == 2 and URM then
-            GAME.gravDelay = 1
-            GAME.lockDelay = 0.2
+            GAME.gravDelay = 0.81
+            GAME.lockDelay = 0
         else
             GAME.gravDelay = GravityTimer[M.GV][GAME.floor] 
             GAME.lockDelay = GravityLockDelay[M.GV][GAME.floor]
@@ -1271,23 +1272,47 @@ function GAME.upFloor()
                 end
             end
         elseif (URM and GAME.anyUltra and not M.EX == 2) or (GAME.anyRev and not (M.MS == 2 or M.DH == 2 or M.AS == 2 or M.EX == 2)) then
-            local F = RevModFloors[GAME.floor]
-            local e = F.event
-            for i = 1, #e, 2 do
-                if type(e[i + 1]) == 'number' then
-                    GAME[e[i]] = GAME[e[i]] + e[i + 1]
-                else
-                    GAME[e[i]] = e[i + 1]
+            if M.VL == 2 then
+                local F = rVLRevModFloors[GAME.floor]
+                local e = F.event
+                for i = 1, #e, 2 do
+                    if type(e[i + 1]) == 'number' then
+                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
+                    else
+                        GAME[e[i]] = e[i + 1]
+                    end
+                end
+            else
+                local F = RevModFloors[GAME.floor]
+                local e = F.event
+                for i = 1, #e, 2 do
+                    if type(e[i + 1]) == 'number' then
+                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
+                    else
+                        GAME[e[i]] = e[i + 1]
+                    end
                 end
             end
         else
-            local F = rASHardModeFloors[GAME.floor]
-            local e = F.event
-            for i = 1, #e, 2 do
-                if type(e[i + 1]) == 'number' then
-                    GAME[e[i]] = GAME[e[i]] + e[i + 1]
-                else
-                    GAME[e[i]] = e[i + 1]
+            if not M.VL == 2 then
+                local F = rASHardModeFloors[GAME.floor]
+                local e = F.event
+                for i = 1, #e, 2 do
+                    if type(e[i + 1]) == 'number' then
+                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
+                    else
+                        GAME[e[i]] = e[i + 1]
+                    end
+                end
+            else
+                local F = rASrVLHardModeFloors[GAME.floor]
+                local e = F.event
+                for i = 1, #e, 2 do
+                    if type(e[i + 1]) == 'number' then
+                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
+                    else
+                        GAME[e[i]] = e[i + 1]
+                    end
                 end
             end
         end
@@ -1710,8 +1735,8 @@ function GAME.refreshSectionTime()
         secTimeStr = secTimeStr .. ("%sF%s%s%s %s %.3f″"):format(
             (i > 1 and "\n" or ""),
             i == 11 and "Ω" or tostring(i),
-            GAME.gigaspeedFloor[i] and "g" or "",
-            GAME.teraspeedFloor[i] and "t" or "",
+            GAME.gigaspeedFloor[i] and "h" or "",
+            GAME.teraspeedFloor[i] and "g" or "",
             not GAME.playing and i == #GAME.secTime and "x" or "-",
             GAME.secTime[i]
         )
@@ -1956,7 +1981,27 @@ function GAME.commit(auto)
 
     for _, id in next, GAME.lastCommit do CD[id].inLastCommit = false end
     GAME.lastCommit = TABLE.copy(hand)
-    for _, id in next, GAME.lastCommit do CD[id].inLastCommit = true end
+    for _, id in next, GAME.lastCommit do 
+        CD[id].inLastCommit = true 
+        if not CD[id].PCstate then
+            CD[id].PCstate = true
+        else
+            CD[id].PCstate = false
+        end
+    end
+
+    if CD['EX'].PCstate and CD['NH'].PCstate and CD['MS'].PCstate and CD['GV'].PCstate and CD['VL'].PCstate and CD['DH'].PCstate and CD['IN'].PCstate and CD['AS'].PCstate and CD['DP'].PCstate and GAME.life >= GAME.fullHealth then
+        GAME.PerfectClear = true
+        CD['EX'].PCstate = false
+        CD['NH'].PCstate = false
+        CD['MS'].PCstate = false
+        CD['GV'].PCstate = false
+        CD['VL'].PCstate = false
+        CD['DH'].PCstate = false
+        CD['IN'].PCstate = false
+        CD['AS'].PCstate = false
+        CD['DP'].PCstate = false
+    end
 
     local q1 = TABLE.sort(GAME.quests[1].combo)
     local q2 = M.DP > 0 and GAME.quests[2] and TABLE.sort(GAME.quests[2].combo)
@@ -2781,6 +2826,14 @@ function GAME.commit(auto)
             surge = 0
         end
 
+        if GAME.PerfectClear then
+            SFX.play('allclear')
+            attack = attack + 3
+            GAME.chain = GAME.chain + 1
+            GAME.PerfectClear = false
+            GAME.totalPC = GAME.totalPC + 1
+        end
+
         GAME.achv_altFromSurge = GAME.achv_altFromSurge + surge * GAME.rank / 4 * GAME.attackMul
 
         if M.DP > 0 then
@@ -2825,7 +2878,7 @@ function GAME.commit(auto)
         if not GAME.DPlock then
             local kc = attack == 0 and 0 or dp and 6 or 1
             if dblCorrect then kc = kc * 2 end
-            kc = kc + max(surge - 260 / surge, 0)
+            kc = kc + max(GAME.chain - 260 / GAME.chain, 0)
             if oldAllyHP == 0 then kc = kc / 2 end
             GAME.koCharge = GAME.koCharge + kc
         end
@@ -2912,8 +2965,8 @@ function GAME.commit(auto)
         if M.GV >= 1 then
             if M.GV == 1 then
                 GAME.dmgTimeRecoveryCap = MATH.ceil(15 - GAME.floor / 2)
-            end
-            if M.GV == 2 then
+            elseif M.GV == 2 and URM then GAME.dmgTimeRecoveryCap = 5
+            elseif M.GV == 2 then
                 GAME.dmgTimeRecoveryCap = 15 - (GAME.floor - 1)
             end
         end
@@ -3147,13 +3200,13 @@ function GAME.start()
     GAME.cleanerQuest = MATH.random(-0.26 * MATH.abs(GAME.floor), 0)
     GAME.questFavor = 0 -- Initialized in GAME.upFloor()
     GAME.dmgHealMul = M.VL == 1 and 2 or 1
-    GAME.dmgHeal = 2 * GAME.dmgHealMul - (M.DH == 2 and 1 or 0)
+    GAME.dmgHeal = (M.DH == 2 and 1 or 2) * GAME.dmgHealMul
     GAME.dmgWrong = 1 + (M.EX > 0 and 1 or 0) - (M.DH == 2 and .5 or 0)
     GAME.dmgMul = 1 * (M.VL == 1 and 2 or (M.VL == 2 and URM) and 4 or M.VL == 2 and 3 or 1) * ((M.DH == 2 and URM) and .5 or M.DH == 2 and .75 or 1) 
     GAME.dmgTime = 2 + (M.EX > 0 and 1 or 0) - (M.DH == 2 and 1 or 0)
     GAME.dmgTimerMul = 1
     GAME.dmgDelay = M.VL == 2 and 10.5 or 15
-    GAME.dmgCycle = M.EX > 0 and 2.4 or 5.5
+    GAME.dmgCycle = (M.EX > 0 or M.AS == 2 or M.DH == 2 or M.MS == 2) and 2.4 or 5.5
     GAME.lifeLeak = 0
     GAME.spinAttack = false
     GAME.spinCount = 0
@@ -3161,7 +3214,7 @@ function GAME.start()
     GAME.woundTally = 0
     GAME.woundRequirement = 5 + GAME.floor
     GAME.faultCount = 0
-    GAME.dmgTimeRecoveryCap = M.GV >= 1 and 15 or 0
+    GAME.dmgTimeRecoveryCap = (M.GV == 2 and URM) and 5 or M.GV >= 1 and 15 or 0
     GAME.extraMod = false
     GAME.dhMod = nil
     GAME.hardDmg = 0
@@ -3206,6 +3259,8 @@ function GAME.start()
         GAME.repeatedCards = 0
     end
     GAME.CommitCooldown = 0 
+    GAME.PerfectClear = false
+    GAME.totalPC = 0
 
     -- Spike
     GAME.spikeTimer = 0
@@ -3367,6 +3422,7 @@ function GAME.finish(reason)
         -- C.required = false
         C.required2 = false
         C.inLastCommit = false
+        C.PCstate = false
         C.burn = false
         C.charge = 0
     end
@@ -3983,12 +4039,13 @@ function GAME.update(dt)
         GAME.CommitCooldown = GAME.CommitCooldown + dt
     end
     if M.EX == 2 and GAME.floorTime > 60 and not URM then
-        GAME.dmgWrong = GAME.dmgWrong + 0.05 * dt
         GAME.dmgMul = GAME.dmgMul + 0.05 * dt
         GAME.extraQuestBase = GAME.extraQuestBase + 0.1 * dt
         GAME.extraQuestVar = GAME.extraQuestVar + 0.1 * dt
     elseif M.EX == 2 and URM then
-        GAME.dmgWrong = GAME.dmgWrong + 0.026 * dt
+        GAME.dmgMul = GAME.dmgMul + 0.026 * dt
+        GAME.extraQuestBase = GAME.extraQuestBase + 0.15 * dt
+        GAME.extraQuestVar = GAME.extraQuestVar + 0.15 * dt
     end
     if GAME.reviveTime then
         GAME.reviveTime = GAME.reviveTime + dt
@@ -4141,7 +4198,7 @@ function GAME.update(dt)
     end
 
     -- Damage
-    local dmgTimerMulGV = M.GV == 1 and 0.75 - 0.03 * (GAME.floor - 1) or (M.GV == 2 and URM) and 0.435 or  M.GV == 2 and 0.525 - 0.01 * (GAME.floor - 1) or 1
+    local dmgTimerMulGV = M.GV == 1 and 0.75 - 0.03 * (GAME.floor - 1) or (M.GV == 2 and URM) and 0.375 or  M.GV == 2 and 0.525 - 0.01 * (GAME.floor - 1) or 1
     if dmgTimerMulGV < 0.15 then dmgTimerMulGV = 0.15 end
     GAME.dmgTimer = GAME.dmgTimer - dt / (GAME.dmgTimerMul * dmgTimerMulGV)
     if GAME.dmgTimer <= 0 then

@@ -197,6 +197,7 @@ TEXTURE = {
             blitzer = aq(6, 1),
             wabi_sabi = aq(7, 5),
             empty_box = aq(4, 7),
+            pc_10 = aq(1, 2),
             supercharged = aq(5, 6),
             supercharged_plus = aq(5, 6),
             multitasker = aq(7, 2),

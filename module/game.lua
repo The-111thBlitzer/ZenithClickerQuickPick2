@@ -1249,9 +1249,52 @@ function GAME.upFloor()
             GAME.lockDelay = GravityLockDelay[M.GV][GAME.floor]
         end
     end
-
-    if not GAME.hardMode then
-        local F = URM and GAME.anyUltra and RevModFloors[GAME.floor] or Floors[GAME.floor]
+    if GAME.anyRev then
+        if M.EX > 0 or M.MS == 2 or M.DH == 2 or M.AS == 2 then
+            if M.VL == 2 then
+                local F = EXrVLModFloors[GAME.floor]
+                local e = F.event
+                for i = 1, #e, 2 do
+                    if type(e[i + 1]) == 'number' then
+                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
+                    else
+                        GAME[e[i]] = e[i + 1]
+                    end
+                end
+            else
+                local F = HardModeFloors[GAME.floor]
+                local e = F.event
+                for i = 1, #e, 2 do
+                    if type(e[i + 1]) == 'number' then
+                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
+                    else
+                        GAME[e[i]] = e[i + 1]
+                    end
+                end
+            end
+        elseif M.VL == 2 then
+            local F = rVLModFloors[GAME.floor]
+            local e = F.event
+            for i = 1, #e, 2 do
+                if type(e[i + 1]) == 'number' then
+                    GAME[e[i]] = GAME[e[i]] + e[i + 1]
+                else
+                    GAME[e[i]] = e[i + 1]
+                end
+            end
+        else
+            local F = RevModFloors[GAME.floor]
+            local e = F.event
+            for i = 1, #e, 2 do
+                if type(e[i + 1]) == 'number' then
+                    GAME[e[i]] = GAME[e[i]] + e[i + 1]
+                else
+                    GAME[e[i]] = e[i + 1]
+                end
+            end
+        end
+    elseif M.EX > 0 then
+        local F = HardModeFloors[GAME.floor]
         local e = F.event
         for i = 1, #e, 2 do
             if type(e[i + 1]) == 'number' then
@@ -1261,59 +1304,13 @@ function GAME.upFloor()
             end
         end
     else
-        if M.EX >= 1 then
-            local F = HardModeFloors[GAME.floor]
-            local e = F.event
-            for i = 1, #e, 2 do
-                if type(e[i + 1]) == 'number' then
-                    GAME[e[i]] = GAME[e[i]] + e[i + 1]
-                else
-                    GAME[e[i]] = e[i + 1]
-                end
-            end
-        elseif (URM and GAME.anyUltra and not M.EX == 2) or (GAME.anyRev and not (M.MS == 2 or M.DH == 2 or M.AS == 2 or M.EX == 2)) then
-            if M.VL == 2 then
-                local F = rVLRevModFloors[GAME.floor]
-                local e = F.event
-                for i = 1, #e, 2 do
-                    if type(e[i + 1]) == 'number' then
-                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
-                    else
-                        GAME[e[i]] = e[i + 1]
-                    end
-                end
+        local F = Floors[GAME.floor]
+        local e = F.event
+        for i = 1, #e, 2 do
+            if type(e[i + 1]) == 'number' then
+                GAME[e[i]] = GAME[e[i]] + e[i + 1]
             else
-                local F = RevModFloors[GAME.floor]
-                local e = F.event
-                for i = 1, #e, 2 do
-                    if type(e[i + 1]) == 'number' then
-                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
-                    else
-                        GAME[e[i]] = e[i + 1]
-                    end
-                end
-            end
-        else
-            if not M.VL == 2 then
-                local F = rASHardModeFloors[GAME.floor]
-                local e = F.event
-                for i = 1, #e, 2 do
-                    if type(e[i + 1]) == 'number' then
-                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
-                    else
-                        GAME[e[i]] = e[i + 1]
-                    end
-                end
-            else
-                local F = rASrVLHardModeFloors[GAME.floor]
-                local e = F.event
-                for i = 1, #e, 2 do
-                    if type(e[i + 1]) == 'number' then
-                        GAME[e[i]] = GAME[e[i]] + e[i + 1]
-                    else
-                        GAME[e[i]] = e[i + 1]
-                    end
-                end
+                GAME[e[i]] = e[i + 1]
             end
         end
     end
@@ -2229,7 +2226,6 @@ function GAME.commit(auto)
                         GAME.B2B_best = GAME.chain
                     end
                     GAME.chain = 0
-                    surge = 0
                 else
                     if M.DP > 0 then
                         GAME.incrementPrompt('spin')
@@ -2878,7 +2874,7 @@ function GAME.commit(auto)
         if not GAME.DPlock then
             local kc = attack == 0 and 0 or dp and 6 or 1
             if dblCorrect then kc = kc * 2 end
-            kc = kc + max(GAME.chain - 260 / GAME.chain, 0)
+            kc = kc + max(surge - 260 / surge, 0)
             if oldAllyHP == 0 then kc = kc / 2 end
             GAME.koCharge = GAME.koCharge + kc
         end
@@ -2932,6 +2928,7 @@ function GAME.commit(auto)
                 if GAME.comboStr == '' then SubmitAchv('clicker_speedrun', GAME.time) end
                 if GAME.comboStr == 'ASrMS' then SubmitAchv('naga_eyes', GAME.time) end
                 if GAME.comboStr == 'DPMSrNH' then SubmitAchv('scarcity_mindset', GAME.totalFlip) end
+                if GAME.totalPC >= 10 then SubmitAchv('pc_10', GAME.time) end
             elseif GAME.totalQuest == 41 then
                 if GAME.comboStr == 'EXMS' then SubmitAchv('quest_rationing', GAME.roundHeight) end
             end
@@ -3206,7 +3203,7 @@ function GAME.start()
     GAME.dmgTime = 2 + (M.EX > 0 and 1 or 0) - (M.DH == 2 and 1 or 0)
     GAME.dmgTimerMul = 1
     GAME.dmgDelay = M.VL == 2 and 10.5 or 15
-    GAME.dmgCycle = (M.EX > 0 or M.AS == 2 or M.DH == 2 or M.MS == 2) and 2.4 or 5.5
+    GAME.dmgCycle = (M.EX > 0 or M.AS == 2 or M.DH == 2 or M.MS == 2) and 2.5 or 5.5
     GAME.lifeLeak = 0
     GAME.spinAttack = false
     GAME.spinCount = 0
@@ -3969,7 +3966,7 @@ function GAME.update(dt)
 
     if not GAME.playing then return end
 
-    GAME.koCharge = max(GAME.koCharge - dt * min(GAME.height, 6200) / 2600, 0)
+    GAME.koCharge = max(GAME.koCharge - dt * min(abs(GAME.height), 6200) / 2600, 0)
     while GAME.koCharge > 26 do
         GAME.koCharge = GAME.koCharge - 26
         local t = MATH.lerp(.62, 2.6, math.random() ^ 2)

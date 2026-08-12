@@ -53,7 +53,7 @@ RevSwampName = {
     [["APOCALYPSE"]], -- not used
 }
 
-Floors = {
+Floors = { -- Other without Reversed
     [0] = { top = 0, name = "The Basement" },
     { top = 50,   event = {},                                                  name = "Hall of Beginnings" },
     { top = 150,  event = { 'dmgDelay', -2, 'dmgWrong', 1 },                   name = "The Hotel",            },
@@ -66,93 +66,76 @@ Floors = {
     { top = 1650, event = { 'dmgDelay', -.5, 'dmgWrong', 1 },                  name = "Corruption",           },
     { top = 1e99, event = { 'dmgDelay', -.5, 'dmgCycle', -.5, 'dmgTime', 1 },  name = "Platform of the Gods" },
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
-    -- Initial: Delay=15. Cycle=5, Wrong=1
-    -- Total: Delay-10, Cycle-3, Wrong+4
+    -- Initial: Delay=15, Cycle=5.5, Wrong=1
+    -- Total: Delay-10, Cycle-3, Wrong+3
 }
 
-HardModeFloors = {
+HardModeFloors = { -- EX/rMS/rDH/rAS without rVL
     [0] = { top = 0, name = "The Basement" },
     { top = 50,   event = {},                                                  name = "Hall of Beginnings" },
     { top = 150,  event = { 'dmgDelay', -2, 'dmgWrong', 1 },                   name = "The Hotel",            },
-    { top = 300,  event = { 'dmgDelay', -2},                 name = "The Casino" },
-    { top = 450,  event = { 'dmgDelay', -1},                 name = "The Arena" },
+    { top = 300,  event = { 'dmgDelay', -2 },                 name = "The Casino" },
+    { top = 450,  event = { 'dmgDelay', -1 },                 name = "The Arena" },
     { top = 650,  event = { 'dmgDelay', -1, 'dmgWrong', 1 },  name = "The Museum",           },
     { top = 850,  event = { 'dmgDelay', -1, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
-    { top = 1100, event = { 'dmgDelay', -1},                 name = "The Laboratory",      },
-    { top = 1350, event = { 'dmgDelay', -1,},                 name = "The Core" },
-    { top = 1650, event = { 'dmgDelay', -.25},                  name = "Corruption",          },
-    { top = 1e99, event = { 'dmgDelay', -.25, 'dmgTime', 1 },  name = "Platform of the Gods" },
-    { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
-    -- Initial: Delay=12.5. Cycle=2.5, Wrong=1
-    -- Total: Delay-10, Wrong+4
-}
-
-RevModFloors = {
-    [0] = { top = 0, name = "The Basement" },
-    { top = 50,   event = {},                                                  name = "Hall of Beginnings" },
-    { top = 150,  event = { 'dmgDelay', -2, 'dmgWrong', 1, 'dmgCycle', -.5 },                   name = "The Hotel",           },
-    { top = 300,  event = { 'dmgDelay', -2, 'dmgCycle', -.5},                 name = "The Casino" },
-    { top = 450,  event = { 'dmgDelay', -1, 'dmgCycle', -.5},                 name = "The Arena" },
-    { top = 650,  event = { 'dmgDelay', -1, 'dmgWrong', 1, 'dmgCycle', -.5 },  name = "The Museum",           },
-    { top = 850,  event = { 'dmgDelay', -1, 'dmgTime', 1, 'maxQuestSize', 1, 'dmgCycle', -.5 }, name = "Abandoned Offices" },
-    { top = 1100, event = { 'dmgDelay', -1, 'dmgCycle', -.5},                 name = "The Laboratory",       },
-    { top = 1350, event = { 'dmgDelay', -1,},                 name = "The Core" },
-    { top = 1650, event = { 'dmgDelay', -.5},                  name = "Corruption",           },
+    { top = 1100, event = { 'dmgDelay', -1 },                 name = "The Laboratory",       },
+    { top = 1350, event = { 'dmgDelay', -1 },                 name = "The Core" },
+    { top = 1650, event = { 'dmgDelay', -.5, 'dmgWrong', 1 },                  name = "Corruption",           },
     { top = 1e99, event = { 'dmgDelay', -.5, 'dmgTime', 1 },  name = "Platform of the Gods" },
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
-    -- Initial: Delay=12.5 Cycle=5, Wrong=1
-    -- Total: Delay-10, Wrong+4, Cycle - 3
+    -- Initial: Delay=15, Cycle=2.5, Wrong=2
+    -- Total: Delay-10, Wrong+3
 }
 
-rVLRevModFloors = {
+RevModFloors = { -- Other Reversed without EX
     [0] = { top = 0, name = "The Basement" },
-    { top = 50,   event = {},                                                  name = "Hall of Beginnings" },
-    { top = 150,  event = { 'dmgDelay', -1.4, 'dmgWrong', 1, 'dmgCycle', -.7 },                   name = "The Hotel",           },
-    { top = 300,  event = { 'dmgDelay', -1.4, 'dmgCycle', -.7},                 name = "The Casino" },
-    { top = 450,  event = { 'dmgDelay', -.7, 'dmgCycle', -.7},                 name = "The Arena" },
-    { top = 650,  event = { 'dmgDelay', -.7, 'dmgWrong', 1, 'dmgCycle', -.7 },  name = "The Museum",           },
-    { top = 850,  event = { 'dmgDelay', -.7, 'dmgTime', 1, 'maxQuestSize', 1, 'dmgCycle', -.7 }, name = "Abandoned Offices" },
-    { top = 1100, event = { 'dmgDelay', -.7, 'dmgCycle', -.35},                 name = "The Laboratory",       },
-    { top = 1350, event = { 'dmgDelay', -.7,},                 name = "The Core" },
-    { top = 1650, event = { 'dmgDelay', -.35},                  name = "Corruption",           },
-    { top = 1e99, event = { 'dmgDelay', -.35, 'dmgTime', 1 },  name = "Platform of the Gods" },
+    { top = 50,   event = {},                                                                   name = "Hall of Beginnings" },
+    { top = 150,  event = { 'dmgDelay', -2, 'dmgCycle', -.5, 'dmgWrong', 1 },                   name = "The Hotel",           },
+    { top = 300,  event = { 'dmgDelay', -2, 'dmgCycle', -.5},                                   name = "The Casino" },
+    { top = 450,  event = { 'dmgDelay', -1, 'dmgCycle', -.5},                                   name = "The Arena" },
+    { top = 650,  event = { 'dmgDelay', -1, 'dmgCycle', -.5, 'dmgWrong', 1 },                   name = "The Museum",           },
+    { top = 850,  event = { 'dmgDelay', -1, 'dmgCycle', -.5, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
+    { top = 1100, event = { 'dmgDelay', -1, 'dmgCycle', -.5},                                   name = "The Laboratory",       },
+    { top = 1350, event = { 'dmgDelay', -1,},                                                   name = "The Core" },
+    { top = 1650, event = { 'dmgDelay', -.5, 'dmgWrong', 1},                                    name = "Corruption",           },
+    { top = 1e99, event = { 'dmgDelay', -.5, 'dmgTime', 1 },                                    name = "Platform of the Gods" },
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
-    -- Initial: Delay=12.5 Cycle=5, Wrong=1
-    -- Total: Delay-10, Wrong+4, Cycle - 3
+    -- Initial: Delay=15, Cycle=5.5, Wrong=1
+    -- Total: Delay-10, Cycle-3, Wrong+3
 }
 
-rASHardModeFloors = {
+rVLModFloors = { -- rVL, without EX/rMS/rDH/rAS
     [0] = { top = 0, name = "The Basement" },
-    { top = 50,   event = {'dmgDelay', -2},                                                  name = "Hall of Beginnings" },
-    { top = 150,  event = { 'dmgWrong', 1 },                   name = "The Hotel",           },
-    { top = 300,  event = {'dmgDelay', -2}, name = "The Casino" },
-    { top = 450,  event = {'dmgDelay', -2}, name = "The Arena" },
-    { top = 650,  event = {'dmgDelay', -1, 'dmgWrong', 1 },  name = "The Museum",         },
-    { top = 850,  event = {'dmgDelay', -1, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
-    { top = 1100, event = {'dmgDelay', -1}, name = "The Laboratory",       },
-    { top = 1350, event = {'dmgDelay', -.5}, name = "The Core" },
-    { top = 1650, event = {'dmgDelay', -.5}, name = "Corruption",           },
-    { top = 1e99, event = {'dmgTime', 1 },  name = "Platform of the Gods" },
+    { top = 50,   event = {},                                                                    name = "Hall of Beginnings" },
+    { top = 150,  event = { 'dmgDelay', -1.4, 'dmgCycle', -.5, 'dmgWrong', 1 },                  name = "The Hotel",           },
+    { top = 300,  event = { 'dmgDelay', -1.4, 'dmgCycle', -.5},                                  name = "The Casino" },
+    { top = 450,  event = { 'dmgDelay', -.7, 'dmgCycle', -.5},                                   name = "The Arena" },
+    { top = 650,  event = { 'dmgDelay', -.7, 'dmgCycle', -.5, 'dmgWrong', 1 },                   name = "The Museum",           },
+    { top = 850,  event = { 'dmgDelay', -.7, 'dmgCycle', -.5, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
+    { top = 1100, event = { 'dmgDelay', -.7, 'dmgCycle', -.5},                                   name = "The Laboratory",       },
+    { top = 1350, event = { 'dmgDelay', -.7,},                                                   name = "The Core" },
+    { top = 1650, event = { 'dmgDelay', -.35, 'dmgWrong', 1},                                    name = "Corruption",           },
+    { top = 1e99, event = { 'dmgDelay', -.35, 'dmgTime', 1 },                                    name = "Platform of the Gods" },
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
-    -- Initial: Delay=12.5. Cycle=2.5, Wrong=1
-    -- Total: Wrong +2
+    -- Initial: Delay=10.5, Cycle=5.5, Wrong=1
+    -- Total: Delay-7, Cycle-3, Wrong+3
 }
 
-rASrVLHardModeFloors = {
+EXrVLModFloors = { -- rVL+EX/rMS/rDH/rAS
     [0] = { top = 0, name = "The Basement" },
-    { top = 50,   event = {'dmgDelay', -1.4},                                                  name = "Hall of Beginnings" },
-    { top = 150,  event = { 'dmgWrong', 1 },                   name = "The Hotel",           },
-    { top = 300,  event = {'dmgDelay', -1.4}, name = "The Casino" },
-    { top = 450,  event = {'dmgDelay', -1.4}, name = "The Arena" },
-    { top = 650,  event = {'dmgDelay', -.7, 'dmgWrong', 1 },  name = "The Museum",         },
-    { top = 850,  event = {'dmgDelay', -.7, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
-    { top = 1100, event = {'dmgDelay', -.7}, name = "The Laboratory",       },
-    { top = 1350, event = {'dmgDelay', -.35}, name = "The Core" },
-    { top = 1650, event = {'dmgDelay', -.35}, name = "Corruption",           },
-    { top = 1e99, event = {'dmgTime', 1 },  name = "Platform of the Gods" },
+    { top = 50,   event = {},                                                   name = "Hall of Beginnings" },
+    { top = 150,  event = { 'dmgDelay', -1.4, 'dmgWrong', 1 },                  name = "The Hotel",           },
+    { top = 300,  event = { 'dmgDelay', -1.4},                                  name = "The Casino" },
+    { top = 450,  event = { 'dmgDelay', -.7},                                   name = "The Arena" },
+    { top = 650,  event = { 'dmgDelay', -.7, 'dmgWrong', 1 },                   name = "The Museum",           },
+    { top = 850,  event = { 'dmgDelay', -.7, 'dmgTime', 1, 'maxQuestSize', 1 }, name = "Abandoned Offices" },
+    { top = 1100, event = { 'dmgDelay', -.7},                                   name = "The Laboratory",       },
+    { top = 1350, event = { 'dmgDelay', -.7,},                                  name = "The Core" },
+    { top = 1650, event = { 'dmgDelay', -.35, 'dmgWrong', 1},                   name = "Corruption",           },
+    { top = 1e99, event = { 'dmgDelay', -.35, 'dmgTime', 1 },                   name = "Platform of the Gods" },
     { top = 1e99, name = "Stellar Nebula Frontier" }, -- Only name is used
-    -- Initial: Delay=12.5. Cycle=2.5, Wrong=1
-    -- Total: Wrong +2
+    -- Initial: Delay=10.5, Cycle=2.5, Wrong=1
+    -- Total: Delay-7, Wrong+3
 }
 
 NegFloors = {
@@ -292,6 +275,7 @@ NegEvents = {
         event = function()
             GAME.attackMul = GAME.attackMul - .1
             GAME.dmgTimerMul = GAME.dmgTimerMul + .01
+            if (GAME.mod.VL == 2) then GAME.fullHealth = GAME.mod.DH == 2 and 18 or 22 end
             GAME.mod.VL = 0
             GAME.refreshModIcon()
             GAME.refreshRPC()
@@ -423,7 +407,7 @@ NegEvents = {
     { event = { 'attackMul', -.1, 'timerMul', -.1 } },
     { h = -310 },
     { text = 'b4.begin' },
-    { event = function() GAME.dmgWrong = math.min(GAME.dmgWrong, 2) end },
+    { event = function() GAME.dmgMul = math.min(GAME.dmgMul, 1) end },
     { h = -320 },
     {
         text = 'b4.effStart',
@@ -459,7 +443,7 @@ NegEvents = {
     -- B5: The Infirmary
     { h = -450 }, { event = { 'dmgDelay', -1, 'dmgCycle', -.5 } },
     { event = { 'attackMul', -.1 } },
-    { event = function() GAME.dmgWrong = math.min(GAME.dmgWrong, 2) end },
+    { event = function() GAME.dmgMul = math.min(GAME.dmgMul, 1) end },
     { h = -460 }, { text = 'b5.begin' },
     { h = -470 }, { text = 'b5.effStart' },
     {
@@ -479,6 +463,7 @@ NegEvents = {
             GAME.extraQuestVar = GAME.extraQuestVar - GAME.mod.DH * .2
             GAME.attackMul = GAME.attackMul - .1
             GAME.dmgTimerMul = GAME.dmgTimerMul + .01
+            if (GAME.mod.DH == 2) then GAME.fullHealth = 22 end
             GAME.mod.DH = 0
             GAME.refreshModIcon()
             GAME.refreshRPC()
@@ -496,7 +481,7 @@ NegEvents = {
     -- B6: Decayed Catacombs
     { h = -650 }, { event = { 'dmgDelay', -1, 'dmgTime', 1, 'maxQuestSize', 1 } },
     { event = { 'attackMul', -.1 } },
-    { event = function() GAME.dmgWrong = math.min(GAME.dmgWrong, 2) end },
+    { event = function() GAME.dmgMul = math.min(GAME.dmgMul, 1) end },
     { h = -660 }, { text = 'b6.begin' },
     { h = -670 },
     {
@@ -537,14 +522,14 @@ NegEvents = {
     -- B7: Sacreligious Ruins
     { h = -850 }, { event = { 'dmgDelay', -1, 'dmgCycle', -.5 } },
     { event = { 'attackMul', -.1 } },
-    { event = function() GAME.dmgWrong = math.min(GAME.dmgWrong, 2) end },
+    { event = function() GAME.dmgMul = math.min(GAME.dmgMul, 1) end },
     { h = -860 }, { text = 'b7.begin' },
     { h = -900 }, { text = 'b7.effStart' },
     { h = -950 }, { text = 'b7.mid' },
 
     -- B8: Singularity Reactor
     { h = -1100 }, { event = { 'dmgDelay', -1, 'dmgCycle', -.5 } },
-    { event = function() GAME.dmgWrong = math.min(GAME.dmgWrong, 2) end },
+    { event = function() GAME.dmgMul = math.min(GAME.dmgMul, 1) end },
     { h = -1115 }, { text = 'b8.begin' },
     { h = -1145 }, { text = 'b8.mid1', color = 'R', size = 1.26, sfx = 'b2bcharge_distance_3', duration = 1.26 },
     { h = -1160 }, { text = 'b8.mid2', color = 'R', size = 1.26, sfx = 'b2bcharge_distance_3', duration = 1.26 },

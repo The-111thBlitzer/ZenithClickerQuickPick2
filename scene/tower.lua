@@ -965,17 +965,17 @@ function scene.overDraw()
         end
 
         -- Health Bar
-        local safeHP = GAME.playing and max(GAME.dmgWrong + GAME.dmgWrongExtra, GAME.dmgTime) or 0
+        local safeHP = GAME.playing and max(GAME.dmgWrong + GAME.dmgWrongExtra, GAME.dmgTime)*GAME.dmgMul or 0
         if M.DP == 0 then
             gc_setColor(GAME.playing and GAME.life > safeHP and COLOR.L or COLOR.R)
             gc_mRect('fill', 800, 440, 1540 * GAME.lifeShow / GAME.startingHealth, 10)
             if GAME.playing then
                 gc_setColor(COLOR.LD)
-                gc_mRect('fill', 800, 440 - 2, 1540 * GAME.dmgTime / GAME.startingHealth, 3)
+                gc_mRect('fill', 800, 440 - 2, 1540 * GAME.dmgTime*GAME.dmgMul / GAME.startingHealth, 3)
                 gc_setColor(.872, 0, 0)
-                gc_mRect('fill', 800, 440 + 2, 1540 * GAME.dmgWrong / GAME.startingHealth, 3)
+                gc_mRect('fill', 800, 440 + 2, 1540 * GAME.dmgWrong*GAME.dmgMul / GAME.startingHealth, 3)
                 gc_setColor(1, 0, 0, .626)
-                gc_mRect('fill', 800, 440 + 2, 1540 * (GAME.dmgWrong + GAME.dmgWrongExtra) / GAME.startingHealth, 2)
+                gc_mRect('fill', 800, 440 + 2, 1540 * (GAME.dmgWrong + GAME.dmgWrongExtra)*GAME.dmgMul / GAME.startingHealth, 2)
             end
         else
             local onAlly = GAME.onAlly

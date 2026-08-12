@@ -190,6 +190,15 @@ local d = {
         quote = [[True minimalism is the art of letting go.]],
         rank = floorRank(1, 3, 4, 5, 6, 7, 9),
     },
+    { -- 10pc
+        id = 'pc_10',
+        name = "10PC",
+        desc = [[Fastest time taken to perform 10 Perfect Clears in 40 quests]],
+        quote = [[To clear without waste is to express the greatest form of gratitude.]],
+        comp = '<',
+        scoreSimp = function(time) return string.format("%.2fs", time) end,
+        rank = numberRankRev(600, 500, 300, 262, 126, 100, 80.64)
+    },
     { -- supercharged
         id = 'supercharged',
         name = "Supercharged",

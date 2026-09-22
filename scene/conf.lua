@@ -1222,7 +1222,7 @@ albumBtn {
     visibleFunc = function() return page == 3 and ACHV.blazing_speed end,
 }
 albumBtn {
-    x = baseX + 450, y = baseY + 646, w = 120,
+    x = baseX + 450, y = baseY + 636, w = 120,
     color = bgmColors.fomg,
     fontSize = 50,
     text = "FΩ",

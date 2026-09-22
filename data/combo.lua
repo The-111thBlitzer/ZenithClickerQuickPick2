@@ -50,6 +50,23 @@ d.menu = {
     { set = "MS VL AS",           name = "Human Experiment" },
     { set = "EX GV DH",           name = "Thermal Anomaly" },
     { set = "MS GV AS",           name = "Dazed" },
+
+    {set = "EX rMS rDH AS",       name = "Endless Gluttony"},
+    {set = "rNH rIN",             name = "Fleeting Memory"},
+    {set = "MS rGV rDP",          name = "Rushed Relationship"},
+    {set = "rDH rIN",             name = "Apostasy"},
+    {set = "NH rAS",              name = "Pristine"},
+    {set = "rGV rAS",             name = "Whizzing Wizard"},
+    {set = "rNH rGV rVL",         name = "Sweatshop"},
+    {set = "VL rIN rDP",          name = "Painful Relapse"},
+    {set = "NH DH rIN rAS",       name = "Steganography"},
+    {set = "EX NH MS VL rAS",     name = "Faltered"},
+    {set = "rNH rMS DH",          name = "Deadbeat"},
+    {set = "NH rMS GV DH",          name = "Trench Warfare"},
+    {set = "MS rDH IN rDP",          name = "Uneasy Alliance"},
+    {set = "GV rDH rAS",          name = "Storage Overload"},
+
+    {set = "rEX rNH rMS rGV rVL rDH rIN rAS", name = "Ambrosia"}
 }
 
 d.game = {

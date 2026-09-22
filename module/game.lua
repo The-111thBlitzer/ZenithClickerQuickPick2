@@ -213,6 +213,7 @@ local GAME = {
     achv_carriedH = nil,
     achv_noPerfectH = nil,
     achv_noChargeH = nil,
+    achv_noForceFlipH = nil,
     achv_noManualCommitH = nil,
     achv_noDamageH = nil,
     achv_noKeyboardH = nil,
@@ -236,6 +237,7 @@ local GAME = {
     achv_totalResetCount = nil,
     achv_altFromSurge = nil,
     achv_allpassSpin = nil,
+    achv_topPerfect = 0,
 }
 
 GAME.playing = false
@@ -922,7 +924,7 @@ function GAME.incrementPrompt(prompt, value)
                 GAME.reviveTime = false
                 GAME.switch_sickness = 0
                 GAME.achv_maxReviveH = max(GAME.achv_maxReviveH or 0, GAME.roundHeight)
-                if GAME.fatigueSet == Fatigue.rDP and GAME.fatigue > 19 then IssueAchv('benevolent_ambition') end
+                if GAME.fatigueSet == Fatigue.rDP and GAME.time > 510 then IssueAchv('benevolent_ambition') end
             end
         end
         t.progObj:set(floor(t.progress) .. "/" .. t.target)
@@ -1207,6 +1209,7 @@ function GAME.upFloor()
         elseif GAME.comboStr == 'rDHrEXrMS' then SubmitAchv('hardcore_beginning', roundFloorTime) end
     elseif GAME.floor == 2 then
         if GAME.comboStr == 'EXVLrDPrIN' then SubmitAchv('love_hotel', roundFloorTime) end
+        if GAME.comboStr == 'MSrDPrGV' then SubmitAchv('rushed_relationship', roundFloorTime) end
     elseif GAME.floor == 3 then
         if GAME.comboStr == 'ASEXMS' then SubmitAchv('financially_responsible', roundFloorTime) end
     elseif GAME.floor == 4 then
@@ -1223,6 +1226,7 @@ function GAME.upFloor()
     elseif GAME.floor == 9 then
         SubmitAchv('ultra_dash', GAME.floorTime)
         if GAME.comboStr == 'ASGVMS' then SubmitAchv('dazed', GAME.rank) end
+        SubmitAchv('pacifist', GAME.totalAttack)
     end
 
     -- Update section time
@@ -1410,21 +1414,23 @@ function GAME.nextFatigue()
     if Fatigue.normal and (M.EX < 2 and M.DP < 2) then
         if t == 480 or t== 480.5 or t == 600 or t == 600.5 or t == 601 or t == 720 or t == 720.5 or t == 721 or t == 721.5 or t == 722 then
             GAME.takeDamage(1, 'fatigue')
-            if M.DP >= 1 then
+            if M.DP >= 1 and GAME.life2 > 0 and GAME.life > 0 then
                 GAME.takeDamage(1, 'fatigue', true)
             end
         end
     elseif Fatigue.rEX and M.EX == 2 then
         if t == 480 or t == 480.5 or t == 481 or t == 600 or t == 600.5 or t == 601 or t == 601.5 or t == 602  or t == 720 or t == 720.5 or t == 721 or t == 721.5 or t == 722 or t == 722.5 or t == 723 or t == 723.5 or t == 724 or t == 724.5 or t == 725 or t == 725.5 then
             GAME.takeDamage(1, 'fatigue')
-            if M.DP >= 1 then
+            if M.DP >= 1 and GAME.life2 > 0 and GAME.life > 0  then
                 GAME.takeDamage(1, 'fatigue', true)
             end
         end
     elseif Fatigue.rDP and (M.DP == 2 and M.EX < 2) then
         if t == 330 or t == 330.5 or t == 331 or t == 331.5 or t == 600 or t == 600.5 or t == 601 or t == 601.5 or t == 602 or t == 602.5 or t == 603.25 or t == 604 or t == 604.75 or t == 605.5 or t == 606.5 or t == 608 then
             GAME.takeDamage(1, 'fatigue')
-            GAME.takeDamage(1, 'fatigue', true)
+            if GAME.life2 > 0 and GAME.life > 0 then
+                GAME.takeDamage(1, 'fatigue', true)
+            end
         end
     end
     if stage.final then
@@ -1987,7 +1993,7 @@ function GAME.commit(auto)
         end
     end
 
-    if CD['EX'].PCstate and CD['NH'].PCstate and CD['MS'].PCstate and CD['GV'].PCstate and CD['VL'].PCstate and CD['DH'].PCstate and CD['IN'].PCstate and CD['AS'].PCstate and CD['DP'].PCstate and GAME.life >= GAME.fullHealth then
+    if CD['EX'].PCstate and CD['NH'].PCstate and CD['MS'].PCstate and CD['GV'].PCstate and CD['VL'].PCstate and CD['DH'].PCstate and CD['IN'].PCstate and CD['AS'].PCstate and CD['DP'].PCstate and GAME.life >= GAME.fullHealth and M.DH < 2 then
         GAME.PerfectClear = true
         CD['EX'].PCstate = false
         CD['NH'].PCstate = false
@@ -2061,7 +2067,7 @@ function GAME.commit(auto)
 
     if correct then
 
-        if M.DH == 2 and M.AS < 2 or (M.DH == 2 and M.AS < 2 and URM) then
+        if M.DH == 2 or (M.DH == 2 and URM) then
             if GAME.totalBlights >= 12 then
                 GAME.minReq = GAME.minReq - GAME.repeatedCards
                 GAME.maxReq = GAME.maxReq - GAME.repeatedCards
@@ -2100,6 +2106,9 @@ function GAME.commit(auto)
             if a then
                 SFX.play('offset')
                 GAME.extraMod = 1
+                if GAME.achv_trenchnoDamage then
+                    GAME.achv_trenchQuest = GAME.achv_trenchQuest + 1
+                end
                 if GAME.spinAttack then
                     GAME.spinCount = GAME.spinCount - 1
                     if GAME.spinCount < 0 then
@@ -2421,6 +2430,10 @@ function GAME.commit(auto)
                 if GAME.totalQuest >= 26 then SFX.play('btb_break') end
             end
             GAME.nixPrompt('clear_quadchain')
+            if GAME.consecPerfect > GAME.achv_topPerfect then GAME.achv_topPerfect = GAME.consecPerfect end
+            if GAME.consecB2B > GAME.achv_pristineB2B then GAME.consecB2B = GAME.consecPerfect end
+            GAME.consecPerfect = 0
+            GAME.consecB2B = 0
         else
             -- Perfect
             if GAME.currentTask then
@@ -2636,6 +2649,7 @@ function GAME.commit(auto)
                 end
 
             GAME.totalPerfect = GAME.totalPerfect + (dblCorrect and 2 or 1)
+            GAME.consecPerfect = GAME.consecPerfect + (dblCorrect and 2 or 1)
             if not GAME.achv_noPerfectH then
                 GAME.achv_noPerfectH = GAME.roundHeight
                 SubmitAchv('wabi_sabi', 0)
@@ -2658,32 +2672,30 @@ function GAME.commit(auto)
             GAME.incrementPrompt('simultaneousquest')
         end
 
-        if M.AS < 2 then
-            if M.DH == 2 and not GAME.rDH_blighted then
-                attack = 0
-            end 
-            if M.DH == 2 then
-                if GAME.uniqueCardsRemaining < 1 or (GAME.minReq < 1 and GAME.maxReq < 1) then
-                    if GAME.totalBlights >= 12 then
-                        if not (GAME.minReq < 1 and GAME.maxReq < 1) then
-                            GAME.uniqueCardsRemaining = MATH.random(GAME.minReq, GAME.maxReq)
-                        elseif GAME.minReq < 1 and GAME.uniqueCardsRemaining < 1 then
-                            GAME.uniqueCardsRemaining = 1
-                        elseif (GAME.minReq < 1 and GAME.maxReq < 1) and GAME.uniqueCardsRemaining < 1 then
-                            GAME.uniqueCardsRemaining = MATH.random(6, 7)
-                        end
-                        GAME.minReq = 6
-                        GAME.maxReq = 7
-                    else
-                        GAME.uniqueCardsRemaining = GAME.initialUnique
+        if M.DH == 2 and not GAME.rDH_blighted then
+            attack = 0
+        end 
+        if M.DH == 2 then
+            if GAME.uniqueCardsRemaining < 1 or (GAME.minReq < 1 and GAME.maxReq < 1) then
+                if GAME.totalBlights >= 12 then
+                    if not (GAME.minReq < 1 and GAME.maxReq < 1) then
+                        GAME.uniqueCardsRemaining = MATH.random(GAME.minReq, GAME.maxReq)
+                    elseif GAME.minReq < 1 and GAME.uniqueCardsRemaining < 1 then
+                        GAME.uniqueCardsRemaining = 1
+                    elseif (GAME.minReq < 1 and GAME.maxReq < 1) and GAME.uniqueCardsRemaining < 1 then
+                        GAME.uniqueCardsRemaining = MATH.random(6, 7)
                     end
+                    GAME.minReq = 6
+                    GAME.maxReq = 7
+                else
+                    GAME.uniqueCardsRemaining = GAME.initialUnique
+                end
 
-                elseif GAME.uniqueCardsRemaining > 0 or (GAME.minReq > 0 and GAME.maxReq > 0) then
-                    if GAME.rDH_blighted then
-                        GAME.rDH_blighted = false
-                        SFX.play('b2bcharge_blast_1')
-                        attack = attack + 1
-                    end
+            elseif GAME.uniqueCardsRemaining > 0 or (GAME.minReq > 0 and GAME.maxReq > 0) then
+                if GAME.rDH_blighted then
+                    GAME.rDH_blighted = false
+                    SFX.play('b2bcharge_blast_1')
+                    attack = attack + 1
                 end
             end
         end
@@ -2701,10 +2713,12 @@ function GAME.commit(auto)
         end
         
         if GAME.chain >= 4 then
-            local chainCap = 6 * (max(GAME.floor, GAME.negFloor) + 2) ^ 2
-            if GAME.chain > chainCap then
-                GAME.chain = chainCap
-                IssueSecret('sc_cap')
+            if M.DP == 2 or M.EX == 2 then
+                local chainCap = 6 * (max(GAME.floor, GAME.negFloor) + 2) ^ 2
+                if GAME.chain > chainCap then
+                    GAME.chain = chainCap
+                    IssueSecret('sc_cap')
+                end
             end
             if GAME.chain == 4 then
                 for i = 1, 3 do
@@ -2759,7 +2773,7 @@ function GAME.commit(auto)
 
             -- Combo attacks
             
-            if GAME.combotime <= GAME.LastQuestTime and GAME.LastQuestTime > 0 and GAME.combotime < 5 and (GAME.Clear ~= GAME.SelectedCard .. " SPIN" or GAME.Clear ~= "MINI-" .. GAME.SelectedCard .. " SPIN" ) then
+            if GAME.combotime <= GAME.LastQuestTime and GAME.LastQuestTime > 0 and GAME.combotime < 5 and ((GAME.spinAttack and GAME.spinCount > 0) or not GAME.spinAttack) then
                 GAME.combo = GAME.combo + 1
                 attack = MATH.floor(attack * (1+0.25*GAME.combo))
                 if MATH.roll() then
@@ -2792,12 +2806,17 @@ function GAME.commit(auto)
                 if GAME.totalQuest >= 6 then SFX.play('btb_break') end
             end
         end
-        if GAME.achv_felMagicBurnt then
+        if GAME.achv_felMagicBurnt and GAME.gigaspeed then
             GAME.achv_felMagicBurnt = false
             GAME.achv_felMagicQuest = GAME.achv_felMagicQuest + 1
         end
         if GAME.resetCount % 2 == 1 then
             GAME.achv_obliviousQuest = GAME.achv_obliviousQuest + 1
+        end
+        if GAME.DPlock and M.DP >= 1 then
+            GAME.achv_attackAllydead = GAME.achv_attackAllydead + attack
+        elseif M.DP >= 1 and GAME.koAlly < 1 then
+            GAME.achv_attackAllysurvive = GAME.achv_attackAllysurvive + attack
         end
 
         -- Spike
@@ -2929,6 +2948,7 @@ function GAME.commit(auto)
                 if GAME.comboStr == 'ASrMS' then SubmitAchv('naga_eyes', GAME.time) end
                 if GAME.comboStr == 'DPMSrNH' then SubmitAchv('scarcity_mindset', GAME.totalFlip) end
                 if GAME.totalPC >= 10 then SubmitAchv('pc_10', GAME.time) end
+                if GAME.comboStr == 'DHrMSrNH' and not GAME.achv_noDamageH then SubmitAchv('deadbeat', GAME.time) end
             elseif GAME.totalQuest == 41 then
                 if GAME.comboStr == 'EXMS' then SubmitAchv('quest_rationing', GAME.roundHeight) end
             end
@@ -2990,6 +3010,9 @@ function GAME.commit(auto)
                 wounded = wounded + 20
                 GAME.takeDamage(20, 'wrong')
                 SFX.play('wound')
+                GAME.achv_felMagicQuest = GAME.achv_felMagicQuest + 1
+                if GAME.consecPerfect > GAME.achv_topPerfect then GAME.achv_topPerfect = GAME.consecPerfect end
+                GAME.consecPerfect = 0
             else
                 GAME.woundTrigger = false
             end
@@ -3022,6 +3045,11 @@ function GAME.commit(auto)
             end
         end
 
+        if GAME.questHidden then
+            GAME.achv_hiddenQuest = GAME.achv_hiddenQuest + 1
+            GAME.questHidden = false
+        end
+
         GAME.CommitCooldown = 0
         GAME.LastQuestTime = GAME.combotime - GAME.timeCommitted
         GAME.combotime = 0
@@ -3049,6 +3077,10 @@ function GAME.commit(auto)
         GAME.faultCount = GAME.faultCount + 1
         GAME.timeCommitted = GAME.questTime
         GAME.lastCard = ''
+        GAME.achv_trenchnoDamage = false
+
+        if M.IN == 2 and not URM then GAME.questHidden = false end
+
 
         if not GAME.achv_perfectBTB then
             GAME.achv_perfectBTB = GAME.chain
@@ -3161,6 +3193,8 @@ function GAME.start()
     GAME.heightBonus = 0
     GAME.peakRank = 1
     GAME.rankTimer = TABLE.new(0, 62)
+    GAME.consecPerfect = 0
+    GAME.consecB2B = 0
 
     -- Time
     GAME.time = 0
@@ -3357,6 +3391,13 @@ function GAME.start()
     GAME.achv_level19capH = nil
     GAME.achv_totalResetCount = 0
     GAME.achv_altFromSurge = 0
+    GAME.achv_pristineB2B = 0
+    GAME.achv_attackAllydead = 0
+    GAME.achv_attackAllysurvive = 0
+    GAME.achv_hiddenQuest = 0
+    GAME.achv_storageQuest = 0
+    GAME.achv_trenchnoDamage = true
+    GAME.achv_trenchQuest = 0
     if M.DP > 0 then IssueAchv('intended_glitch') end
 
     if M.NH == 2 and URM then STAT.ultraPlayed['NH'] = true end
@@ -3763,7 +3804,7 @@ function GAME.finish(reason)
         if GAME.roundHeight >= 6200 then IssueSecret('fomg') end
         SubmitAchv('plonk', GAME.achv_plonkH or GAME.roundHeight)
         SubmitAchv('psychokinesis', GAME.achv_allpassSpin or GAME.roundHeight)
-        if GAME.floor < 10 then SubmitAchv('divine_rejection', GAME.roundHeight) end
+        if GAME.height < 1650 then SubmitAchv('divine_rejection', GAME.roundHeight) end
         if GAME.heightBonus / GAME.height * 100 >= 260 then IssueAchv('fruitless_effort') end
         if GAME.comboStr == 'DP' then
             if VALENTINE then SubmitAchv('lovers_promise', GAME.roundHeight) end
@@ -3771,6 +3812,8 @@ function GAME.finish(reason)
             SubmitAchv('level_19_cap', GAME.achv_level19capH or GAME.roundHeight)
         elseif GAME.comboStr == 'AS' then
             SubmitAchv('talentless', GAME.achv_noKeyboardH or GAME.roundHeight)
+        elseif GAME.comboStr == 'rAS' then 
+            SubmitAchv('fel_magic', GAME.achv_felMagicQuest) 
         elseif GAME.comboStr == 'EXMS' then
             if GAME.totalQuest <= 40 then SubmitAchv('quest_rationing', GAME.roundHeight) end
         elseif GAME.comboStr == 'EXVL' then
@@ -3785,6 +3828,8 @@ function GAME.finish(reason)
             SubmitAchv('the_oblivious_artist', GAME.achv_obliviousQuest)
         elseif GAME.comboStr == 'rGV' then
             SubmitAchv('spotless', GAME.achv_noDamageH or GAME.roundHeight)
+        elseif GAME.comboStr == 'NHrAS' then
+            SubmitAchv('pristine', GAME.achv_pristineB2B)
         --elseif GAME.comboStr == 'rAS' then
         --    SubmitAchv('arrogance', GAME.achv_noPerfectH or GAME.roundHeight)
         elseif GAME.comboStr == 'rDP' then
@@ -3804,12 +3849,31 @@ function GAME.finish(reason)
         elseif GAME.comboStr == 'VLrGV' then
             SubmitAchv('fickle_fuel', roundUnit(GAME.achv_altFromSurge, .1))
         elseif GAME.comboStr == 'ASDHEXGVINMSNHVLrDP' then
+            SubmitAchv('ambrosia_10mp', GAME.roundHeight)
             if GAME.floor >= 10 then IssueAchv('dusty_memories') end
 
             -- elseif GAME.comboStr == 'ASDHNHVL' then
             --     if GAME.achv_totalResetCount == 0 then
             --         SubmitAchv('minimalism', GAME.achv_maxChain)
             --     end
+        elseif GAME.comboStr == 'ASEXrDHrMS' then
+            SubmitAchv('endless_gluttony', GAME.totalBlights)
+        elseif GAME.comboStr == 'rINrNH' then
+            SubmitAchv('fleeting_memory', GAME.totalPerfect)
+        elseif GAME.comboStr == 'rDHrIN' then
+            SubmitAchv('brain_capacity', GAME.roundHeight)
+        elseif GAME.comboStr == 'rASrGV' then
+            SubmitAchv('whizzing_wizard', GAME.achv_topPerfect or GAME.consecPerfect)
+        elseif GAME.comboStr == 'VLrDPrIN' then
+            SubmitAchv('painful_relapse', GAME.achv_attackAllydead)
+        elseif GAME.comboStr == 'INMSrDHrDP' then
+            SubmitAchv('uneasy_alliance', GAME.achv_attackAllysurvive)
+        elseif GAME.comboStr == 'DHNHrASrIN' then
+            SubmitAchv('steganography', GAME.achv_hiddenQuest)
+        elseif GAME.comboStr == 'GVrASrDH' then
+            SubmitAchv('storage_overload', GAME.roundHeight)
+        elseif GAME.comboStr == 'DHGVNHrMS' then
+            SubmitAchv('trench_warfare', GAME.achv_trenchQuest)
         end
         if M.EX < 2 and M.DP < 2 then
             SubmitAchv('speed_bonus', GAME.gigaCount + GAME.teraCount)
@@ -4170,6 +4234,13 @@ function GAME.update(dt)
                     CD[rnd(#CD)]:setActive(true)
                 end
                 SFX.play('floor')
+                if GAME.comboStr == 'rGVrNHrVL' and not GAME.achv_noDamageH then
+                    GAME.achv_noForceFlipH = GAME.height
+                    SubmitAchv('sweatshop', GAME.achv_noForceFlipH)
+                    if GAME.height >= 26 then
+                        SFX.play('btb_break')
+                    end
+                end
                 GAME.gravLockState = false
                 GAME.gravTimer = GAME.gravDelay
             end
@@ -4201,6 +4272,7 @@ function GAME.update(dt)
     if GAME.dmgTimer <= 0 then
         GAME.dmgTimer = GAME.dmgCycle
         GAME.takeDamage(GAME.dmgTime * GAME.dmgMul, 'time')
+        GAME.achv_trenchnoDamage = false
     end
 
     -- Life leak

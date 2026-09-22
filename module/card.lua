@@ -151,7 +151,6 @@ function Card:setActive(auto, key)
                 -- Reset gravity timer for clicking a card
                 if GAME.dmgTimeRecoveryCap >= 1 then
                     GAME.gravTimer = GAME.gravDelay
-                    GAME.dmgTimeRecoveryCap = GAME.dmgTimeRecoveryCap - 1
                 end
             end
             if M.AS < 2 then
@@ -238,6 +237,8 @@ function Card:setActive(auto, key)
                         CD[(p + table.remove(l, rnd(3, 4)) - 1) % #CD + 1]:setActive(true)
                         CD[(p + table.remove(l, rnd(1, 2)) - 1) % #CD + 1]:setActive(true)
                         if GAME.floor < 10 and GAME.gigaspeed then GAME.achv_felMagicBurnt = true end
+                        if GAME.consecPerfect > GAME.achv_topPerfect then GAME.achv_topPerfect = GAME.consecPerfect end
+                        GAME.consecPerfect = 0
                         if URM then
                             if MATH.roll() then
                                 CD[(p + table.remove(l, rnd(1, 2)) - 1) % #CD + 1]:setActive(true)

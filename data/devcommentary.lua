@@ -68,7 +68,7 @@ return {
     ]],
 
     ['rEX'] = STRING.trimIndent [[
-        As of now, TETR.IO Quick Play 2 has only seen 3 players master The Tyrant, 5HAN (MANOSABA), CABOOZLED_PIE, and most recently, ICLY
+        As of now, TETR.IO Quick Play 2 has only seen 4 players master The Tyrant, 5HAN, CABOOZLED_PIE, ICLY and most recently, MIINHUYVCL
         With The Tyrant, you're in a descent down to the floor, attacking only gets you higher, but quests only get harder the longer you stay.
         Another challenge awaits at with...  ...though are you prepared for it?
     ]],
@@ -204,7 +204,7 @@ return {
             - Invictus
     ]],
     ['EX DH'] = STRING.trimIndent [[
-        The say the devil's in the details.
+        They say the devil's in the details.
             - The Devil's Temptation
     ]],
     ['EX IN'] = STRING.trimIndent [[
@@ -698,6 +698,7 @@ return {
         Zero-to-sixty, an original combo from ZC community.
     ]],
     ['VL IN AS'] = STRING.trimIndent [[
+        The maddening of a genius - Eccentric Recluse
         Under The Radar, an original combo from ZC community.
         "What's the exact condition of entering Hyperspeed again?"
     ]],
@@ -724,6 +725,7 @@ return {
         I think I shouldn't explain why these mods...
     ]],
     ['EX MS AS'] = STRING.trimIndent [[
+        Go big or go home - The Rich Gambler
         Financially Responsible, F3 speedrunning combo.
         This achievement series is basically all supercharged tier,
         but at least we could use mods and flavor texts to make them plays kinda different.
@@ -733,7 +735,7 @@ return {
         Since F4 is still not high, using some hard mods is acceptable.
     ]],
     ['DH DP'] = STRING.trimIndent [[
-        To take us apart is to bring us closer -Forbidden Lovers
+        To take us apart is to bring us closer - Forbidden Lovers
         Museum Heist, F5 speedrunning combo.
         This is the start of floor speedrunning achievements!
         Though it was assigned supercharged tier by Garbo, cute achievements which has a clear upper bound like this are fine here.
@@ -743,11 +745,12 @@ return {
         Another supercharged achievement... If you won't be slowed down a lot by EX VL.
     ]],
     ['MS VL AS'] = STRING.trimIndent [[
+        That cheese got a lot softer - Cream Cheese
         Human Experiment, F7 speedrunning combo.
         Supercharged with AS! Oh wait there's also MS...
     ]],
     ['EX GV DH'] = STRING.trimIndent [[
-        "You've done this before, right?" -The Daredevil
+        "You've done this before, right?" - The Daredevil
         Thermal Anomaly, F8 speedrunning combo.
         Finally we have an almost pure supercharged floor speedrun, except there's EX.
         Why most floor speedrunning achievements has EX, but I forgot why...
@@ -765,6 +768,62 @@ return {
         BREWED WITH ILL-NATURED MAGIC, FUSED WITH THE FLAVOURS OF DIVINITY.
         THE MOST LETHAL MIX OF SWAMP WATER AND THE FOOD OF THE GODS, WHERE NO MORTAL COULD SURVIVE ITS SLIGHTEST DROP,
         OTHER THAN A ZENITH CLICKER.
+    ]],
+    ['EX rMS rDH AS'] = STRING.trimIndent [[
+        Endless Gluttony, a legacy achievement in the Zenith Clicker community.
+        You can't really get enough of having so much attack sent at once with just a blighted attack
+    ]],
+    ['rNH rIN'] = STRING.trimIndent [[
+        Fleeting Memory, a legacy achievement in the Zenith Clicker community.
+        It really feels like the past returns, whether for better or worse...
+    ]],
+    ['rDH rIN'] = STRING.trimIndent [[
+        Apostasy, a named combo from Zenith Clicker A Fool's Mod.
+        Initially, it was meant to be named Brain Capacity, but I personally liked the combo in ZCFM better.
+    ]],
+    ['MS rGV rDP'] = STRING.trimIndent [[
+        Rushed Relationship, a legacy achievement in the Zenith Clicker community.
+        This is probably the same as Love Hotel, but more fast paced.
+    ]],
+    ['NH rAS'] = STRING.trimIndent [[
+        Pristine, a legacy achievement in the Zenith Clicker Community.
+        Given that you cannot cancel cards and the cards stay wounded until pass,
+        How should you maintain a perfect chain?
+    ]],
+    ['rGV rAS'] = STRING.trimIndent [[
+        Whizzing Wizard, a legacy achievement in the Zenith Clicker community.
+        Feeling absolutely magical with the cards! ...Until you mess up with just one combo.
+    ]],
+    ['VL rIN rDP'] = STRING.trimIndent [[
+        Painful Relapse, a legacy achievement in the Zenith Clicker community.
+        The fragments of a toxic relationship still spreads the same pain.
+    ]],
+    ['NH DH rIN rAS'] = STRING.trimIndent [[
+        Steganography, a legacy achievement in the Zenith Clicker community.
+        Reworked to pass quests when it vanished, something like an actual memory test
+    ]],
+    ['rNH rGV rVL'] = STRING.trimIndent [[
+        Sweatshop, a legacy achievement in the Zenith Clicker community.
+        Not being able to cancel cards, under a stressful time before the clock, and punishments deadly for failing never-ending quotas.
+        Hence, highest altitude without having a single forced flip.
+    ]],
+    ['rNH rMS DH'] = STRING.trimIndent [[
+        Deadbeat, a legacy achievement in the Zenith Clicker community.
+        Had to lookup what deadbeat means, and it refers about refusing to accept responsibility.
+        So, get as slow as you can get within 40 quests
+    ]],
+    ['NH rMS GV DH'] = STRING.trimIndent [[
+        Trench Warfare, a legacy achievement in the Zenith Clicker community.
+        Trench warfares always will have No Man's lands anywhere, going there risks death.
+        Keeping low is the only way to be safe, but only for a short while...
+    ]],
+    ['MS rDH IN rDP'] = STRING.trimIndent [[
+        Uneasy Alliance, a legacy achievement in the Zenith Clicker community.
+        The achievement name seems familiar to another game, I wonder which one...
+    ]],
+    ['GV rDH rAS'] = STRING.trimIndent [[
+        Storage Overload, a legacy achievement in the Zenith Clicker community.
+        
     ]],
     ['rEX rNH rMS rGV rVL rDH rIN rAS'] = STRING.trimIndent [[
         DO YOU DARE TRACE THE SAME STEPS OF THE HUNDREDS BEFORE YOU 

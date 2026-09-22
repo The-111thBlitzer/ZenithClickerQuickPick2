@@ -58,6 +58,7 @@ local songList = {
     terar = "Dr Ocelot - Kugelhagel OVERDRIVE",
 
     fomg = "Ronezkj15 - Strained Endurance",
+    fomgr = "Ronezkj15 - Malevolent Blasphemy",
     f0_EX = "Dr Ocelot - Watchful Eye (EX)",
     f0r_EX = "Dr Ocelot - Awaiting Judgement (EX)",
     f1_EX = "Dr Ocelot - Infernal Registration",
@@ -90,6 +91,7 @@ local bgmColors = {
     tera = { COLOR.HEX 'C0C0C0' },
     terar = { COLOR.HEX 'C0C0C0' },
     fomg = { COLOR.HEX '00437A' },
+    fomgr = { COLOR.HEX '2519A8'},
 }
 local bgmHeight = {
     [0] = Floors[0].top,
@@ -863,7 +865,7 @@ local page2 = {
                     MSG('dark', OverDevProgressText)
                 elseif data == 'repo' then
                     SFX.play('menuconfirm')
-                    love.system.openURL("https://github.com/MrZ626/ZenithClicker")
+                    love.system.openURL("https://github.com/The-111thBlitzer/ZenithClickerQuickPick2")
                 elseif data == 'UseAltName' then
                     UseAltName()
                     SFX.play('social_dm')
@@ -1220,7 +1222,7 @@ albumBtn {
     visibleFunc = function() return page == 3 and ACHV.blazing_speed end,
 }
 albumBtn {
-    x = baseX + 450, y = baseY + 690, w = 120,
+    x = baseX + 450, y = baseY + 646, w = 120,
     color = bgmColors.fomg,
     fontSize = 50,
     text = "FΩ",
@@ -1229,6 +1231,17 @@ albumBtn {
         PlayBGM('fomg')
     end,
     visibleFunc = function() return page == 3 and STAT.maxHeight >= 6200 end,
+}
+albumBtn {
+    x = baseX + 450, y = baseY + 762, w = 120,
+    color = bgmColors.fomgr,
+    fontSize = 50,
+    text = "FΩR",
+    onClick = function()
+        GAME.height = 6200
+        PlayBGM('fomgr')
+    end,
+    visibleFunc = function() return page == 3 and STAT.maxHeight >= 6200 end and STAT.badge.mastery_2,
 }
 albumBtn {
     x = baseX + 450 + 200, y = baseY + 690, w = 120,

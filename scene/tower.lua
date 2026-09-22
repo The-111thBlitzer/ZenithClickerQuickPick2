@@ -1270,6 +1270,7 @@ function scene.overDraw()
                     a * (1 - (GAME.questTime - .26) * (GAME.floor + .62) * .26 * k),
                     GAME.faultWrong and not URM and i * .26 or 0, 1
                 )
+                if a == 0 then GAME.questHidden = true end
             end
             if a > 0 then
                 a = a * Q.a
@@ -1348,10 +1349,11 @@ function scene.overDraw()
         gc_mDraw(TEXTS.time, 375, 978)
         gc_setColor(COLOR.L)
         gc_mDraw(TEXTS.rank, 1027, 990, 0, .626)
-        if GAME.DPlock then
+        if GAME.DPlock and M.DP == 2 then
             gc_setColor(GAME.time % .9 > .45 and COLOR.R or COLOR.D)
+        else
+            gc_setColor(rankColor[rank - 1] or COLOR.L)
         end
-        gc_setColor(rankColor[rank - 1] or COLOR.L)
         gc_mDraw(TEXTS.height, 800, 983)
 
         if GAME.attackMul < 1 then
@@ -1572,12 +1574,12 @@ function scene.overDraw()
             else
                 setFont(70)
                 gc_strokePrint('full', 3, ShadeColor, TextColor, MD.fullName[infoID], 130, -150, 2600, 'center', 0, .9, 1)
-                if GAME.completion[infoID] == 1 and not STAT.revPlayed[infoID] then
-                    setFont(30)
-                    gc_strokePrint('full', 2, COLOR.dW, COLOR.W, UsingTouch and MD.desc['revUnplayedTapper'] or MD.desc['revUnplayedClicker'], 260, -73, 2600, 'center', 0, .8, 1)
-                elseif GAME.completion[infoID] and GAME.completion[infoID] >= 1 and not STAT.ultraPlayed[infoID] and URM then
+                if GAME.completion[infoID] and GAME.completion[infoID] >= 1 and not STAT.ultraPlayed[infoID] and URM then
                     setFont(30)
                     gc_strokePrint('full', 2, COLOR.R, COLOR.D, UsingTouch and MD.desc['ultraUnplayedTapper'] or MD.desc['ultraUnplayedClicker'], 260, -73, 2600, 'center', 0, .8, 1)
+                elseif GAME.completion[infoID] == 1 and not STAT.revPlayed[infoID] then
+                    setFont(30)
+                    gc_strokePrint('full', 2, COLOR.dW, COLOR.W, UsingTouch and MD.desc['revUnplayedTapper'] or MD.desc['revUnplayedClicker'], 260, -73, 2600, 'center', 0, .8, 1)
                 else
                     setFont(30)
                     gc_strokePrint('full', 2, ShadeColor, TextColor, MD.desc[infoID], 260, -73, 2600, 'center', 0, .8, 1)

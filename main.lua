@@ -346,6 +346,19 @@ TEXTURE = {
             dark_force = aq(3, 1),
             return_to_the_light = aq(5, 5),
             smooth_dismount = aq(4, 1),
+
+            endless_gluttony = aq(2, 9),
+            fleeting_memory = aq(14, 7),
+            brain_capacity = aq(3, 9),
+            rushed_relationship = aq(1, 9),
+            pristine = aq(1, 2),
+            whizzing_wizard = aq(8, 9),
+            fel_magic = aq(9, 7),
+            faltered = aq(15, 6),
+            ambrosia_10mp = aq(16, 3),
+            divine_rejection = aq(7, 6),
+            pacifist = aq(4, 1),
+            painful_relapse = aq(15, 4)
         },
         frame = {
             [0] = assets 'achievements/frames/none.png',
@@ -1127,7 +1140,8 @@ BgmData = {
     f9r = { meta = '4|4  160 BPM  E Minor', bar = 4, bpm = 160, toneFix = -1, loop = { 36, 144 } },
     f10 = { meta = '4|4  98 BPM  C Major & C Minor', bar = 4, bpm = 98, toneFix = 0, loop = { 203.877, 311.632 } },
     f10r = { meta = '4|4  98 BPM  C Major & C Minor', bar = 4, bpm = 98, toneFix = 0, loop = { 203.877, 311.632 } },
-    fomg = { meta = '4|4  90 & 100 BPM  Db Major & Bb Minor', bar = 4, bpm = 100, toneFix = 3, loop = { 38.4 - 11.862, 144 - 11.862 }, end1 = 144 - 11.862, end2 = 153.6 - 11.862 },
+    fomg = { meta = '4|4  180 & 200 BPM  Bb Minor', bar = 4, bpm = 200, toneFix = 3, loop = { 38.4 - 11.862, 144 - 11.862 }, end1 = 144 - 11.862, end2 = 153.6 - 11.862 },
+    fomgr = { meta = '4|4 184 BPM B Minor & C Minor', bar = 4, bpm = 184, toneFix = 3.5, loop = {24.783, 206.087}, end1 = 206.087 , end2 = 216.5 },
     tera = { meta = '4|4  240 BPM  C# Minor', bar = 4, bpm = 240, toneFix = 1, loop = { 76, 140 }, introLen = 2, teleport = { -1, 20 }, end1 = 140, end2 = 142, end3 = 144, end4 = 146 },
     terar = { meta = '4|4  240 BPM  C# Minor', bar = 4, bpm = 240, toneFix = 1, loop = { 84 - 15.565, 172 - 15.565 }, teleport = { 0, 18 - 15.565 } },
 }
@@ -1154,7 +1168,7 @@ function PlayBGM(name, force)
     local last = BgmPlaying
 
     if GAME.playing and RevMusicMode() then name = name .. 'r' end
-    if name == 'fomgr' then name = 'fomg' end
+    --if name == 'fomgr' then BgmPlaying = 'fomgr' end
     if name == 'f0r' then
         BgmPlaying = 'f0'
     elseif name == 'f1r' then -- Note: 'f1ex' is only a track name, not musicID

@@ -335,6 +335,13 @@ TEXTURE = {
             return_to_the_light = aq(1, 2),
             smooth_dismount = aq(4, 1),
             knifes_edge = aq(5, 5),
+
+            endless_gluttony = aq(2, 9),
+            fleeting_memory = aq(4, 9),
+            brain_capacity = aq(3, 9),
+            rushed_relationship = aq(1, 9),
+            pristine = aq(5, 9),
+            whizzing_wizard = aq(8, 9),
         },
         frame = {
             [0] = assets 'achievements/frames/none.png',

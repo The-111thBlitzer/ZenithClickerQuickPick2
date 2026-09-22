@@ -454,7 +454,7 @@ local d = {
         name = "Divine Mastery",
         desc = [[HFD WUT "Expert Mode", "Messiness", "Volatility" and "Double Hole" mods]],
         quote = [[The universe is yours.]],
-        rank = floorRank(1, 3, 5, 7, 9, 10, 2092.9),
+        rank = floorRank(1, 3, 5, 7, 9, 10, 2160),
     },
     { -- ASEXVL
         id = 'ASEXVL',
@@ -1507,6 +1507,183 @@ local d = {
         credit = "@Flowerling",
         hide = TRUE,
         type = 'issued',
+    },
+
+    { title = "Legacy"},
+    {
+        id = 'endless_gluttony',
+        name = "Endless Gluttony",
+        desc = [[Total number of blights triggered with EX rMS rDH AS]],
+        quote = [[Meats and vegetables, skillfully trussed and dressed. Carved into the finest feast.]],
+        credit = "@FMichael",
+        scoreSimp = function(n) return n .. " Blights" end,
+        hide = TRUE,
+        rank = numberRank(1, 6, 9, 12, 15, 18, 26)
+    },
+    { -- rINrNH
+        id = 'fleeting_memory',
+        name = "Fleeting Memory",
+        desc = [[Total number of quests passed perfectly WUT reversed "No Hold" and reversed "Invisible" mods]],
+        quote = [[In the blink of an eye, gone. Forgotten.]],
+        credit = "@FMichael",
+        scoreSimp = function(n) return n .. " Quests" end,
+        hide = TRUE,
+        rank = numberRank(1, 15, 30, 60, 120, 180, 260)
+    },
+    { -- rDHrIN
+        id = 'brain_capacity',
+        name = "Apostasy",
+        desc = [[HFD WUT reversed "Double Hole" and reversed "Invisible" mods]],
+        quote = [[How long will you remain under your forsaken beliefs?]],
+        credit = "@GameTilDead",
+        hide = TRUE,
+        rank = floorRank(1, 2, 3, 4, 5, 6, 7)
+    },
+    {
+        id = 'rushed_relationship',
+        name = "Rushed Relationship",
+        desc = [[Fastest time taken through F2 with MS rGV rDP]],
+        quote = [["Can we please talk about this first?!"]],
+        credit = "@GameTilDead",
+        comp = '<',
+        scoreSimp = function(time) return string.format("%.2fs", time) end,
+        scoreFull = function(time) return string.format("%.1f m/s", (Floors[2].top - Floors[1].top) / time) end,
+        rank = numberRankRev(62, 50, 40, 30, 20, 15, 10),
+        hide = TRUE,
+    },
+    { -- NHrAS
+        id = 'pristine',
+        name = "Pristine",
+        desc = [[Highest B2B without an imperfect pass or taking damage with NH rAS]],
+        quote = [[The pearl of your gameplay requires perfection for a clean finish.]],
+        credit = "@GameTilDead",
+        scoreSimp = function(b2b) return "B2B x" .. b2b end,
+        hide = TRUE,
+        rank = numberRank(4, 10, 20, 40, 60, 80, 118),
+    },
+    { -- rASrGV
+        id = 'whizzing_wizard',
+        name = "Whizzing Wizard",
+        desc = [[Highest consecutive perfect quest passes without triggering a wound using rGV rAS mods]],
+        quote = [[I felt enchanted! But soon after, disaster struck...]],
+        credit = "@GameTilDead",
+        scoreSimp = function(n) return n .. " Consecutive Quests" end,
+        hide = TRUE,
+        rank = numberRank(1, 26, 35, 45, 62, 85, 100)
+    },
+    {
+        id = 'painful_relapse',
+        name = "Painful Relapse",
+        desc = [[Total attack sent while your partener is dead with VL rIN rDP]],
+        quote = [[I miss my ex...]],
+        credit = "@Lavender",
+        scoreSimp = function(n) return n .. " Attack" end,
+        hide = TRUE,
+        rank = numberRank(1, 62, 126, 200, 260, 350, 500)
+    },
+    { -- DHNHrASrIN
+        id = 'steganography',
+        name = "Steganography",
+        desc = [[Total quests passed after the current quest vanished with NH DH rIN rAS]],
+        quote = [[Sometimes, the best hiding place is in plain sight.]],
+        credit = "@Lavender",
+        scoreSimp = function(n) return n .. " Quests" end,
+        hide = TRUE,
+        rank = floorRank(1, 15, 26, 40, 62, 80, 126),
+    },
+    { -- rGVrNHrVL
+        id = 'sweatshop',
+        name = "Sweatshop",
+        desc = [[HFD without forced flips with rNH rGV rVL]],
+        quote = [[Carefree life is not for the asking, someone else is carrying the burden for you.]],
+        credit = "@Lavender",
+        hide = TRUE,
+        rank = floorRank(1, 3, 4, 5, 6, 7, 9)
+    },
+    { --EXMSNHrASVL
+        id = 'faltered',
+        name = "Faltered",
+        desc = [[HFD without building a surge attack with EX NH MS VL rAS]],
+        quote = [[Attaining power is only temporary, it fades faster than what you can attain.]],
+        credit = "@The_111thBlitzer",
+        hide = TRUE,
+        rank = floorRank(1, 3, 4, 5, 600, 750, 900)
+    },
+    { -- DHrMSrNH
+        id = 'deadbeat',
+        name = "Deadbeat",
+        desc = [[Slowest time taken to complete 40 quests without taking damage with rNH rMS DH]],
+        quote = [[Hated and despised, and yet they struggle on.]],
+        credit = "@Tizago",
+        comp = ">",
+        scoreSimp = function(time) return string.format("%.2fs", time) end,
+        scoreFull = function(time) return string.format("%.2f s/quests", time / 40) end,
+        hide = TRUE,
+        rank = numberRank(1, 60, 90, 120, 150, 180, 210)
+    },
+    { -- DHGVNHrMS
+        id = 'trench_warfare',
+        name = "Trench Warfare",
+        desc = [[Total added mod quests passed where no damage is taken with NH rMS GV DH]],
+        quote = [[Dig deep, move fast, and keep your head low.]],
+        credit = "@Tizago",
+        scoreSimp = function(n) return n .. " Quests" end,
+        hide = TRUE,
+        rank = numberRank(1, 5, 10, 26, 50, 100, 162)
+    },
+    { -- INMSrDHrDP
+        id = 'uneasy_alliance',
+        name = "Uneasy Alliance",
+        desc = [[Total attack sent without having your partner dead once with MS rDH IN rDP]],
+        quote = [[Held together by a single string of lies and sins.]],
+        credit = "@Tizago",
+        scoreSimp = function(n) return n .. " Attack" end,
+        hide = TRUE,
+        rank = numberRank(1, 60, 90, 120, 150, 180, 210)
+    },
+    { -- Pacifist
+        id = 'pacifist',
+        name = "The Pacifist",
+        desc = [[Lowest attack sent before reaching F10]],
+        quote = [[Give evil nothing to oppose and it will disappear by itself.]],
+        credit = "@wah",
+        comp = '<',
+        scoreSimp = function(n) return n .. " Attack" end,
+        hide = TRUE,
+        rank = numberRankRev(600, 500, 450, 425, 400, 375, 350)
+    },
+    { -- Ambrosia Moonshine
+        id = 'ambrosia_10mp',
+        name = "Ambrosia Moonshine",
+        desc = [[HFD with 1 reversed mod and 8 upright mods (rDP only allowed)]],
+        quote = [[Highly inebriating whiskey with a strong, yet beautiful taste.]],
+        hide = TRUE,
+        rank = floorRank(1, 3, 4, 6, 7, 8, 9)
+    },
+    { -- Divine Rejection
+        id = 'divine_rejection',
+        name = "Divine Rejection",
+        desc = [[Finish a run just before F10]],
+        quote = [[A blinding flash of light, a painful crash to the bottom.]],
+        hide = TRUE,
+        rank = floorRank(1600, 1626, 1632, 1638, 1645, 1647.75, 1649)
+    },
+    { -- Fel Magic
+        id = 'fel_magic',
+        name = "Fel Magic",
+        desc = [[Total quests passed with wounds triggered during HYPERSPEED WUT reversed "All-Spin" mod.]],
+        quote = [["And what, Gul'dan, must we give it return?"]],
+        scoreSimp = function(n) return n .. " Quests" end,
+        hide = TRUE,
+        rank = numberRank(1, 10, 15, 26, 45, 62, 100)
+    },
+    { -- Storage Overload
+        id = 'storage_overload',
+        name = "Storage Overload",
+        desc = [[HFD with GV rDH and rAS.]],
+        quote = [[Believe it or not, you don't have to memorize every one.]],
+        hide = TRUE,
+        rank = floorRank(1, 2, 3, 5, 7, 9, 10)
     },
 }
 

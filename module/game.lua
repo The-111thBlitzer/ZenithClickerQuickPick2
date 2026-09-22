@@ -2137,18 +2137,18 @@ function GAME.commit(auto)
         local b2b_bonus = 0
         if GAME.fault then
             -- Non-perfect
-                if M.DH < 2 or (M.DH == 2 and M.AS == 2) then
-                    if not GAME.achv_perfectBTB then
-                    GAME.achv_perfectBTB = GAME.chain
-                    if GAME.totalQuest >= 5 then SFX.play('btb_break') end
-                    end
-                    if GAME.currentTask then
-                        GAME.incrementPrompt('pass_imperfect')
-                        GAME.incrementPrompt('pass_imperfect_row')
-                        GAME.nixPrompt('pass_perfect_row')
-                        GAME.nixPrompt('keep_no_imperfect')
-                        GAME.nixPrompt('pass_windup_inb2b')
-                    end  
+            if M.DH < 2 or (M.DH == 2 and M.AS == 2) then
+                if not GAME.achv_perfectBTB then
+                GAME.achv_perfectBTB = GAME.chain
+                if GAME.totalQuest >= 5 then SFX.play('btb_break') end
+                end
+                if GAME.currentTask then
+                    GAME.incrementPrompt('pass_imperfect')
+                    GAME.incrementPrompt('pass_imperfect_row')
+                    GAME.nixPrompt('pass_perfect_row')
+                    GAME.nixPrompt('keep_no_imperfect')
+                    GAME.nixPrompt('pass_windup_inb2b')
+                end  
     
                 if not GAME.spinAttack then
                     if not GAME.hardMode then 
@@ -2512,7 +2512,7 @@ function GAME.commit(auto)
                     end
                 end
 
-                if correct == 1 and M.DH < 2 then
+                if correct == 1 and (M.DH < 2 or M.DH == 2 and M.AS == 2) then
                     if GAME.spinAttack and GAME.spinCount > 0 then -- Spin clears
                         GAME.chain = GAME.chain + 1
                     elseif M.AS == 2 and GAME.spinAttack and GAME.spinCount == 0 and GAME.chain >= 4 then -- rAS Spin zeros
@@ -2546,6 +2546,9 @@ function GAME.commit(auto)
                             SFX.play('b2bcharge_4', .626)
                         end
                     end
+                end
+                if M.DH == 2 and M.AS == 2 then
+                    attack = MATH.round(attack * 1.75)
                 end
             else
                 if GAME.rDH_blighted and not GAME.blightTrigger then

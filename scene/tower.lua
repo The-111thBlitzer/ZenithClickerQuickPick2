@@ -1155,7 +1155,7 @@ function scene.overDraw()
 
 
             --Blight
-            if M.DH == 2 and GAME.rDH_blighted then
+            if M.DH == 2 and GAME.rDH_blighted and M.AS < 2 then
                 local dt = GAME.time
                 gc_setColor(255, .26 + .62 * math.sin(dt * 2.6)^2, 0)
                 FONT.set(60)
@@ -1163,7 +1163,7 @@ function scene.overDraw()
             end
 
             --Required cards
-            if M.DH == 2 then
+            if M.DH == 2 and M.AS < 2 then
                 gc_setColor(255, 0, 0)
                 FONT.set(30)
                 gc.print(GAME.uniqueCardsRemaining, 1210, 250)

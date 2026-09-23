@@ -1589,7 +1589,7 @@ local d = {
         credit = "@Lavender",
         scoreSimp = function(n) return n .. " Quests" end,
         hide = TRUE,
-        rank = floorRank(1, 15, 26, 40, 62, 80, 126),
+        rank = numberRank(1, 15, 26, 40, 62, 80, 126),
     },
     { -- rGVrNHrVL
         id = 'sweatshop',

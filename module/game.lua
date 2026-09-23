@@ -1963,7 +1963,7 @@ function GAME.commit(auto)
         end
     end
 
-    if M.DH == 2 and M.AS < 2 then
+    if M.DH == 2 then
         local UniqueCheck = #TABLE.subtract(TABLE.copy(hand), GAME.lastCommit)
         if GAME.totalBlights < 12 and GAME.uniqueCardsRemaining <= 0 then
             GAME.uniqueCardsRemaining = GAME.initialUnique
@@ -2067,7 +2067,7 @@ function GAME.commit(auto)
 
     if correct then
 
-        if M.DH == 2 and M.AS < 2 or (M.DH == 2 and M.AS < 2 and URM) then
+        if M.DH == 2 or (M.DH == 2 and URM) then
             if GAME.totalBlights >= 12 then
                 GAME.minReq = GAME.minReq - GAME.repeatedCards
                 GAME.maxReq = GAME.maxReq - GAME.repeatedCards
@@ -2675,32 +2675,30 @@ function GAME.commit(auto)
             GAME.incrementPrompt('simultaneousquest')
         end
 
-        if M.AS < 2 then
-            if M.DH == 2 and not GAME.rDH_blighted then
-                attack = 0
-            end 
-            if M.DH == 2 then
-                if GAME.uniqueCardsRemaining < 1 or (GAME.minReq < 1 and GAME.maxReq < 1) then
-                    if GAME.totalBlights >= 12 then
-                        if not (GAME.minReq < 1 and GAME.maxReq < 1) then
-                            GAME.uniqueCardsRemaining = MATH.random(GAME.minReq, GAME.maxReq)
-                        elseif GAME.minReq < 1 and GAME.uniqueCardsRemaining < 1 then
-                            GAME.uniqueCardsRemaining = 1
-                        elseif (GAME.minReq < 1 and GAME.maxReq < 1) and GAME.uniqueCardsRemaining < 1 then
-                            GAME.uniqueCardsRemaining = MATH.random(6, 7)
-                        end
-                        GAME.minReq = 6
-                        GAME.maxReq = 7
-                    else
-                        GAME.uniqueCardsRemaining = GAME.initialUnique
+        if M.DH == 2 and not GAME.rDH_blighted and M.AS < 2 then
+            attack = 0
+        end 
+        if M.DH == 2 then
+            if GAME.uniqueCardsRemaining < 1 or (GAME.minReq < 1 and GAME.maxReq < 1) then
+                if GAME.totalBlights >= 12 then
+                    if not (GAME.minReq < 1 and GAME.maxReq < 1) then
+                        GAME.uniqueCardsRemaining = MATH.random(GAME.minReq, GAME.maxReq)
+                    elseif GAME.minReq < 1 and GAME.uniqueCardsRemaining < 1 then
+                        GAME.uniqueCardsRemaining = 1
+                    elseif (GAME.minReq < 1 and GAME.maxReq < 1) and GAME.uniqueCardsRemaining < 1 then
+                        GAME.uniqueCardsRemaining = MATH.random(6, 7)
                     end
+                    GAME.minReq = 6
+                    GAME.maxReq = 7
+                else
+                    GAME.uniqueCardsRemaining = GAME.initialUnique
+                end
 
-                elseif GAME.uniqueCardsRemaining > 0 or (GAME.minReq > 0 and GAME.maxReq > 0) then
-                    if GAME.rDH_blighted then
-                        GAME.rDH_blighted = false
-                        SFX.play('b2bcharge_blast_1')
-                        attack = attack + 1
-                    end
+            elseif GAME.uniqueCardsRemaining > 0 or (GAME.minReq > 0 and GAME.maxReq > 0) then
+                if GAME.rDH_blighted then
+                    GAME.rDH_blighted = false
+                    SFX.play('b2bcharge_blast_1')
+                    attack = attack + 1
                 end
             end
         end
@@ -2986,7 +2984,7 @@ function GAME.commit(auto)
         -- Reset recovery
         if M.GV >= 1 then
             if M.GV == 1 then
-                GAME.dmgTimeRecoveryCap = MATH.ceil(15 - GAME.floor / 2)
+                GAME.dmgTimeRecoveryCap = 15 - MATH.floor(GAME.floor - 1 / 2)
             elseif M.GV == 2 and URM then GAME.dmgTimeRecoveryCap = 5
             elseif M.GV == 2 then
                 GAME.dmgTimeRecoveryCap = 15 - (GAME.floor - 1)
